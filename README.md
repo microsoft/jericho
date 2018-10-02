@@ -6,9 +6,7 @@
 
 ## Install
 ```bash
-git clone git@github.com:Microsoft/jericho.git
-cd jericho
-pip3 install --user .
+pip3 install --user jericho
 ```
 
 ## Usage
