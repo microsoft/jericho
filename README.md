@@ -6,7 +6,7 @@
 
 ## Install
 ```bash
-git clone git@github.com:MSRDL/jericho.git
+git clone git@github.com:Microsoft/jericho.git
 cd jericho
 pip3 install --user .
 ```
