@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import os
+import warnings
 import numpy as np
 from ctypes import *
 from numpy.ctypeslib import as_ctypes
@@ -137,13 +138,21 @@ frotz_lib.is_supported.argtypes = [c_char_p]
 frotz_lib.is_supported.restype = int
 
 
+class UnsupportedGameWarning(UserWarning):
+    pass
+
+
 class FrotzEnv():
     """ FrotzEnv is a fast interface to the ZMachine. """
 
     def __init__(self, story_file, seed=-1):
-        assert os.path.exists(story_file), "Invalid story file: %s" % story_file
+        if not os.path.isfile(story_file):
+            raise FileNotFoundError(story_file)
+
         if not self.is_fully_supported(story_file):
-            print("[ERROR] Unsupported Rom \"{}\": Score, move, change detection disabled.".format(story_file))
+            msg = ("Game '{}' is not fully supported. Score, move, change"
+                   " detection will be disabled.").format(story_file)
+            warnings.warn(msg, UnsupportedGameWarning)
 
         self.story_file = story_file.encode('utf-8')
         self.seed = seed

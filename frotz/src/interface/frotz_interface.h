@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -48,5 +48,6 @@ extern void getRAM(unsigned char *ram);
 
 extern char world[8192];
 
+extern int tw_max_score;
 
 #endif
