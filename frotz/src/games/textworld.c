@@ -31,7 +31,7 @@ int move_count = 0;
 int tw_score = 0;
 int tw_max_score = 0;
 
-// Reverse search a givne char in a string.
+// Reverse search a given char in a string.
 char* strchr_rev(char* start, char* end, char c) {
   while (end >= start && *end != c) {
     end = end - 1;
