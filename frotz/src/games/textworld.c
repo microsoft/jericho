@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -23,14 +23,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "games.h"
 #include "frotz_interface.h"
 
-// Games generated with TextWorld.
+// Games generated with TextWorld: https://github.com/Microsoft/TextWorld
 
 int num_world_objs = 0;
 int player_obj_num = 0;
 int move_count = 0;
+int tw_score = 0;
+int tw_max_score = 0;
 
-// Parse the move count from the world observation; Eg -= Studio =-0/4 --> 4
-void parse_move_count(char* obs) {
+// Reverse search a givne char in a string.
+char* strchr_rev(char* start, char* end, char c) {
+  while (end >= start && *end != c) {
+    end = end - 1;
+  }
+  if (*end != c) {
+    end = NULL;
+  }
+
+  return end;
+}
+
+// Parse the move count from the world observation; Eg -= Studio =-0/4 --> 0 and 4
+void parse_score_and_move_count(char* obs) {
   char* pch = obs;
   char* last;
   while (pch != NULL) {
@@ -38,6 +52,10 @@ void parse_move_count(char* obs) {
     pch = strchr(pch+1, '/');
   }
   if (last != NULL) {
+    pch = strchr_rev(obs, last, '-');
+    if (pch) {
+      tw_score = strtol(pch+1, NULL, 10);
+    }
     move_count = strtol(last+1, &last, 10);
   }
 }
@@ -49,7 +67,7 @@ char** textworld_intro_actions(int *n) {
 
 char* textworld_clean_observation(char* obs) {
   char* pch;
-  parse_move_count(obs);
+  parse_score_and_move_count(obs);
   pch = strchr(obs, '>');
   if (pch != NULL) {
     *(pch-2) = '\0';
@@ -82,14 +100,13 @@ int textworld_get_moves() {
 }
 
 int textworld_get_score() {
-  if (textworld_victory()) {
-    return 1;
-  }
-  return 0;
+  if (textworld_victory())
+    return tw_max_score;
+  return tw_score;
 }
 
 int textworld_max_score() {
-  return 1;
+  return tw_max_score;
 }
 
 int textworld_get_num_world_objs() {

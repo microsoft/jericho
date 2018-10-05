@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -1361,10 +1361,16 @@ char* setup(char *story_file, int seed) {
   // Extra procedures for TextWorld
   if (ROM_IDX == TEXTWORLD_) {
     dumb_clear_screen();
-    dumb_set_next_action("tree\n");
+    dumb_set_next_action("tw-print max_score\n");
     zstep();
     run_free();
     char* text = dumb_get_screen();
+    tw_max_score = strtol(text, NULL, 10);
+    dumb_clear_screen();
+    dumb_set_next_action("tree\n");
+    zstep();
+    run_free();
+    text = dumb_get_screen();
     replace_newlines_with_spaces(text);
     textworld_parse_object_tree(text);
     dumb_clear_screen();
