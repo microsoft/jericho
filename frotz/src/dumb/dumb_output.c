@@ -315,7 +315,7 @@ void dumb_show_prompt(bool show_cursor, char line_type)
 
 static void mark_all_unchanged(void)
 {
-    memset(screen_changes, 0, screen_cells);
+    memset(screen_changes, 0, screen_cells * sizeof(cell));
 }
 
 /* Check if a cell is a blank or will display as one.
