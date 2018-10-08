@@ -39,4 +39,10 @@ setup(name='jericho',
       packages=['jericho'],
       include_package_data=True,
       package_dir={'jericho': 'jericho'},
-      package_data={'jericho': ['libfrotz.so']})
+      package_data={'jericho': ['libfrotz.so']},
+      classifiers=[
+          "Programming Language :: Python :: 3",
+          "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+          "Operating System :: POSIX :: Linux",
+      ],
+)
