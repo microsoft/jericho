@@ -110,3 +110,14 @@ Game | Download | MD5 Hash
 [Zork II](http://ifdb.tads.org/viewgame?id=yzzm4puxyjakk8c4) | zork2.z5 | 5bcd91ee055e9bd42812617571be227b
 [Zork III](http://ifdb.tads.org/viewgame?id=vrsot1zgy1wfcdru) | zork3.z5 | ffda9ee2d428fa2fa8e75a1914ff6959
 [Zork: The Undiscovered Underground](http://ifdb.tads.org/viewgame?id=40hswtkhap88gzvn) | ztuu.z5 | d8e1578470cbc676e013e03d72c93141
+
+
+## Contributing
+
+This project welcomes contributions and suggestions.  Most contributions require you to agree to a
+Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
+the rights to use your contribution. For details, visit https://cla.microsoft.com.
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
+For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
