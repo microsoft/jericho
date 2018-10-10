@@ -597,6 +597,248 @@ unsigned long *address;
 }/* decode_text */
 
 #ifdef __STDC__
+int decode_text_to_buffer (unsigned long *address, char *buf)
+#else
+int decode_text_to_buffer (address, buf)
+unsigned long *address;
+char *buf
+#endif
+{
+    int i, j, char_count, synonym_flag, synonym = 0, ascii_flag, ascii = 0;
+    int data, code, shift_state, shift_lock;
+    unsigned long addr;
+
+    /*
+     * Load correct character translation table for this game.
+     */
+
+    if (lookup_table_loaded == 0) {
+        for (i = 0; i < 3; i++) {
+            for (j = 0; j < 26; j++) {
+                if ((unsigned int) header.alphabet) {
+		    lookup_table[i][j] = (char) get_byte ((unsigned int) header.alphabet + (i * 26) + j);
+                } else {
+		    if ((unsigned int) header.version == V1)
+                        lookup_table[i][j] = v1_lookup_table[i][j];
+                    else
+                        lookup_table[i][j] = v3_lookup_table[i][j];
+                }   
+                if (option_inform && lookup_table[i][j] == '\"')
+                    lookup_table[i][j] = '~';
+            }
+        }
+        lookup_table_loaded = 1;
+    }
+
+    /* Set state variables */
+
+    shift_state = 0;
+    shift_lock = 0;
+    char_count = 0;
+    ascii_flag = 0;
+    synonym_flag = 0;
+
+    do {
+
+        /*
+         * Read one 16 bit word. Each word contains three 5 bit codes. If the
+         * high bit is set then this is the last word in the string.
+         */
+        data = read_data_word (address);
+
+        for (i = 10; i >= 0; i -= 5) {
+
+            /* Get code, high bits first */
+
+            code = (data >> i) & 0x1f;
+
+            /* Synonym codes */
+
+            if (synonym_flag) {
+
+                synonym_flag = 0;
+		synonym = (synonym - 1) * 64;
+                addr = (unsigned long) get_word ((unsigned int) header.abbreviations + synonym + (code * 2)) * 2;
+                char_count += decode_text_to_buffer (&addr, buf);
+                shift_state = shift_lock;
+
+            /* ASCII codes */
+
+            } else if (ascii_flag) {
+
+                /*
+		 * If this is the first part ASCII code then remember it.
+                 * Because the codes are only 5 bits you need two codes to make
+                 * one eight bit ASCII character. The first code contains the
+                 * top 3 bits. The second code contains the bottom 5 bits.
+                 */
+
+                if (ascii_flag++ == 1)
+
+                    ascii = code << 5;
+
+		/*
+                 * If this is the second part ASCII code then assemble the
+                 * character from the two codes and output it.
+                 */
+
+                else {
+
+                    ascii_flag = 0;
+                    buf[char_count] = (char) (ascii | code);
+                    /* tx_printf ("%c", (char) (ascii | code)); */
+                    char_count++;
+
+                }
+
+            /* Character codes */
+
+            } else if (code > 5) {
+
+                code -= 6;
+
+                /*
+		 * If this is character 0 in the punctuation set then the next two
+                 * codes make an ASCII character.
+                 */
+
+                if (shift_state == 2 && code == 0)
+
+                    ascii_flag = 1;
+
+                /*
+                 * If this is character 1 in the punctuation set then this
+		 * is a new line.
+                 */
+
+		else if (shift_state == 2 && code == 1 && (unsigned int) header.version > V1)
+
+                    buf[char_count] = (option_inform) ? '^' : '\n';
+                    /* tx_printf ("%c", (option_inform) ? '^' : '\n'); */
+
+                /*
+                 * This is a normal character so select it from the character
+                 * table appropriate for the current shift state.
+		 */
+
+                else {
+
+                    buf[char_count] = (char) lookup_table[shift_state][code];
+                    /* tx_printf ("%c", (char) lookup_table[shift_state][code]); */
+                    char_count++;
+
+                }
+
+                shift_state = shift_lock;
+
+            /* Special codes 0 to 5 */
+
+            } else {
+
+                /*
+                 * Space: 0
+                 *
+                 * Output a space character.
+                 *
+		 */
+
+                if (code == 0) {
+
+                    buf[char_count] = ' ';
+                    /* tx_printf (" "); */
+                    char_count++;
+
+                } else {
+
+                    /*
+		     * The use of the synonym and shift codes is the only difference between
+                     * the different versions.
+                     */
+
+		    if ((unsigned int) header.version < V3) {
+
+                        /*
+                         * Newline or synonym: 1
+                         *
+                         * Output a newline character or set synonym flag.
+			 *
+                         */
+
+                        if (code == 1) {
+
+                            if ((unsigned int) header.version == V1) {
+                                buf[char_count] = (option_inform) ? '^' : '\n';
+                                /* tx_printf ("%c", (option_inform) ? '^' : '\n'); */
+                                char_count++;
+                            } else {
+                                synonym_flag = 1;
+				synonym = code;
+                            }
+
+                        /*
+                         * Shift keys: 2, 3, 4 or 5
+                         *
+                         * Shift keys 2 & 3 only shift the next character and can be used regardless of
+                         * the state of the shift lock. Shift keys 4 & 5 lock the shift until reset.
+                         *
+                         * The following code implements the the shift code state transitions:
+			 *
+                         *               +-------------+-------------+-------------+-------------+
+                         *               |       Shift   State       |        Lock   State       |
+                         * +-------------+-------------+-------------+-------------+-------------+
+                         * | Code        |      2      |       3     |      4      |      5      |
+                         * +-------------+-------------+-------------+-------------+-------------+
+                         * | lowercase   | uppercase   | punctuation | uppercase   | punctuation |
+                         * | uppercase   | punctuation | lowercase   | punctuation | lowercase   |
+                         * | punctuation | lowercase   | uppercase   | lowercase   | uppercase   |
+                         * +-------------+-------------+-------------+-------------+-------------+
+			 *
+                         */
+
+                        } else {
+                            if (code < 4)
+                                shift_state = (shift_lock + code + 2) % 3;
+                            else
+                                shift_lock = shift_state = (shift_lock + code) % 3;
+                        }
+
+		    } else {
+
+                        /*
+                         * Synonym table: 1, 2 or 3
+                         *
+                         * Selects which of three synonym tables the synonym
+                         * code following in the next code is to use.
+                         *
+                         */
+
+			if (code < 4) {
+
+                            synonym_flag = 1;
+                            synonym = code;
+                        /*
+                         * Shift key: 4 or 5
+                         *
+                         * Selects the shift state for the next character,
+                         * either uppercase (4) or punctuation (5). The shift
+			 * state automatically gets reset back to lowercase for
+                         * V3+ games after the next character is output.
+                         *
+                         */
+
+                        } else {
+                            shift_state = code - 3;
+                            shift_lock = 0;
+
+			}
+                    }
+                }
+            }
+        }
+    } while ((data & 0x8000) == 0);
+}/* decode_text_to_buffer */
+
+#ifdef __STDC__
 static cache_entry_t *update_cache (unsigned int page_number)
 #else
 static cache_entry_t *update_cache (page_number)

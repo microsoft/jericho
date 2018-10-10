@@ -231,6 +231,18 @@ const char *program;
 
 }/* show_help */
 
+unsigned int get_dictionary_word_count (const char *name)
+{
+    unsigned int word_count;
+    unsigned long word_table_base, word_table_end;
+    open_story (name);
+    configure (V1, V8);
+    load_cache ();
+    fix_dictionary ();
+    configure_dictionary(&word_count, &word_table_base, &word_table_end);
+    return word_count;
+}
+
 void print_dictionary (const char *name)
 {
     open_story (name);

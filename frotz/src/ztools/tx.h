@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 
 #ifndef TRUE
 #define TRUE 1
@@ -346,6 +347,18 @@ typedef struct cref_item_s {
     unsigned long address;
     int number;
 } cref_item_t;
+
+typedef struct dict_word_t {
+    char word[10];
+    bool is_noun;
+    bool is_verb;
+    bool is_prep;
+    bool is_meta;
+    bool is_plural;
+    bool is_dir;
+    bool is_adj;
+    bool is_special;
+} dict_word_t;
 
 /* Data access macros */
 

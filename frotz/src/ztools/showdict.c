@@ -18,6 +18,130 @@ void configure_abbreviations ();
 #endif
 
 /*
+ * get_dictionary
+ *
+ */
+#ifdef __STDC__
+void get_dictionary (dict_word_t *dictionary, int dict_size)
+#else
+void get_dictionary (dictionary, dict_size)
+dict_word_t *dictionary;
+int dict_size;
+#endif
+{
+    unsigned long dict_address, word_address, word_table_base, word_table_end;
+    unsigned int separator_count, word_size, word_count, length;
+    int i, flag;
+    int inform_flags = 0;
+    int dictpar1;
+
+    /* Get dictionary configuration */
+
+    configure_dictionary (&word_count, &word_table_base, &word_table_end);
+
+    if (header.serial[0] >= '0' && header.serial[0] <= '9' &&
+        header.serial[1] >= '0' && header.serial[1] <= '9' &&
+        header.serial[2] >= '0' && header.serial[2] <= '1' &&
+        header.serial[3] >= '0' && header.serial[3] <= '9' &&
+        header.serial[4] >= '0' && header.serial[4] <= '3' &&
+        header.serial[5] >= '0' && header.serial[5] <= '9' &&
+        header.serial[0] != '8') {
+        inform_flags = TRUE;
+    }
+
+    /* Display the separators */
+
+    dict_address = word_table_base;
+    separator_count = read_data_byte (&dict_address);
+    for (; separator_count; separator_count--)
+        read_data_byte (&dict_address);
+
+    /* Get word size and count */
+
+    word_size = read_data_byte (&dict_address);
+    if (word_size > 10) {
+        tx_printf ("Error: Word size too large!\n");
+        exit(1);
+    }
+
+    word_count = read_data_word (&dict_address);
+    if (dict_size != word_count) {
+        tx_printf ("Error: Word count doesn't match dictionary size!\n");
+        exit(1);
+    }
+
+    /* Display each entry in the dictionary */
+
+    for (i = 1; (unsigned int) i <= word_count; i++) {
+        dict_word_t *dict_word = &dictionary[i-1];
+
+        /* Calculate address of next entry */
+
+        word_address = dict_address;
+        dict_address += word_size;
+
+        /* Display the text for the word */
+
+        decode_text_to_buffer(&word_address, &(dict_word->word));
+
+        /* Get the data for each entry */
+
+        for (flag = 0; word_address < dict_address; flag++) {
+          if (!flag)
+            dictpar1 = get_byte(word_address);
+          read_data_byte (&word_address);
+        }
+
+        if (inform_flags) {
+          if (dictpar1 & NOUN)
+            dict_word->is_noun = 1;
+          if (dictpar1 & PREP)
+            dict_word->is_prep = 1;
+          if (dictpar1 & PLURAL)
+            dict_word->is_plural = 1;
+          if (dictpar1 & META)
+            dict_word->is_meta = 1;
+          if (dictpar1 & VERB_INFORM)
+            dict_word->is_verb = 1;
+        }
+        else if (header.version != V6) {
+          flag = dictpar1 & DATA_FIRST;
+          switch (flag) {
+            case DIR_FIRST:
+              if (dictpar1 & DIR)
+                dict_word->is_dir = 1;
+              break;
+            case ADJ_FIRST:
+              if (dictpar1 & DESC)
+                dict_word->is_adj = 1;
+              break;
+            case VERB_FIRST:
+              if (dictpar1 & VERB)
+                dict_word->is_verb = 1;
+              break;
+            case PREP_FIRST:
+              if (dictpar1 & PREP)
+                dict_word->is_prep = 1;
+              break;
+          }
+          if ((dictpar1 & DIR) && (flag != DIR_FIRST))
+            dict_word->is_dir = 1;
+          if ((dictpar1 & DESC) && (flag != ADJ_FIRST))
+            dict_word->is_adj = 1;
+          if ((dictpar1 & VERB) && (flag != VERB_FIRST))
+            dict_word->is_verb = 1;
+          if ((dictpar1 & PREP) && (flag != PREP_FIRST))
+            dict_word->is_prep = 1;
+          if (dictpar1 & NOUN)
+            dict_word->is_noun = 1;
+          if (dictpar1 & SPECIAL)
+            dict_word->is_special = 1;
+        }
+
+    }
+}/* get_dictionary */
+
+/*
  * show_dictionary
  *
  * List the dictionary in the number of columns specified. If the number of

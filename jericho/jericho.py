@@ -80,6 +80,37 @@ class ZObject(Structure):
         return np.unpackbits(np.array(self._attr, dtype=np.uint8))
 
 
+class DictionaryWord(Structure):
+    """
+    A word contained in the dictionary of a game.
+
+    word: Value of the word.
+    is_*: Boolean indicating accepted parts of speech for this word.
+    is_meta: Used for meta commands like 'verbose' and 'script'
+    is_plural: Used for pluralized nouns (e.g. bookcases, rooms)
+    is_dir: Used for direction words (e.g. north, aft)
+    is_special: Used for special commands like 'again' which repeats last action.
+
+    """
+    _fields_ = [("_word",      c_char*10),
+                ("is_noun",    c_bool),
+                ("is_verb",    c_bool),
+                ("is_prep",    c_bool),
+                ("is_meta",    c_bool),
+                ("is_plural",  c_bool),
+                ("is_dir",     c_bool),
+                ("is_adj",     c_bool),
+                ("is_special", c_bool)]
+
+    def __repr__(self):
+        return self.word
+
+    @property
+    def word(self):
+        return self._word.decode('cp1252')
+
+
+
 frotz_lib.setup.argtypes = [c_char_p, c_int]
 frotz_lib.setup.restype = c_char_p
 frotz_lib.shutdown.argtypes = []
@@ -128,14 +159,16 @@ frotz_lib.getRAMSize.argtypes = []
 frotz_lib.getRAMSize.restype = int
 frotz_lib.getRAM.argtypes = [c_void_p]
 frotz_lib.getRAM.restype = None
-frotz_lib.print_dictionary.argtypes = [c_char_p]
-frotz_lib.print_dictionary.restype = None
 frotz_lib.print_verbs.argtypes = [c_char_p]
 frotz_lib.print_verbs.restype = None
 frotz_lib.disassemble.argtypes = [c_char_p]
 frotz_lib.disassemble.restype = None
 frotz_lib.is_supported.argtypes = [c_char_p]
 frotz_lib.is_supported.restype = int
+frotz_lib.get_dictionary_word_count.argtypes = [c_char_p]
+frotz_lib.get_dictionary_word_count.restype = int
+frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord)]
+frotz_lib.get_dictionary.restype = None
 
 
 class UnsupportedGameWarning(UserWarning):
@@ -159,9 +192,12 @@ class FrotzEnv():
         frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = frotz_lib.get_self_object_num()
 
-    def print_dictionary(self):
-        # Prints the dictionary used by the game's parser
-        frotz_lib.print_dictionary(self.story_file)
+    def get_dictionary(self):
+        # Returns a list of dictionary words for the game
+        word_count = frotz_lib.get_dictionary_word_count(self.story_file)
+        words = (DictionaryWord * word_count)()
+        frotz_lib.get_dictionary(words, word_count)
+        return list(words)
 
     def print_verbs(self):
         # Prints the verbs used by the game's parser
