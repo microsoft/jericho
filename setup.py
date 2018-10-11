@@ -14,22 +14,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import os, sys
+import subprocess
+
 from setuptools import setup
 from setuptools.command.install import install
 from distutils.command.build import build
+from distutils.command.build_ext import build_ext
 from distutils.core import setup, Extension
-import os.path, sys
-import subprocess
 
-BASEPATH = os.path.dirname(os.path.abspath(__file__))
-FROTZPATH = os.path.join(BASEPATH, 'frotz')
-subprocess.check_call(['make', 'clean'], cwd=FROTZPATH)
-subprocess.check_call(['make', 'library', '-j', '4'], cwd=FROTZPATH)
 
-frotz_c_lib = 'jericho/libfrotz.so'
-if not os.path.isfile(frotz_c_lib):
-    print('ERROR: Unable to find required library %s.'%(frotz_c_lib))
-    sys.exit(1)
+class CustomBuildExt(build_ext):
+    def build_extension(self, ext):
+        BASEPATH = os.path.dirname(os.path.abspath(__file__))
+        FROTZPATH = os.path.join(BASEPATH, 'frotz')
+        subprocess.check_call(['make', 'clean'], cwd=FROTZPATH)
+        subprocess.check_call(['make', 'library', '-j', '4'], cwd=FROTZPATH)
+
 
 setup(name='jericho',
       version='1.1.1',
@@ -39,6 +40,8 @@ setup(name='jericho',
       packages=['jericho'],
       include_package_data=True,
       package_dir={'jericho': 'jericho'},
+      ext_modules=[Extension('jericho.libfrotz', [])],
+      cmdclass = {'build_ext': CustomBuildExt},
       package_data={'jericho': ['libfrotz.so']},
       classifiers=[
           "Programming Language :: Python :: 3",
