@@ -226,7 +226,7 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 
           for (i=H_SERIAL; i<H_SERIAL+6; ++i)
           {
-            x = (uint) *svf; svf++;
+            x = (int) *svf; svf++;
             if (x != zmp[i])
               progress = GOT_ERROR;
           }
@@ -240,11 +240,11 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
             printf ("File was not saved from this story!\n");
             return fatal;
           }
-          x = (uint) *svf; svf++;
+          x = (int) *svf; svf++;
           pc = (zlong) x << 16;
-          x = (uint) *svf; svf++;
+          x = (int) *svf; svf++;
           pc |= (zlong) x << 8;
-          x = (uint) *svf; svf++;
+          x = (int) *svf; svf++;
           pc |= (zlong) x;
           fatal = -1;	/* Setting PC means errors must be fatal. */
           SET_PC (pc);
@@ -280,7 +280,7 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
             return fatal;
           }
 		    for (i=0; i<6; ++i) {
-              if (((uint) *svf) != 0) {
+              if (((int) *svf) != 0) {
                 printf("svf != 0\n");
                 return fatal;
               }
@@ -323,11 +323,11 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 		    /* Read PC, procedure flag and formal param count. */
             read_long (svf, &tmpl); svf += 4;
 		    /* if (!read_long (svf, &tmpl))		return fatal; */
-		    y = (uint) (tmpl & 0x0F);	/* Number of formals. */
+		    y = (int) (tmpl & 0x0F);	/* Number of formals. */
 		    tmpw = y << 8;
 
 		    /* Read result variable. */
-            x = (uint) *svf; svf++;
+            x = (int) *svf; svf++;
 		    /* if ((x = get_c (svf)) == EOF)		return fatal; */
 
 		    /* Check the procedure flag... */
@@ -353,7 +353,7 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 		    *--sp = (zword) (fp - stack - 1);	/* FP */
 
 		    /* Read and process argument mask. */
-            x = (uint) *svf; svf++;
+            x = (int) *svf; svf++;
 		    /* if ((x = get_c (svf)) == EOF)		return fatal; */
 		    ++x;	/* Should now be a power of 2 */
 		    for (i=0; i<8; ++i)
@@ -400,7 +400,7 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 		    i=0;	/* Bytes written to data area. */
 		    for (; currlen > 0; --currlen)
 		    {
-              x = (uint) *svf; svf++;
+              x = (int) *svf; svf++;
 			/* if ((x = get_c (svf)) == EOF)		return fatal; */
 			if (x == 0)	/* Start run. */
 			{
@@ -417,16 +417,16 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 			    }
 			    /* Copy story file to memory during the run. */
 			    --currlen;
-                x = (uint) *svf; svf++;
+                x = (int) *svf; svf++;
 			    /* if ((x = get_c (svf)) == EOF)	return fatal; */
 			    for (; x >= 0 && i<h_dynamic_size; --x, ++i) {
-            y = (uint) *stf; stf++;
+            y = (int) *stf; stf++;
             zmp[i] = (zbyte) y;
           }
 			}
 			else	/* Not a run. */
 			{
-        y = (uint) *stf; stf++;
+        y = (int) *stf; stf++;
               // if ((y = get_c (stf)) == EOF) {
               //   printf("get_c (stf) == EOF\n");
               //   return fatal;
@@ -446,7 +446,7 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
 		    }
 		    /* If chunk is short, assume a run. */
 		    for (; i<h_dynamic_size; ++i) {
-          y = (uint) *stf; stf++;
+          y = (int) *stf; stf++;
           zmp[i] = (zbyte) y;
         }
 		    if (currlen == 0)
@@ -532,7 +532,7 @@ zword save_squetzal (unsigned char *svf, unsigned char *stf)
     /* j holds current run length. */
     for (i=0, j=0, cmemlen=0; i < h_dynamic_size; ++i)
     {
-      c = (uint) *stf; stf++;
+      c = (int) *stf; stf++;
 	// if ((c = get_c (stf)) == EOF)			return 0;
 	c ^= (int) zmp[i];
 	if (c == 0)
