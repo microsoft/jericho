@@ -172,19 +172,16 @@ enum SUPPORTED {
 void load_rom_bindings(char *story_file) {
   char md5_hash[64];
   char *start;
-  char *end;
 
   FILE * f = fopen (story_file, "rb");
   sum(f, md5_hash);
 
   start = strrchr(story_file,'/');
-  end = strrchr(story_file,'.');
-  if (start == NULL || end == NULL) {
-    printf("ERROR: Expecting period and slash in story filename: %s\n", story_file);
-    return;
+  if (start == NULL) {
+    start = story_file;
+  } else {
+    start++;     // Skip the "/".
   }
-  start++;     // Skip the "/".
-  *end = '\0'; // Temporarily terminate the string for comparison.
 
   if (strcmp(md5_hash, "A61400439AA76F8FABA3B8F01EDD4A72") == 0) {
     ROM_IDX = ACORNCOURT_;
@@ -307,7 +304,6 @@ void load_rom_bindings(char *story_file) {
   } else {
     ROM_IDX = DEFAULT_;
   }
-  *end = '.'; // Return to the original string
 }
 
 void shutdown() {
