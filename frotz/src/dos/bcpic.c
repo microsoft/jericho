@@ -5,12 +5,18 @@
  *
  */
 
-#include <alloc.h>
 #include <dos.h>
 #include <stdio.h>
 #include <string.h>
 #include "frotz.h"
 #include "BCfrotz.h"
+
+#include <alloc.h>
+
+#define malloc(size)	farmalloc (size)
+#define realloc(size,p)	farrealloc (size,p)
+#define free(size)	farfree (size)
+#define memcpy(d,s,n)	_fmemcpy (d,s,n)
 
 #define PIC_NUMBER 0
 #define PIC_WIDTH 2
@@ -87,7 +93,7 @@ static bool open_graphics_file (int number)
 	goto failure1;
     if (fread (&gheader, sizeof (gheader), 1, file) != 1)
 	goto failure2;
-    if ((info = farmalloc (gheader.images * gheader.entry_size)) == NULL)
+    if ((info = malloc (gheader.images * gheader.entry_size)) == NULL)
 	goto failure2;
     if (fread (info, gheader.entry_size, gheader.images, file) != gheader.images)
 	goto failure3;
@@ -131,7 +137,7 @@ bool init_pictures (void)
 
     /* Allocate memory for decompression */
 
-    table_val = (byte far *) farmalloc (3 * 3840);
+    table_val = (byte far *) malloc (3 * 3840);
     table_ref = (word far *) (table_val + 3840);
 
     if (table_val == NULL)
