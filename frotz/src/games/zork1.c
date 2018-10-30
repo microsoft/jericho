@@ -101,5 +101,5 @@ int zork1_get_moves() {
 
 // Zork1-specific score
 int zork1_get_score() {
-  return (char) zmp[8820];
+  return (((short) zmp[8819]) << 8) | zmp[8820];
 }
