@@ -32,7 +32,7 @@ if not os.path.isfile(frotz_c_lib):
     sys.exit(1)
 
 setup(name='jericho',
-      version='1.1.1',
+      version='1.1.2',
       install_requires=[],
       description='A python interface to text-based adventure games.',
       author='Matthew Hausknecht',
