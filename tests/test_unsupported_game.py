@@ -5,7 +5,7 @@ from os.path import join as pjoin
 import jericho
 from jericho import UnsupportedGameWarning
 
-
+# Note: dummy.z8 is the same as tw-game.z8.
 TEST_GAME = os.path.abspath(pjoin(__file__, '..', "dummy.z8"))
 
 

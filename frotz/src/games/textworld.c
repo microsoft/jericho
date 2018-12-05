@@ -25,8 +25,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Games generated with TextWorld: https://github.com/Microsoft/TextWorld
 
-int num_world_objs = 0;
-int player_obj_num = 0;
+int tw_num_world_objs = 0;
+int tw_player_obj_num = 0;
 int move_count = 0;
 int tw_score = 0;
 int tw_max_score = 0;
@@ -92,7 +92,7 @@ int textworld_game_over() {
 }
 
 int textworld_get_self_object_num() {
-  return player_obj_num;
+  return tw_player_obj_num;
 }
 
 int textworld_get_moves() {
@@ -110,7 +110,7 @@ int textworld_max_score() {
 }
 
 int textworld_get_num_world_objs() {
-  return num_world_objs;
+  return tw_num_world_objs;
 }
 
 int textworld_ignore_moved_obj(zword obj_num, zword dest_num) {
@@ -127,36 +127,4 @@ int textworld_ignore_attr_clr(zword obj_num, zword attr_idx) {
   if (attr_idx == 35 || attr_idx == 31)
     return 1;
   return 0;
-}
-
-void textworld_parse_object_tree(char* text) {
-  char* pch;
-  long ret;
-
-  // printf("ObjectTree: %s\n", text);
-  pch = strstr(text, "EndOfObject");
-  if (pch == NULL) {
-    printf("ERROR: Can't find EndOfObject!\n");
-    exit(1);
-  }
-  pch = strchr(pch, '(');
-  if (pch == NULL) {
-    printf("ERROR: Can't find Paren after EndOfObject!\n");
-    exit(1);
-  }
-  ret = strtol(pch+1, &pch, 10);
-  // printf("EndOfObject: %ld\n", ret);
-  num_world_objs = ret;
-}
-
-void textworld_parse_player_object(char* text) {
-  char* s;
-  // printf("Scope: %s\n", text);
-  s = strstr(text, "yourself (");
-  if (s == NULL) {
-    printf("ERROR: Can't find player object!\n");
-    exit(1);
-  }
-  player_obj_num = (int) strtol(s+10, &s, 10);
-  // printf("PlayerObjNum: %d\n", player_obj_num);
 }
