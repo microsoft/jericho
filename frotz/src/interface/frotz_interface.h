@@ -50,4 +50,8 @@ extern char world[8192];
 
 extern int tw_max_score;
 
+extern int tw_player_obj_num;
+
+extern int tw_num_world_objs;
+
 #endif
