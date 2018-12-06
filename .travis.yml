@@ -12,4 +12,4 @@ matrix:
 install:
   - pip install .
 script:
-  - echo "skipping tests"
+  - pytest
