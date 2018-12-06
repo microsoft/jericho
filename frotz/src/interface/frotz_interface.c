@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <errno.h>
 #include "frotz.h"
 #include "frotz_interface.h"
 #include "games.h"
@@ -173,8 +174,12 @@ void load_rom_bindings(char *story_file) {
   char md5_hash[64];
   char *start;
 
-  FILE * f = fopen (story_file, "rb");
+  FILE * f = fopen (story_file, "r");
+  if (f == NULL) {
+    os_fatal(strerror(errno));
+  }
   sum(f, md5_hash);
+  fclose(f);
 
   start = strrchr(story_file,'/');
   if (start == NULL) {
