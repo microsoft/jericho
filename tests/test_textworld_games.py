@@ -18,6 +18,8 @@ def test_loading_a_textworld_game():
     assert env.get_score() == 0
     assert env.get_max_score() == 3
 
+    env.step("")
+
     state, score, done, _ = env.step("go east")
     assert not done
     assert score == 0
