@@ -19,9 +19,12 @@ import warnings
 import numpy as np
 from ctypes import *
 from numpy.ctypeslib import as_ctypes
+from pkg_resources import Requirement, resource_filename
 
-frotz_lib = cdll.LoadLibrary(os.path.join(os.path.dirname(__file__),
-                                          'libfrotz.so'))
+FROTZ_LIB_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
+
+frotz_lib = cdll.LoadLibrary(os.path.join(FROTZ_LIB_PATH, 'libfrotz.so'))
+
 
 class ZObject(Structure):
     """ A Z-Machine Object contains the following fields: More info:
