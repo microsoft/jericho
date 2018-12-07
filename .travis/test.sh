@@ -6,4 +6,5 @@ if [[ $TRAVIS_OS_NAME == "osx" ]]; then
     . ./venv/bin/activate
 fi
 
-pytest
+nosetests -sv --with-xunit --with-coverage --cover-xml --cover-html --cover-package jericho
+

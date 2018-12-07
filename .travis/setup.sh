@@ -9,4 +9,4 @@ if [[ $TRAVIS_OS_NAME == "osx" ]]; then
 fi
 
 pip install .
-pip install pytest
+pip install nose coverage
