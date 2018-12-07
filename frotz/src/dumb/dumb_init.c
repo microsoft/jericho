@@ -212,7 +212,7 @@ void load_story(char *s)
     *p = '\0';	/* extension removed */
 
     if (!f_setup.restore_mode) {
-      f_setup.save_name = calloc(strlen(f_setup.story_name)+strlen(EXT_SAVE), sizeof(char));
+      f_setup.save_name = calloc(strlen(f_setup.story_name)+strlen(EXT_SAVE)+1, sizeof(char));
       strncpy(f_setup.save_name, f_setup.story_name, strlen(f_setup.story_name));
       strncat(f_setup.save_name, EXT_SAVE, strlen(EXT_SAVE));
     } else { /* Set our auto load save as the name save */
@@ -220,12 +220,12 @@ void load_story(char *s)
       strncpy(f_setup.save_name, f_setup.tmp_save_name, strlen(f_setup.tmp_save_name));
     }
 
-    f_setup.script_name = calloc(strlen(f_setup.story_name)+strlen(EXT_SCRIPT), sizeof(char));
+    f_setup.script_name = calloc(strlen(f_setup.story_name)+strlen(EXT_SCRIPT)+1, sizeof(char));
     strncpy(f_setup.script_name, f_setup.story_name, strlen(f_setup.story_name));
     strncat(f_setup.script_name, EXT_SCRIPT, strlen(EXT_SCRIPT));
 
-    f_setup.command_name = calloc(strlen(f_setup.story_name)+strlen(EXT_COMMAND), sizeof(char));
-    strncpy(f_setup.command_name, f_setup.story_name, strlen(f_setup.story_name) + 1);
+    f_setup.command_name = calloc(strlen(f_setup.story_name)+strlen(EXT_COMMAND)+1, sizeof(char));
+    strncpy(f_setup.command_name, f_setup.story_name, strlen(f_setup.story_name));
     strncat(f_setup.command_name, EXT_COMMAND, strlen(EXT_COMMAND));
 }
 
