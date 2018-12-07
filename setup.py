@@ -33,7 +33,7 @@ if not os.path.isfile(frotz_c_lib):
 
 setup(name='jericho',
       version='1.1.4',
-      install_requires=open('requirements.txt').readlines(),
+      install_requires=['numpy'],
       description='A python interface to text-based adventure games.',
       author='Matthew Hausknecht',
       packages=['jericho'],
