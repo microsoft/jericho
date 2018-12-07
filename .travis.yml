@@ -1,5 +1,7 @@
+sudo: false
+
 language: python
-  
+
 matrix:
   include:
     - os: linux
@@ -9,9 +11,8 @@ matrix:
     - os: osx
       language: generic
 
-before_install:
-    - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then pip install pytest; fi
 install:
-  - pip install .
+  - ./.travis/setup.sh
+
 script:
-  - pytest
+  - ./.travis/test.sh
