@@ -51,9 +51,9 @@ class ZObject(Structure):
         self.num = -1
 
     def __str__(self):
-        return "Obj{}: {} Parent{} Sibling{} Child{} Attributes {} Properties {}"\
+        return "Obj{}: {} Parent{} Sibling{} Child{} Attributes {}"\
             .format(self.num, self.name, self.parent, self.sibling, self.child,
-                    np.nonzero(self.attr)[0].tolist(), list(self.properties))
+                    np.nonzero(self.attr)[0].tolist())
 
     def __repr__(self):
         return str(self)
@@ -105,6 +105,15 @@ class DictionaryWord(Structure):
                 ("is_adj",     c_bool),
                 ("is_special", c_bool)]
 
+    def __init__(self, word, is_noun=False, is_verb=False,
+                 is_prep=False, is_meta=False, is_plural=False,
+                 is_dir=False, is_adj=False, is_special=False):
+        super(DictionaryWord, self).__init__(word.encode('utf-8'),
+                                             is_noun, is_verb,
+                                             is_prep, is_meta,
+                                             is_plural, is_dir,
+                                             is_adj, is_special)
+
     def __repr__(self):
         return self.word
 
@@ -112,6 +121,25 @@ class DictionaryWord(Structure):
     def word(self):
         return self._word.decode('cp1252')
 
+    def pos(self):
+        pos = []
+        if self.is_noun:
+            pos.append('noun')
+        if self.is_verb:
+            pos.append('verb')
+        if self.is_prep:
+            pos.append('prep')
+        if self.is_meta:
+            pos.append('meta')
+        if self.is_plural:
+            pos.append('plural')
+        if self.is_dir:
+            pos.append('dir')
+        if self.is_adj:
+            pos.append('adj')
+        if self.is_special:
+            pos.append('special')
+        return pos
 
 
 frotz_lib.setup.argtypes = [c_char_p, c_int]
