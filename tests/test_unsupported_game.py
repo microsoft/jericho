@@ -5,17 +5,18 @@ from os.path import join as pjoin
 import jericho
 from jericho import UnsupportedGameWarning
 
-# Note: dummy.z8 is the same as tw-game.z8.
-TEST_GAME = os.path.abspath(pjoin(__file__, '..', "dummy.z8"))
+DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 
 
 def test_loading_unsupported_game():
+    # Note: dummy.z8 is the same as tw-game.z8.
+    gamefile = "dummy.z8"
     with warnings.catch_warnings(record=True) as w:
-        env = jericho.FrotzEnv(TEST_GAME)
+        env = jericho.FrotzEnv(pjoin(DATA_PATH, gamefile))
         warnings.simplefilter("always")
         assert len(w) == 1
         assert issubclass(w[-1].category, UnsupportedGameWarning)
-        assert TEST_GAME in str(w[-1].message)
+        assert gamefile in str(w[-1].message)
 
     state = env.reset()
     assert env.get_score() == 0
