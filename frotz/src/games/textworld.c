@@ -68,7 +68,7 @@ char** textworld_intro_actions(int *n) {
 char* textworld_clean_observation(char* obs) {
   char* pch;
   parse_score_and_move_count(obs);
-  pch = strchr(obs, '>');
+  pch = strrchr(obs, '>');
   if (pch != NULL) {
     *(pch-2) = '\0';
   }
