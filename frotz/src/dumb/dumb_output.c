@@ -538,8 +538,12 @@ void dumb_init_output(void)
     if (show_line_types == -1)
 	show_line_types = h_version > 3;
 
-    screen_data = malloc(screen_cells * sizeof(cell));
-    screen_changes = calloc(screen_cells, sizeof(char));
+    if (screen_data == NULL) {
+      screen_data = malloc(screen_cells * sizeof(cell));
+    }
+    if (screen_changes == NULL) {
+      screen_changes = calloc(screen_cells, sizeof(char));
+    }
     os_erase_area(1, 1, h_screen_rows, h_screen_cols, -2);
 }
 

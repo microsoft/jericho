@@ -97,6 +97,7 @@ bb_err_t dumb_blorb_init(char *filename)
             strncat(mystring, EXT_BLORB3, len2 * sizeof(char));
 	    blorb_fp = fopen(mystring, "rb");
 	}
+    free(mystring);
 
 	if (blorb_fp == NULL || !isblorb(fp))	/* No matching blorbs found. */
 	    return bb_err_NoBlorb;
