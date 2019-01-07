@@ -60,7 +60,7 @@ Game | Download | MD5 Hash
 [The Awakening](http://ifdb.tads.org/viewgame?id=12pkmwaekw4suh7g) | [awaken.z5](http://mirror.ifarchive.org/if-archive/games/zcode/awaken.z5) | 9ba48c72d96ab3e7956a8570b12d34d6
 [Balances](http://ifdb.tads.org/viewgame?id=x6ne0bbd2oqm6h3a) | [Balances.z5](http://mirror.ifarchive.org/if-archive/games/zcode/Balances.z5) | f2cb8f94a7e8df3b850a758da26fa387
 [Ballyhoo](http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg) | ballyhoo.z3 | 5d54e326815b0ed3aff8efb8ff02ef2f
-[Curses!](http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg) | [curses.z5](http://mirror.ifarchive.org/if-archive/games/zcode/curses.z5) | f06a42a29a5a4e6aa70958c9ae4c37cd
+[Curses!](https://ifdb.tads.org/viewgame?id=plvzam05bmz3enh8) | [curses.z5](http://mirror.ifarchive.org/if-archive/games/zcode/curses.z5) | f06a42a29a5a4e6aa70958c9ae4c37cd
 [Cutthroats](http://ifdb.tads.org/viewgame?id=4ao65o1u0xuvj8jf) | cutthroat.z3 | 216eeeba1c8017a77343dc8482f6f185
 [Deephome: A Telleen Adventure](http://ifdb.tads.org/viewgame?id=x85otcikhwp8bwup) | [deephome.z5](http://mirror.ifarchive.org/if-archive/games/zcode/deephome.z5) | 5e56a6e5cdeecded434a8fd8012fc2c6
 [Detective](http://ifdb.tads.org/viewgame?id=1po9rgq2xssupefw) | [detective.z5](http://mirror.ifarchive.org/if-archive/games/zcode/detective.z5) | 822655c9be83e292e06d3d3b1d6a9734
