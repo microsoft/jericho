@@ -333,7 +333,6 @@ ASALocalRun/
 *.o
 *.a
 *.so
-frotz/src/common/defines.h
 
 # Pip install files.
 *.egg-info/

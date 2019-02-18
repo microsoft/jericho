@@ -256,7 +256,7 @@ SOUND_LIB = -lao -ldl -lpthread -lm -lsndfile -lvorbisfile -lmodplug -lsamplerat
 
 .PHONY: all help dist clean distclean install install_dumb uninstall uninstall_dumb
 
-$(NAME): $(COMMON_DIR)/git_hash.h $(COMMON_DIR)/defines.h $(CURSES_DIR)/defines.h $(COMMON_TARGET) $(CURSES_TARGET) $(BLORB_TARGET)
+$(NAME): $(COMMON_DIR)/git_hash.h $(CURSES_DIR)/defines.h $(COMMON_TARGET) $(CURSES_TARGET) $(BLORB_TARGET)
 	@echo Linking $(NAME)...
 ifeq ($(SOUND), ao)
 	$(CC) -o $(BINNAME)$(EXTENSION) $(TARGETS) $(LIB) $(CURSES) $(SOUND_LIB)
@@ -269,11 +269,11 @@ else
 endif
 
 dumb:		d$(NAME)
-d$(NAME):	$(COMMON_DIR)/git_hash.h $(COMMON_DIR)/defines.h $(COMMON_TARGET) $(DUMB_TARGET) $(BLORB_TARGET) $(INTERFACE_OBJECT)
+d$(NAME):	$(COMMON_DIR)/git_hash.h $(COMMON_TARGET) $(DUMB_TARGET) $(BLORB_TARGET) $(INTERFACE_OBJECT)
 	@echo Linking d$(NAME)...
 	$(CC) -o d$(BINNAME)$(EXTENSION) $(INTERFACE_OBJECT) $(COMMON_TARGET) $(DUMB_TARGET) $(BLORB_TARGET) $(LIB)
 
-library: $(COMMON_DIR)/git_hash.h $(COMMON_DIR)/defines.h $(GAMES_DIR)/games.h $(ZTOOLS_DIR)/ztools.h $(COMMON_TARGET) $(DUMB_TARGET) $(BLORB_TARGET) $(ZTOOLS_TARGET) $(INTERFACE_TARGET)
+library: $(COMMON_DIR)/git_hash.h $(GAMES_DIR)/games.h $(ZTOOLS_DIR)/ztools.h $(COMMON_TARGET) $(DUMB_TARGET) $(BLORB_TARGET) $(ZTOOLS_TARGET) $(INTERFACE_TARGET)
 
 
 all:	$(NAME) d$(NAME)
@@ -307,10 +307,6 @@ $(ZTOOLS_OBJECT): %.o: %.c
 ####################################
 # Get the defines set up just right
 #
-$(COMMON_DIR)/defines.h:
-	@echo "Generating $@"
-	@echo "#define VERSION \"$(VERSION)\"" > $@
-
 $(CURSES_DIR)/defines.h:
 	@echo "Generating $@"
 	@echo "#define CONFIG_DIR \"$(CONFIG_DIR)\"" >> $@
@@ -453,7 +449,6 @@ dist: distclean hash
 clean:
 	rm -f $(SRCDIR)/*.h $(SRCDIR)/*.a
 	rm -f $(SRCDIR)/libfrotz.so
-	rm -f $(COMMON_DIR)/defines.h
 ifneq ($(and $(wildcard .git),$(shell which git)),)
 	rm -f $(COMMON_DIR)/git_hash.h
 endif
