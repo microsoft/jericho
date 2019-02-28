@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,15 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Jewel of Knowledge: http://ifdb.tads.org/viewgame?id=hu60gp1bgkhlo5yx
 
-const char *jewel_intro[] = { "ask jacob about jewel\n",
-                              "ask jacob about amylya\n",
-                              "ask jacob about druids\n",
-                              "ask jacob about ariana\n",
-                              "ask jacob about dragons\n",
-                              "ask jacob about book\n" };
+const char *jewel_intro[] = { "bypass\n", "yes\n" };
 
 char** jewel_intro_actions(int *n) {
-  *n = 6;
+  *n = 2;
   return jewel_intro;
 }
 
