@@ -44,8 +44,6 @@ extern int restore_undo (void);
 extern void split_window (zword);
 extern void erase_window (zword);
 extern void restart_header (void);
-extern zword restore_squetzal (unsigned char *svf, unsigned char *stf);
-extern zword save_squetzal (unsigned char *svf, unsigned char *stf);
 extern zword object_name (zword);
 extern zword object_address (zword);
 extern zword get_parent (zword);
@@ -58,7 +56,6 @@ extern void set_random_seed (int seed);
 extern void sum(FILE*, char*);
 
 zbyte next_opcode;
-unsigned char *stf_buff = 0; // Holds the current story file
 int desired_seed = 0;
 int ROM_IDX = 0;
 char world[8192] = "";
@@ -75,23 +72,6 @@ void run_free() {
   while (next_opcode != 228 && next_opcode != 246) {
     zstep();
   }
-}
-
-// Save the story file in a buffer (useful for subsequent load/save)
-void read_story_file_to_buffer(char *story_file) {
-  size_t ret;
-  if (stf_buff) {
-    free(stf_buff);
-  }
-  FILE * f = fopen (story_file, "rb");
-  fseek (f, 0, SEEK_END);
-  long length = ftell(f);
-  stf_buff = malloc (length);
-  fseek (f, 0, SEEK_SET);
-  if (stf_buff) {
-    ret = fread(stf_buff, sizeof(char), length, f);
-  }
-  fclose(f);
 }
 
 void replace_newlines_with_spaces(char *s) {
@@ -317,134 +297,49 @@ void shutdown() {
 
 // Save the state of the game into a string buffer
 int save_str(unsigned char *s) {
-  zword success = 0;
+  use_squetzal = 1;
+  save_buff = s;
   dumb_set_next_action("save\n");
-  // Opcode 181 (z_save) is used on ZorkI/II/III, Opcode 190 on others
-  while (next_opcode != 181 && next_opcode != 190) {
-    zstep();
-  }
   zstep();
-  success = save_squetzal(s, stf_buff);
-  if ((short) success < 1) {
-    printf("Failed to save!\n");
-    return -1;
-  }
   run_free();
+  if (!quetzal_success) {
+      printf("Error During Save: %s\n", dumb_get_screen());
+  }
   dumb_clear_screen();
-  return success;
+  return quetzal_success;
 }
 
 // Restore a saved game from a string buffer
 int restore_str(unsigned char *s) {
-  zword success = 0;
+  use_squetzal = 1;
+  save_buff = s;
   dumb_set_next_action("restore\n");
-  // Opcode 182 (z_restore) is used on ZorkI/II/III, Opcode 190 on others
-  while (next_opcode != 182 && next_opcode != 190) {
-    zstep();
-  }
   zstep();
-  success = restore_squetzal(s, stf_buff);
-  if ((short) success <= 0) {
-    printf("Error Restoring!\n");
-    return success;
-  }
-  zbyte old_screen_rows;
-  zbyte old_screen_cols;
-  /* In V3, reset the upper window. */
-  if (h_version == V3)
-    split_window (0);
-  LOW_BYTE (H_SCREEN_ROWS, old_screen_rows);
-  LOW_BYTE (H_SCREEN_COLS, old_screen_cols);
-  /* Reload cached header fields. */
-  restart_header ();
-  /*
-   * Since QUETZAL files may be saved on many different machines,
-   * the screen sizes may vary a lot. Erasing the status window
-   * seems to cover up most of the resulting badness.
-   */
-  if (h_version > V3 && h_version != V6
-      && (h_screen_rows != old_screen_rows
-          || h_screen_cols != old_screen_cols))
-    erase_window (1);
   run_free();
-
   dumb_clear_screen();
-  // Re-seed the RNG for determinism after a load
-  seed_random(desired_seed);
-  return success;
+  return quetzal_success;
 }
 
 // Save the state of the game into a file
 int save(char *filename) {
-  FILE *gfp;
-  zword success = 0;
-  if ((gfp = fopen (filename, "wb")) == NULL) {
-    printf("Unable to open savefile!\n");
-    return -1;
-  }
+  use_squetzal = 0;
+  strcpy(f_setup.save_name, filename);
   dumb_set_next_action("save\n");
-  // Opcode 181 (z_save) is used on ZorkI/II/III, Opcode 190 on others
-  while (next_opcode != 181 && next_opcode != 190) {
-    zstep();
-  }
   zstep();
-  success = save_quetzal(gfp, story_fp);
-  if ((short) success < 1) {
-    printf("Failed to save!\n");
-    return -1;
-  }
-  if (fclose (gfp) == EOF || ferror (story_fp)) {
-    print_string ("Error writing save file\n");
-    return -1;
-  }
   run_free();
   dumb_clear_screen();
-  return success;
+  return quetzal_success;
 }
 
 // Restore a saved file
 int restore(char *filename) {
-  FILE *gfp;
-  zword success = 0;
-  if ((gfp = fopen (filename, "rb")) == NULL) {
-    printf("Unable to open save file!\n");
-    return -1;
-  }
+  use_squetzal = 0;
+  strcpy(f_setup.save_name, filename);
   dumb_set_next_action("restore\n");
-  // Opcode 182 (z_restore) is used on ZorkI/II/III, Opcode 190 on others
-  while (next_opcode != 182 && next_opcode != 190) {
-    zstep();
-  }
   zstep();
-  success = restore_quetzal(gfp, story_fp);
-  if ((short) success <= 0) {
-    printf("Error reading save file!\n");
-    return success;
-  }
-  fclose(gfp);
-  zbyte old_screen_rows;
-  zbyte old_screen_cols;
-  /* In V3, reset the upper window. */
-  if (h_version == V3)
-    split_window (0);
-  LOW_BYTE (H_SCREEN_ROWS, old_screen_rows);
-  LOW_BYTE (H_SCREEN_COLS, old_screen_cols);
-  /* Reload cached header fields. */
-  restart_header ();
-  /*
-   * Since QUETZAL files may be saved on many different machines,
-   * the screen sizes may vary a lot. Erasing the status window
-   * seems to cover up most of the resulting badness.
-   */
-  if (h_version > V3 && h_version != V6
-      && (h_screen_rows != old_screen_rows
-          || h_screen_cols != old_screen_cols))
-    erase_window (1);
   run_free();
   dumb_clear_screen();
-  // Re-seed the RNG for determinism after a load
-  seed_random(desired_seed);
-  return success;
+  return quetzal_success;
 }
 
 int getRAMSize() {
@@ -1343,7 +1238,6 @@ char* setup(char *story_file, int seed) {
   desired_seed = seed;
   set_random_seed(desired_seed);
   load_story(story_file);
-  read_story_file_to_buffer(story_file);
   init_buffer();
   init_err();
   init_memory();

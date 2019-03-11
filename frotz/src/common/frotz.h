@@ -542,6 +542,9 @@ extern bool enable_scripting;
 extern bool enable_scrolling;
 extern bool enable_buffering;
 
+extern bool use_squetzal;
+extern zword quetzal_success;
+extern unsigned char* save_buff;
 
 extern char *option_zcode_path;	/* dg */
 

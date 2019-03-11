@@ -63,6 +63,8 @@ extern int os_storyfile_tell (FILE * fp);
 
 extern zword save_quetzal (FILE *, FILE *);
 extern zword restore_quetzal (FILE *, FILE *);
+extern zword save_squetzal (unsigned char *svf, unsigned char *stf);
+extern zword restore_squetzal (unsigned char *svf, unsigned char *stf);
 
 extern void erase_window (zword);
 
@@ -102,6 +104,28 @@ static undo_t *first_undo = NULL, *last_undo = NULL, *curr_undo = NULL;
 zbyte *undo_mem = NULL, *prev_zmp, *undo_diff;
 
 static int undo_count = 0;
+
+bool use_squetzal = 0;
+unsigned char *stf_buff = 0; // Holds the current story file
+unsigned char *save_buff = 0;
+zword quetzal_success;
+
+// Load the story file in a buffer (useful for subsequent load/save)
+void read_story_file_to_buffer() {
+  size_t ret;
+  if (stf_buff) {
+    free(stf_buff);
+  }
+  FILE * f = fopen (f_setup.story_file, "rb");
+  fseek (f, 0, SEEK_END);
+  long length = ftell(f);
+  stf_buff = malloc (length);
+  fseek (f, 0, SEEK_SET);
+  if (stf_buff) {
+    ret = fread(stf_buff, sizeof(char), length, f);
+  }
+  fclose(f);
+}
 
 
 /*
@@ -320,6 +344,9 @@ void init_memory (void)
 	{ LURKING_HORROR, 221, "870918" },
 	{        UNKNOWN,   0, "------" }
     };
+
+    /* Read the story to a buffer */
+    read_story_file_to_buffer();
 
     /* Open story file */
 
@@ -717,16 +744,15 @@ void z_restore (void)
 //	zword addr;
 //	int i;
 
-	/* Get the file name */
+    if (use_squetzal) {
 
-	if (os_read_file_name (new_name, f_setup.save_name, FILE_RESTORE) == 0)
-	    goto finished;
+       success = restore_squetzal(save_buff, stf_buff);
 
-	strcpy (f_setup.save_name, new_name);
+    } else {
 
 	/* Open game file */
 
-	if ((gfp = fopen (new_name, "rb")) == NULL)
+	if ((gfp = fopen (f_setup.save_name, "rb")) == NULL)
 	    goto finished;
 
 	success = restore_quetzal (gfp, story_fp);
@@ -765,6 +791,9 @@ void z_restore (void)
 	    os_fatal ("Error reading save file");
     }
 
+        }
+
+
 finished:
 
     if (gfp == NULL && f_setup.restore_mode)
@@ -775,6 +804,7 @@ finished:
     else
 	store (success);
 
+    quetzal_success = success;
 }/* z_restore */
 
 
@@ -958,16 +988,15 @@ void z_save (void)
 //	int skip;
 //	int i;
 
-	/* Get the file name */
+    if (use_squetzal) {
 
-	if (os_read_file_name (new_name, f_setup.save_name, FILE_SAVE) == 0)
-	    goto finished;
+        success = save_squetzal(save_buff, stf_buff);
 
-	strcpy (f_setup.save_name, new_name);
+    } else {
 
 	/* Open game file */
 
-	if ((gfp = fopen (new_name, "wb")) == NULL)
+	if ((gfp = fopen (f_setup.save_name, "wb")) == NULL)
 	    goto finished;
 
 	success = save_quetzal (gfp, story_fp);
@@ -983,6 +1012,7 @@ void z_save (void)
 
 	success = 1;
     }
+    }
 
 finished:
 
@@ -990,7 +1020,7 @@ finished:
 	branch (success);
     else
 	store (success);
-
+    quetzal_success = success;
 }/* z_save */
 
 
