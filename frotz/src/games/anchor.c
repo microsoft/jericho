@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Anchorhead: http://ifdb.tads.org/viewgame?id=op0uw1gn1tjqmjt7
 
+const char *anchor_intro[] = { "\n", "\n", "\n" };
+
 char** anchor_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 3;
+  return anchor_intro;
 }
 
 char* anchor_clean_observation(char* obs) {
