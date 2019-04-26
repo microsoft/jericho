@@ -79,7 +79,7 @@ int reverb_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int reverb_ignore_attr_diff(zword obj_num, zword attr_idx) {
-  if (attr_idx == 31)
+  if (attr_idx == 31 || obj_num == 24)
     return 1;
   return 0;
 }
