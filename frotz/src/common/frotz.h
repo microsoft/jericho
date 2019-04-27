@@ -565,6 +565,9 @@ extern int attr_clr_cnt;
 extern zword attr_clr_objs[16];
 extern zword attr_clr_nb[16];
 
+// Set to True when the game has encountered a fatal error
+extern int emulator_halted;
+
 /*** Z-machine opcodes ***/
 
 void 	z_add (void);

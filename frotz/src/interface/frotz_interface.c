@@ -59,6 +59,8 @@ zbyte next_opcode;
 int desired_seed = 0;
 int ROM_IDX = 0;
 char world[8192] = "";
+int emulator_halted = 0;
+char halted_message[] = "Emulator halted due to runtime error.\n";
 
 // Runs a single opcode on the Z-Machine
 void zstep() {
@@ -69,7 +71,7 @@ void zstep() {
 // Run the Z-Machine until it requires user input
 void run_free() {
   // Opcode 228 (z_read) and 246 (z_read_char) indicate need for user input
-  while (next_opcode != 228 && next_opcode != 246) {
+  while (next_opcode != 228 && next_opcode != 246 && emulator_halted <= 0) {
     zstep();
   }
 }
@@ -1193,11 +1195,15 @@ int get_num_world_objs() {
 }
 
 int game_over() {
-  return (*game_over_fns[ROM_IDX])();
+  return emulator_halted > 0 || (*game_over_fns[ROM_IDX])();
 }
 
 int victory() {
   return (*victory_fns[ROM_IDX])();
+}
+
+int halted() {
+  return emulator_halted;
 }
 
 int ignore_moved_obj(zword obj_num, zword dest_num) {
@@ -1234,6 +1240,7 @@ void take_intro_actions() {
 
 char* setup(char *story_file, int seed) {
   char* text;
+  emulator_halted = 0;
   os_init_setup();
   desired_seed = seed;
   set_random_seed(desired_seed);
@@ -1289,6 +1296,9 @@ char* setup(char *story_file, int seed) {
 
 char* step(char *next_action) {
   char* text;
+
+  if (emulator_halted > 0)
+    return halted_message;
 
   // Clear the object & attr diff
   move_diff_cnt = 0;

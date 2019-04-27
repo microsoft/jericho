@@ -103,7 +103,9 @@ void runtime_error (int errnum)
     if (f_setup.err_report_mode == ERR_REPORT_FATAL
 	|| (!f_setup.ignore_errors && errnum <= ERR_MAX_FATAL)) {
 	flush_buffer ();
-	os_fatal (err_messages[errnum - 1]);
+	/* os_fatal (err_messages[errnum - 1]); */
+    fprintf(stderr, "\nRuntime error: %s\n", err_messages[errnum - 1]);
+    emulator_halted = 1;
 	return;
     }
 

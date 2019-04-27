@@ -184,6 +184,8 @@ frotz_lib.game_over.argtypes = []
 frotz_lib.game_over.restype = int
 frotz_lib.victory.argtypes = []
 frotz_lib.victory.restype = int
+frotz_lib.halted.argtypes = []
+frotz_lib.halted.restype = int
 frotz_lib.test.argtypes = []
 frotz_lib.test.restype = None
 frotz_lib.getRAMSize.argtypes = []
@@ -245,6 +247,10 @@ class FrotzEnv():
     def game_over(self):
         # Returns true if the last step caused the game to be over (lost)
         return frotz_lib.game_over() > 0
+
+    def emulator_halted(self):
+        # Returns true if the emulator has halted due to a runtime error
+        return frotz_lib.halted() > 0
 
     def step(self, action):
         # Takes an action and returns the next state, total score
