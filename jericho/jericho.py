@@ -309,7 +309,7 @@ class FrotzEnv():
     def get_world_objects(self):
         # Returns an array containing all the objects in the world
         n_objs = frotz_lib.get_num_world_objs()
-        objs = (ZObject * n_objs)()
+        objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
         frotz_lib.get_world_objects(objs)
         return objs
 

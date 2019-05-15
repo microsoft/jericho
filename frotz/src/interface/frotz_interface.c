@@ -1418,7 +1418,7 @@ void get_object(zobject *obj, zword obj_num) {
 void get_world_objects(zobject *objs) {
   int i;
   for (i=1; i<=get_num_world_objs(); ++i) {
-    get_object(&objs[i-1], (zword) i);
+    get_object(&objs[i], (zword) i);
   }
 }
 
