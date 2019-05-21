@@ -299,6 +299,7 @@ void shutdown() {
 
 // Save the state of the game into a string buffer
 int save_str(unsigned char *s) {
+  quetzal_success = 0;
   use_squetzal = 1;
   save_buff = s;
   dumb_set_next_action("save\n");
@@ -313,6 +314,7 @@ int save_str(unsigned char *s) {
 
 // Restore a saved game from a string buffer
 int restore_str(unsigned char *s) {
+  quetzal_success = 0;
   use_squetzal = 1;
   save_buff = s;
   dumb_set_next_action("restore\n");
@@ -324,6 +326,7 @@ int restore_str(unsigned char *s) {
 
 // Save the state of the game into a file
 int save(char *filename) {
+  quetzal_success = 0;
   use_squetzal = 0;
   strcpy(f_setup.save_name, filename);
   dumb_set_next_action("save\n");
@@ -335,6 +338,7 @@ int save(char *filename) {
 
 // Restore a saved file
 int restore(char *filename) {
+  quetzal_success = 0;
   use_squetzal = 0;
   strcpy(f_setup.save_name, filename);
   dumb_set_next_action("restore\n");

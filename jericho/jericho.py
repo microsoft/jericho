@@ -259,24 +259,28 @@ class FrotzEnv():
     def save(self, fname):
         # Save the game to file. Prefer save_str() for efficiency.
         success = frotz_lib.save(fname.encode('utf-8'))
-        assert success > 0, "ERROR: Failed to Save!"
+        if success <= 0:
+            raise RuntimeError('Unable to save.')
 
     def load(self, fname):
         # Restore the game from a save file. Prefer load_str() for efficiency.
         success = frotz_lib.restore(fname.encode('utf-8'))
-        assert success > 0, "ERROR: Failed to Restore!"
+        if success <= 0:
+            raise RuntimeError('Unable to load.')
 
     def save_str(self):
         # Saves the game and returns a string containing the saved game
         buff = np.zeros(8192, dtype=np.uint8)
         success = frotz_lib.save_str(as_ctypes(buff))
-        assert success > 0, "ERROR: Failed to Save!"
+        if success <= 0:
+            raise RuntimeError('Unable to save.')
         return buff
 
     def load_str(self, buff):
         # Load the game from a string buffer given by save_str()
         success = frotz_lib.restore_str(as_ctypes(buff))
-        assert success > 0, "ERROR: Failed to Restore!"
+        if success <= 0:
+            raise RuntimeError('Unable to load.')
 
     def get_player_location(self):
         # Returns the object corresponding to the location of the player in the world
