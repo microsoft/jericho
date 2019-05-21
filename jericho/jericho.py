@@ -166,18 +166,12 @@ frotz_lib.get_score.argtypes = []
 frotz_lib.get_score.restype = int
 frotz_lib.get_max_score.argtypes = []
 frotz_lib.get_max_score.restype = int
-frotz_lib.teleport_obj.argtypes = [c_int, c_int]
-frotz_lib.teleport_obj.restype = None
-frotz_lib.teleport_tree.argtypes = [c_int, c_int]
-frotz_lib.teleport_tree.restype = None
 frotz_lib.save_str.argtypes = [c_void_p]
 frotz_lib.save_str.restype = int
 frotz_lib.restore_str.argtypes = [c_void_p]
 frotz_lib.restore_str.restype = int
 frotz_lib.world_changed.argtypes = []
 frotz_lib.world_changed.restype = int
-frotz_lib.get_world_diff.argtypes = [c_void_p, c_void_p]
-frotz_lib.get_world_diff.restype = None
 frotz_lib.get_cleaned_world_diff.argtypes = [c_void_p, c_void_p]
 frotz_lib.get_cleaned_world_diff.restype = None
 frotz_lib.game_over.argtypes = []
@@ -186,14 +180,10 @@ frotz_lib.victory.argtypes = []
 frotz_lib.victory.restype = int
 frotz_lib.halted.argtypes = []
 frotz_lib.halted.restype = int
-frotz_lib.test.argtypes = []
-frotz_lib.test.restype = None
 frotz_lib.getRAMSize.argtypes = []
 frotz_lib.getRAMSize.restype = int
 frotz_lib.getRAM.argtypes = [c_void_p]
 frotz_lib.getRAM.restype = None
-frotz_lib.print_verbs.argtypes = [c_char_p]
-frotz_lib.print_verbs.restype = None
 frotz_lib.disassemble.argtypes = [c_char_p]
 frotz_lib.disassemble.restype = None
 frotz_lib.is_supported.argtypes = [c_char_p]
@@ -231,10 +221,6 @@ class FrotzEnv():
         words = (DictionaryWord * word_count)()
         frotz_lib.get_dictionary(words, word_count)
         return list(words)
-
-    def print_verbs(self):
-        # Prints the verbs used by the game's parser
-        frotz_lib.print_verbs(self.story_file)
 
     def disassemble_game(self):
         # Prints the routines and strings used by the game
@@ -282,7 +268,7 @@ class FrotzEnv():
 
     def save_str(self):
         # Saves the game and returns a string containing the saved game
-        buff = np.zeros(3200, dtype=np.uint8)
+        buff = np.zeros(8192, dtype=np.uint8)
         success = frotz_lib.save_str(as_ctypes(buff))
         assert success > 0, "ERROR: Failed to Save!"
         return buff
@@ -371,57 +357,6 @@ class FrotzEnv():
             cleared_attrs.append((objs[i], dest[i]))
         return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
 
-    def teleport_obj(self, obj, dest):
-        # Teleport an object to a destination. obj/dest may either be
-        # a ZObject or a int corresponding to the object number.
-        if isinstance(obj, ZObject):
-            obj = obj.num
-        if isinstance(dest, ZObject):
-            dest = dest.num
-        if type(obj) is not int:
-            raise TypeError("obj must be an int or ZObject")
-        if type(dest) is not int:
-            raise TypeError("dest must be an int or ZObject")
-        frotz_lib.teleport_obj(obj, dest)
-
-    def teleport_player(self, dest):
-        # Teleports the player to a given destination, where dest is
-        # either an int corresponding to an object location or the
-        # ZObject of the location. It is necessary to take an extra
-        # step before the description of the new location loads.
-        if type(dest) is int:
-            self.teleport_obj(self.player_obj_num, dest)
-        elif isinstance(dest, ZObject):
-            self.teleport_obj(self.player_obj_num, dest.num)
-        else:
-            raise TypeError("dest must be an int or ZObject")
-
-    def teleport_obj_to_player(self, obj):
-        # Teleports an object to the player. obj may be a ZObject or int.
-        if type(obj) is int:
-            self.teleport_obj(obj, self.player_obj_num)
-        elif isinstance(dest, ZObject):
-            self.teleport_obj(obj.num, self.player_obj_num)
-        else:
-            raise TypeError("obj must be an int or ZObject")
-
-    def teleport_tree(self, obj, dest):
-        # Same as teleport_obj except it teleports all of obj's
-        # children and siblings (e.g. entire object tree) to become
-        # last child of dest
-        if isinstance(obj, ZObject):
-            obj = obj.num
-        if isinstance(dest, ZObject):
-            dest = dest.num
-        if type(obj) is not int:
-            raise TypeError("obj must be an int or ZObject")
-        if type(dest) is not int:
-            raise TypeError("dest must be an int or ZObject")
-        frotz_lib.teleport_tree(obj, dest)
-
-    def test(self):
-        # Convenience function for testing new frotz_lib functionality
-        frotz_lib.test()
 
     def get_ram(self):
         # Returns the contents of the ZMachine's RAM
@@ -432,4 +367,5 @@ class FrotzEnv():
 
     @classmethod
     def is_fully_supported(cls, story_file):
+        # Returns true if the story_file is amongst the supported games
         return bool(frotz_lib.is_supported(story_file.encode('utf-8')))
