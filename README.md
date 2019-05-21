@@ -36,12 +36,8 @@ env.get_inventory()
 # Or their location
 env.get_player_location()
 
-# It's also possible to teleport the player to a location
-env.teleport_player(123)
-# Or to teleport an object to the player
-env.teleport_obj_to_player(164)
-# Be careful with these methods as they can teleport objects that aren't meant to be moved.
-# NOTE: after teleportation, need to look twice before description updates.
+# It's also possible to get the vocabulary words recognized by the game's parser
+game_dict = env.get_dictionary()
 
 # Finally, to detect whether an action was recognized by the parser and changed the game state
 env.step('hail taxi')
