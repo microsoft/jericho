@@ -107,6 +107,16 @@ Game | Download | MD5 Hash
 [Zork III](http://ifdb.tads.org/viewgame?id=vrsot1zgy1wfcdru) | zork3.z5 | ffda9ee2d428fa2fa8e75a1914ff6959
 [Zork: The Undiscovered Underground](http://ifdb.tads.org/viewgame?id=40hswtkhap88gzvn) | ztuu.z5 | d8e1578470cbc676e013e03d72c93141
 
+## Citing Jericho
+If Jericho is used in your research, please cite the following:
+```
+@misc{jericho,
+      author = {Matthew Hausknecht},
+      title = {Jericho: A learning environment for man-made Interactive Fiction games},
+      howpublished = {\url{https://github.com/microsoft/jericho}}
+      year = {2018}}
+```
+
 
 ## Contributing
 
