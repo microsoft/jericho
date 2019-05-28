@@ -113,7 +113,7 @@ If Jericho is used in your research, please cite the following:
 @misc{jericho,
       author = {Matthew Hausknecht},
       title = {Jericho: A learning environment for man-made Interactive Fiction games},
-      howpublished = {\url{https://github.com/microsoft/jericho}}
+      howpublished = {\url{https://github.com/microsoft/jericho}},
       year = {2018}}
 ```
 
