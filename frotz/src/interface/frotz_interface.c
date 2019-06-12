@@ -309,6 +309,7 @@ int save_str(unsigned char *s) {
       printf("Error During Save: %s\n", dumb_get_screen());
   }
   dumb_clear_screen();
+  save_buff = NULL;
   return quetzal_success;
 }
 
@@ -321,6 +322,7 @@ int restore_str(unsigned char *s) {
   zstep();
   run_free();
   dumb_clear_screen();
+  save_buff = NULL;
   return quetzal_success;
 }
 

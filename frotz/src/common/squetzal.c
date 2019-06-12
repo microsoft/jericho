@@ -163,6 +163,10 @@ zword restore_squetzal (unsigned char *svf, unsigned char *stf)
     int x, y;
     unsigned char *stf_start = stf;
 
+    if (svf == NULL || stf == NULL) {
+      return 0;
+    }
+
     /* Check it's really an `IFZS' file. */
     read_long (svf, &tmpl); svf += 4;
     read_long (svf, &ifzslen); svf += 4;
@@ -509,6 +513,10 @@ zword save_squetzal (unsigned char *svf, unsigned char *stf)
     zbyte var;
     long start, cmempos, stkspos;
     int c;
+
+    if (svf == NULL || stf == NULL) {
+      return 0;
+    }
 
     start = (long) svf;
     /* Write `IFZS' header. */
