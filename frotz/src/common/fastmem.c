@@ -112,13 +112,19 @@ zword quetzal_success;
 
 // Load the story file in a buffer (useful for subsequent load/save)
 void read_story_file_to_buffer() {
+  FILE * f;
   size_t ret;
+  long length;
+
   if (stf_buff) {
     free(stf_buff);
   }
-  FILE * f = fopen (f_setup.story_file, "rb");
+  if ((f = fopen (f_setup.story_file, "rb")) == NULL) {
+    os_fatal ("Cannot open story file");
+  }
+
   fseek (f, 0, SEEK_END);
-  long length = ftell(f);
+  length = ftell(f);
   stf_buff = malloc (length);
   fseek (f, 0, SEEK_SET);
   if (stf_buff) {

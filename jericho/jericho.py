@@ -215,6 +215,9 @@ class FrotzEnv():
         frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = frotz_lib.get_self_object_num()
 
+    def __del__(self):
+        frotz_lib.shutdown()
+
     def get_dictionary(self):
         # Returns a list of dictionary words for the game
         word_count = frotz_lib.get_dictionary_word_count(self.story_file)
