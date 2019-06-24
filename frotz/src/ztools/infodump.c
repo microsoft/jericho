@@ -559,5 +559,6 @@ unsigned int get_dictionary_word_count (const char *name)
     load_cache ();
     fix_dictionary ();
     configure_dictionary(&word_count, &word_table_base, &word_table_end);
+    close_story ();
     return word_count;
 }
