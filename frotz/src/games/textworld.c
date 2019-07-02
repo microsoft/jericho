@@ -99,7 +99,7 @@ int textworld_get_moves() {
   return move_count;
 }
 
-int textworld_get_score() {
+short textworld_get_score() {
   if (textworld_victory())
     return tw_max_score;
   return tw_score;

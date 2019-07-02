@@ -62,7 +62,7 @@ int spirit_get_moves() {
   return (((short) zmp[36357]) << 8) | zmp[36358]; //36368
 }
 
-int spirit_get_score() {
+short spirit_get_score() {
   return zmp[36356]; //36366, 36382
 }
 

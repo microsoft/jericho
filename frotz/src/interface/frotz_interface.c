@@ -789,7 +789,7 @@ int (*get_moves_fns[]) (void) = {
   textworld_get_moves
 };
 
-int (*get_score_fns[]) (void) = {
+short (*get_score_fns[]) (void) = {
   default_get_score,
   acorn_get_score,
   adventureland_get_score,
@@ -1180,7 +1180,7 @@ char* clean_observation(char* obs) {
   return (*clean_observation_fns[ROM_IDX])(obs);
 }
 
-int get_score() {
+short get_score() {
   return (*get_score_fns[ROM_IDX])();
 }
 

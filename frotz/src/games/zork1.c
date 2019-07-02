@@ -100,6 +100,6 @@ int zork1_get_moves() {
 }
 
 // Zork1-specific score
-int zork1_get_score() {
+short zork1_get_score() {
   return (((short) zmp[8819]) << 8) | zmp[8820];
 }

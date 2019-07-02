@@ -62,7 +62,7 @@ int gold_get_moves() {
   return (((short) zmp[20789]) << 8) | zmp[20790];
 }
 
-int gold_get_score() {
+short gold_get_score() {
   return zmp[20768]; // 20800, 20802
 }
 

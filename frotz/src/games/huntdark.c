@@ -64,7 +64,7 @@ int huntdark_get_moves() {
   return (((short) zmp[8896]) << 8) | zmp[8897];
 }
 
-int huntdark_get_score() {
+short huntdark_get_score() {
   if (huntdark_victory()) {
     return 1;
   }

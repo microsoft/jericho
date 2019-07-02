@@ -55,7 +55,7 @@ int default_get_moves() {
   return 0;
 }
 
-int default_get_score() {
+short default_get_score() {
   return 0;
 }
 

@@ -62,7 +62,7 @@ int detective_get_moves() {
   return (((short) zmp[6777]) << 8) | zmp[6778]; // 6792
 }
 
-int detective_get_score() {
+short detective_get_score() {
   return zmp[6802]; // Also 6776, 6804
 }
 

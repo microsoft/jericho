@@ -62,7 +62,7 @@ int seastalker_get_moves() {
   return (((short) zmp[9311]) << 8) | zmp[9312];
 }
 
-int seastalker_get_score() {
+short seastalker_get_score() {
   return (char) zmp[9310];
 }
 

@@ -64,7 +64,7 @@ int sherbet_get_moves() {
   return (((short) zmp[12378]) << 8) | zmp[12379]; //12391
 }
 
-int sherbet_get_score() {
+short sherbet_get_score() {
   return zmp[12377]; //12401, 12403
 }
 

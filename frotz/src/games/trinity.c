@@ -59,7 +59,7 @@ int trinity_get_moves() {
   return (((short) zmp[34172]) << 8) | zmp[34173];
 }
 
-int trinity_get_score() {
+short trinity_get_score() {
   return zmp[34215];
 }
 

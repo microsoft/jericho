@@ -62,7 +62,7 @@ int library_get_moves() {
   return (((short) zmp[3611]) << 8) | zmp[3612];
 }
 
-int library_get_score() {
+short library_get_score() {
   return zmp[3610]; //3626
 }
 

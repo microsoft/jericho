@@ -62,7 +62,7 @@ int zork3_get_moves() {
   return (((short) zmp[7956]) << 8) | zmp[7957];
 }
 
-int zork3_get_score() {
+short zork3_get_score() {
   return zmp[7955];
 }
 

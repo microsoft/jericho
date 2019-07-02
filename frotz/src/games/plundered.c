@@ -62,7 +62,7 @@ int plundered_get_moves() {
   return (((short) zmp[678]) << 8) | zmp[679];
 }
 
-int plundered_get_score() {
+short plundered_get_score() {
   return zmp[677];
 }
 

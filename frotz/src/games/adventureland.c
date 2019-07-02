@@ -62,7 +62,7 @@ int adventureland_get_moves() {
   return (((short) zmp[5320]) << 8) | zmp[5321]; // Also 5331
 }
 
-int adventureland_get_score() {
+short adventureland_get_score() {
   return zmp[5319]; // Also 5329, 5345
 }
 

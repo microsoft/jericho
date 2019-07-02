@@ -62,7 +62,7 @@ int loose_get_moves() {
   return (((short) zmp[10392]) << 8) | zmp[10393]; // 10405
 }
 
-int loose_get_score() {
+short loose_get_score() {
   return zmp[10391]; // 10415, 10417
 }
 

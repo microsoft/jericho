@@ -62,7 +62,7 @@ int nine05_get_moves() {
   return ((((short) zmp[4295]) << 8) | zmp[4296]) - 545;
 }
 
-int nine05_get_score() {
+short nine05_get_score() {
   if (nine05_victory()) {
     return 1;
   }

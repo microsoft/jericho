@@ -62,7 +62,7 @@ int murdac_get_moves() {
   return (((short) zmp[6372]) << 8) | zmp[6373]; //6375,6383
 }
 
-int murdac_get_score() {
+short murdac_get_score() {
   return zmp[6357];
 }
 

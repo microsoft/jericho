@@ -62,7 +62,7 @@ int infidel_get_moves() {
   return (((short) zmp[8913]) << 8) | zmp[8914]; //9014
 }
 
-int infidel_get_score() {
+short infidel_get_score() {
   return zmp[8912];
 }
 

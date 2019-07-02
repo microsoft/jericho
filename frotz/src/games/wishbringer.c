@@ -62,7 +62,7 @@ int wishbringer_get_moves() {
   return (((short) zmp[9495]) << 8) | zmp[9496];
 }
 
-int wishbringer_get_score() {
+short wishbringer_get_score() {
   return zmp[9498];
 }
 

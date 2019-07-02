@@ -62,7 +62,7 @@ int lgop_get_moves() {
   return (((short) zmp[8235]) << 8) | zmp[8236];
 }
 
-int lgop_get_score() {
+short lgop_get_score() {
   return zmp[8234];
 }
 

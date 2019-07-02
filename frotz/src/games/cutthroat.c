@@ -62,7 +62,7 @@ int cutthroat_get_moves() {
   return (((short) zmp[8644]) << 8) | zmp[8645]; //9041
 }
 
-int cutthroat_get_score() {
+short cutthroat_get_score() {
   return zmp[8871]; //8873
 }
 

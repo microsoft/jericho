@@ -62,7 +62,7 @@ int sorcerer_get_moves() {
   return (((short) zmp[9700]) << 8) | zmp[9701];
 }
 
-int sorcerer_get_score() {
+short sorcerer_get_score() {
   return zmp[9699];
 }
 

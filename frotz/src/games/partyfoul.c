@@ -65,7 +65,7 @@ int partyfoul_get_moves() {
   return (((short) zmp[15810]) << 8) | zmp[15811];
 }
 
-int partyfoul_get_score() {
+short partyfoul_get_score() {
   if (partyfoul_victory()) {
     return 1;
   }

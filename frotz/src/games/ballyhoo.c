@@ -62,7 +62,7 @@ int ballyhoo_get_moves() {
   return (((short) zmp[8496]) << 8) | zmp[8497];
 }
 
-int ballyhoo_get_score() {
+short ballyhoo_get_score() {
   return zmp[8495];
 }
 

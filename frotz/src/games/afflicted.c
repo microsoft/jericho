@@ -79,7 +79,7 @@ int afflicted_get_moves() {
   return (((short) zmp[24991]) << 8) | zmp[24992]; // 25032, 25034
 }
 
-int afflicted_get_score() {
+short afflicted_get_score() {
   return score;
 }
 

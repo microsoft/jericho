@@ -62,7 +62,7 @@ int weapon_get_moves() {
   return (((short) zmp[31354]) << 8) | zmp[31355];
 }
 
-int weapon_get_score() {
+short weapon_get_score() {
   if (weapon_victory()) {
     return 1;
   }

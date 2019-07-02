@@ -62,7 +62,7 @@ int karn_get_moves() {
   return (((short) zmp[13817]) << 8) | zmp[13818]; // 13828
 }
 
-int karn_get_score() {
+short karn_get_score() {
   return zmp[13816]; // 13826, 13842
 }
 

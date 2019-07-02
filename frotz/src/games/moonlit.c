@@ -62,7 +62,7 @@ int moonlit_get_moves() {
   return (((short) zmp[10551]) << 8) | zmp[10552];
 }
 
-int moonlit_get_score() {
+short moonlit_get_score() {
   if (moonlit_victory()) {
     return 1;
   }

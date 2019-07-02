@@ -62,7 +62,7 @@ int advent_get_moves() {
   return (((short) zmp[15361]) << 8) | zmp[15362]; // Also 15342
 }
 
-int advent_get_score() {
+short advent_get_score() {
   return zmp[15372]; // Also 15374, 15340
 }
 

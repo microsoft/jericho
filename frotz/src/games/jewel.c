@@ -64,7 +64,7 @@ int jewel_get_moves() {
   return (((short) zmp[9971]) << 8) | zmp[9972]; // 9984
 }
 
-int jewel_get_score() {
+short jewel_get_score() {
   return zmp[9970]; //9996,9994
 }
 

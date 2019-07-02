@@ -62,7 +62,7 @@ int temple_get_moves() {
   return (((short) zmp[8310]) << 8) | zmp[8311]; //8321
 }
 
-int temple_get_score() {
+short temple_get_score() {
   return zmp[8309]; //8319
 }
 

@@ -62,7 +62,7 @@ int snacktime_get_moves() {
   return (((short) zmp[9115]) << 8) | zmp[9116];
 }
 
-int snacktime_get_score() {
+short snacktime_get_score() {
   return zmp[9114]; // 9122 9164 9166
 }
 

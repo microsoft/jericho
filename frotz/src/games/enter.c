@@ -62,7 +62,7 @@ int enter_get_moves() {
   return (((short) zmp[11070]) << 8) | zmp[11071];
 }
 
-int enter_get_score() {
+short enter_get_score() {
   return zmp[11069]; // 11095
 }
 

@@ -64,7 +64,7 @@ int tryst_get_moves() {
   return (((short) zmp[15262]) << 8) | zmp[15263]; //15275
 }
 
-int tryst_get_score() {
+short tryst_get_score() {
   return zmp[15261]; //15285, 15287
 }
 

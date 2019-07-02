@@ -62,7 +62,7 @@ int pentari_get_moves() {
   return (((short) zmp[4939]) << 8) | zmp[4940]; //4952
 }
 
-int pentari_get_score() {
+short pentari_get_score() {
   return zmp[4938];//4962, 4964
 }
 

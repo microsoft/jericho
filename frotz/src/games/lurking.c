@@ -67,7 +67,7 @@ int lurking_get_moves() {
   return (((short) zmp[696]) << 8) | zmp[697];
 }
 
-int lurking_get_score() {
+short lurking_get_score() {
   return zmp[695];
 }
 

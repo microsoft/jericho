@@ -62,7 +62,7 @@ int zenon_get_moves() {
   return (((short) zmp[3743]) << 8) | zmp[3744]; //3756
 }
 
-int zenon_get_score() {
+short zenon_get_score() {
   return zmp[3742]; //3766, 3768
 }
 

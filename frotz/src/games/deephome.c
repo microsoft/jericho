@@ -62,7 +62,7 @@ int deephome_get_moves() {
   return (((short) zmp[12411]) << 8) | zmp[12412]; // 12424
 }
 
-int deephome_get_score() {
+short deephome_get_score() {
   return zmp[12434]; // 12436, 12410: 1.0
 }
 

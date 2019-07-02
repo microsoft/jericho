@@ -57,7 +57,7 @@ int sherlock_get_moves() {
   return (((short) zmp[1002]) << 8) | zmp[1003];
 }
 
-int sherlock_get_score() {
+short sherlock_get_score() {
   return zmp[739]; //993
 }
 

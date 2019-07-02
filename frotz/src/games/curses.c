@@ -64,7 +64,7 @@ int curses_get_moves() {
   return (((short) zmp[23374]) << 8) | zmp[23375]; // Also 23385
 }
 
-int curses_get_score() {
+short curses_get_score() {
   return zmp[23373]; // Also 23383 23399
 }
 

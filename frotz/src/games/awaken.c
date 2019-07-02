@@ -62,7 +62,7 @@ int awaken_get_moves() {
   return (((short) zmp[10667]) << 8) | zmp[10668]; //10680
 }
 
-int awaken_get_score() {
+short awaken_get_score() {
   return zmp[10666]; //10690, 10692
 }
 

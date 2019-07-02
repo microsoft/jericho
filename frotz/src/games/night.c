@@ -62,7 +62,7 @@ int night_get_moves() {
   return (((short) zmp[5295]) << 8) | zmp[5296]; //5306
 }
 
-int night_get_score() {
+short night_get_score() {
   return zmp[5294]; //5304, 5320
 }
 

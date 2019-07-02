@@ -62,7 +62,7 @@ int balances_get_moves() {
   return (((short) zmp[6843]) << 8) | zmp[6844];
 }
 
-int balances_get_score() {
+short balances_get_score() {
   return zmp[6842]; // Also 6866, 6868
 }
 

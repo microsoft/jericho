@@ -62,7 +62,7 @@ int omniquest_get_moves() {
   return (((short) zmp[5980]) << 8) | zmp[5981]; //5995
 }
 
-int omniquest_get_score() {
+short omniquest_get_score() {
   return zmp[5979]; //6005, 6007
 }
 

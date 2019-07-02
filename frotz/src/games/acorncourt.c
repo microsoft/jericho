@@ -62,7 +62,7 @@ int acorn_get_moves() {
   return (((short) zmp[3711]) << 8) | zmp[3712];
 }
 
-int acorn_get_score() {
+short acorn_get_score() {
   return zmp[3710]; // Also 3734 and 3736
 }
 

@@ -62,7 +62,7 @@ int ztuu_get_moves() {
   return zmp[8857]; //8867
 }
 
-int ztuu_get_score() {
+short ztuu_get_score() {
   return zmp[8855]; //8881, 8865
 }
 

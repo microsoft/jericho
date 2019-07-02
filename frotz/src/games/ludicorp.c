@@ -62,7 +62,7 @@ int ludicorp_get_moves() {
   return (((short) zmp[24205]) << 8) | zmp[24206]; //24194
 }
 
-int ludicorp_get_score() {
+short ludicorp_get_score() {
   return zmp[24216]; //24192, 24218
 }
 

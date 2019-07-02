@@ -62,7 +62,7 @@ int reverb_get_moves() {
   return (((short) zmp[5840]) << 8) | zmp[5841]; //5853
 }
 
-int reverb_get_score() {
+short reverb_get_score() {
   return zmp[5839]; //5863, 5865
 }
 

@@ -64,7 +64,7 @@ int anchor_get_moves() {
   return (((short) zmp[37999]) << 8) | zmp[38000]; //38012
 }
 
-int anchor_get_score() {
+short anchor_get_score() {
   return zmp[38024]; //37998, 38022
 }
 

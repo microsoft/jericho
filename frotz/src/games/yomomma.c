@@ -62,7 +62,7 @@ int yomomma_get_moves() {
   return (((short) zmp[15532]) << 8) | zmp[15533];
 }
 
-int yomomma_get_score() {
+short yomomma_get_score() {
   return zmp[15531];
 }
 

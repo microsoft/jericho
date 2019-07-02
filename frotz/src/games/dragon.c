@@ -62,7 +62,7 @@ int dragon_get_moves() {
   return (((short) zmp[13452]) << 8) | zmp[13453]; // 13465
 }
 
-int dragon_get_score() {
+short dragon_get_score() {
   return (char) zmp[13451]; // 13475, 13477
 }
 

@@ -62,7 +62,7 @@ int lostpig_get_moves() {
   return (((short) zmp[39582]) << 8) | zmp[39583]; // 39607
 }
 
-int lostpig_get_score() {
+short lostpig_get_score() {
   return zmp[39581]; //39617, 39619
 }
 

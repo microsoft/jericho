@@ -62,7 +62,7 @@ int hhgg_get_moves() {
   return (((short) zmp[7912]) << 8) | zmp[7913];
 }
 
-int hhgg_get_score() {
+short hhgg_get_score() {
   return zmp[7911];
 }
 

@@ -62,7 +62,7 @@ int planetfall_get_moves() {
   return (((short) zmp[10473]) << 8) | zmp[10474];
 }
 
-int planetfall_get_score() {
+short planetfall_get_score() {
   return zmp[10026];
 }
 

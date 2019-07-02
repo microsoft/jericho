@@ -64,7 +64,7 @@ int theatre_get_moves() {
   return (((short) zmp[17579]) << 8) | zmp[17580]; //17590
 }
 
-int theatre_get_score() {
+short theatre_get_score() {
   return zmp[17578]; //17588, 17604
 }
 

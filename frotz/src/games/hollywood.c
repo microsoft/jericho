@@ -66,7 +66,7 @@ int hollywood_get_moves() {
   return (((short) zmp[8194]) << 8) | zmp[8195];
 }
 
-int hollywood_get_score() {
+short hollywood_get_score() {
   return zmp[8193];
 }
 

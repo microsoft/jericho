@@ -60,7 +60,7 @@ int inhumane_get_moves() {
   /* return zmp[4789]; //4799 */
 }
 
-int inhumane_get_score() {
+short inhumane_get_score() {
   return zmp[4787]; // 4797
 }
 

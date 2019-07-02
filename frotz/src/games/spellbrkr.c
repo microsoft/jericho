@@ -62,7 +62,7 @@ int spellbrkr_get_moves() {
   return (((short) zmp[8726]) << 8) | zmp[8727];
 }
 
-int spellbrkr_get_score() {
+short spellbrkr_get_score() {
   return zmp[8725];
 }
 

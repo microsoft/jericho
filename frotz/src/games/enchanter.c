@@ -62,7 +62,7 @@ int enchanter_get_moves() {
   return (((short) zmp[8767]) << 8) | zmp[8768]; //9080
 }
 
-int enchanter_get_score() {
+short enchanter_get_score() {
   return zmp[8766];
 }
 
