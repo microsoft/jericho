@@ -89,3 +89,6 @@ int reverb_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void reverb_clean_world_objs(zobject* objs) {
+}

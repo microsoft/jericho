@@ -85,3 +85,6 @@ int spellbrkr_ignore_attr_diff(zword obj_num, zword attr_idx) {
 int spellbrkr_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
 }
+
+void spellbrkr_clean_world_objs(zobject* objs) {
+}

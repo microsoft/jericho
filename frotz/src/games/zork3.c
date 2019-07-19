@@ -85,3 +85,13 @@ int zork3_ignore_attr_diff(zword obj_num, zword attr_idx) {
 int zork3_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
 }
+
+void zork3_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 4);
+    // Clear attr 27
+    for (i=1; i<=zork3_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
+}

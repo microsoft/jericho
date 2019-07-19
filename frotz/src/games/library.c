@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // All Quiet on the Library Front: http://ifdb.tads.org/viewgame?id=400zakqderzjnu1i
 
+const char *library_intro[] = { "\n" };
+
 char** library_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 1;
+  return library_intro;
 }
 
 char* library_clean_observation(char* obs) {
@@ -88,4 +90,14 @@ int library_ignore_attr_clr(zword obj_num, zword attr_idx) {
   if (attr_idx == 25)
     return 1;
   return 0;
+}
+
+void library_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 7) & ~(1 << 6);
+    // Clear attr 24 & 25
+    for (i=1; i<=library_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
 }

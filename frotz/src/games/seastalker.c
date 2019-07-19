@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Seastalker: http://ifdb.tads.org/viewgame?id=56wb8hflec2isvzm
 
+const char *seastalker_intro[] = { "John\n", "Wayne\n", "yes\n" };
+
 char** seastalker_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 3;
+  return seastalker_intro;
 }
 
 char* seastalker_clean_observation(char* obs) {
@@ -88,4 +90,14 @@ int seastalker_ignore_attr_clr(zword obj_num, zword attr_idx) {
   if (attr_idx == 6)
     return 1;
   return 0;
+}
+
+void seastalker_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 1);
+    // Clear attr 6
+    for (i=1; i<=seastalker_get_num_world_objs(); ++i) {
+        objs[i].attr[0] &= mask;
+    }
 }

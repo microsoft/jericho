@@ -89,3 +89,16 @@ int snacktime_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void snacktime_clean_world_objs(zobject* objs) {
+    int i;
+    char mask1;
+    char mask2;
+    mask1 = ~(1 << 1);
+    mask2 = ~(1 << 2);
+    // Clear attr 30 & 21
+    for (i=1; i<=snacktime_get_num_world_objs(); ++i) {
+        objs[i].attr[2] &= mask2;
+        objs[i].attr[3] &= mask1;
+    }
+}

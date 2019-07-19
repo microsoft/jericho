@@ -92,3 +92,13 @@ int weapon_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void weapon_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 1);
+    // Clear attr 14
+    for (i=1; i<=weapon_get_num_world_objs(); ++i) {
+        objs[i].attr[1] &= mask;
+    }
+}

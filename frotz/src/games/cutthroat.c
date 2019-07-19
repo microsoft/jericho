@@ -85,3 +85,18 @@ int cutthroat_ignore_attr_diff(zword obj_num, zword attr_idx) {
 int cutthroat_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
 }
+
+void cutthroat_clean_world_objs(zobject* objs) {
+    char mask;
+    int i;
+    zobject* weasel_obj;
+    zobject* weasel_loc;
+    weasel_obj = &objs[9];
+    weasel_loc = &objs[weasel_obj->parent];
+    if (weasel_loc->child == 9) {
+        weasel_loc->child = weasel_obj->sibling;
+    }
+    weasel_obj->parent = 0;
+    weasel_obj->sibling = 0;
+    weasel_obj->child = 0;
+}

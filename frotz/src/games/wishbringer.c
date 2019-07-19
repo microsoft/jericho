@@ -85,3 +85,13 @@ int wishbringer_ignore_attr_diff(zword obj_num, zword attr_idx) {
 int wishbringer_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
 }
+
+void wishbringer_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 3);
+    // Clear attr 28
+    for (i=1; i<=wishbringer_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
+}

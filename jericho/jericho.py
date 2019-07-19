@@ -45,15 +45,15 @@ class ZObject(Structure):
                 ("sibling",    c_int),
                 ("child",      c_int),
                 ("_attr",      c_byte*4),
-                ("properties", c_int*16)]
+                ("properties", c_ubyte*16)]
 
     def __init__(self):
         self.num = -1
 
     def __str__(self):
-        return "Obj{}: {} Parent{} Sibling{} Child{} Attributes {}"\
+        return "Obj{}: {} Parent{} Sibling{} Child{} Attributes {} Properties {}"\
             .format(self.num, self.name, self.parent, self.sibling, self.child,
-                    np.nonzero(self.attr)[0].tolist())
+                    np.nonzero(self.attr)[0].tolist(), [p for p in self.properties if p != 0])
 
     def __repr__(self):
         return str(self)
@@ -68,7 +68,8 @@ class ZObject(Structure):
                 self._attr[0] == other._attr[0] and \
                 self._attr[1] == other._attr[1] and \
                 self._attr[2] == other._attr[2] and \
-                self._attr[3] == other._attr[3]
+                self._attr[3] == other._attr[3] and \
+                self.properties[:] == other.properties[:]
         return False
 
     def __hash__(self):
@@ -156,7 +157,7 @@ frotz_lib.get_object.argtypes = [c_void_p, c_int]
 frotz_lib.get_object.restype = None
 frotz_lib.get_num_world_objs.argtypes = []
 frotz_lib.get_num_world_objs.restype = int
-frotz_lib.get_world_objects.argtypes = [POINTER(ZObject)]
+frotz_lib.get_world_objects.argtypes = [POINTER(ZObject), c_int]
 frotz_lib.get_world_objects.restype = None
 frotz_lib.get_self_object_num.argtypes = []
 frotz_lib.get_self_object_num.restype = int
@@ -299,11 +300,14 @@ class FrotzEnv():
             return None
         return obj
 
-    def get_world_objects(self):
-        # Returns an array containing all the objects in the world
+    def get_world_objects(self, clean=False):
+        # Returns an array containing all the zobjects in the game. If
+        # clean is True, then noisy objects like Zork1's thief will be
+        # disconnected, allowing the representation to be used as an
+        # indication of the game state from the player's perspective.
         n_objs = frotz_lib.get_num_world_objs()
         objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
-        frotz_lib.get_world_objects(objs)
+        frotz_lib.get_world_objects(objs, clean)
         return objs
 
     def get_player_object(self):

@@ -27,7 +27,7 @@ typedef struct {
   int sibling;
   int child;
   char attr[4];
-  int properties[16];
+  unsigned char properties[16];
 } zobject;
 
 extern char* setup(char *story_file, int seed);

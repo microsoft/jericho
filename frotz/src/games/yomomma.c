@@ -89,3 +89,13 @@ int yomomma_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void yomomma_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 2);
+    // Clear attr 21
+    for (i=1; i<=yomomma_get_num_world_objs(); ++i) {
+        objs[i].attr[2] &= mask;
+    }
+}

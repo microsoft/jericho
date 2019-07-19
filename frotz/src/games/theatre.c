@@ -91,3 +91,13 @@ int theatre_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void theatre_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 5) & ~(1 << 4);
+    // Clear attr 26 & 27
+    for (i=1; i<=theatre_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
+}

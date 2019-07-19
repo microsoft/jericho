@@ -87,3 +87,13 @@ int inhumane_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void inhumane_clean_world_objs(zobject* objs) {
+    int i;
+    char mask;
+    mask = ~(1 << 5);
+    // Clear attr 26
+    for (i=1; i<=inhumane_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
+}

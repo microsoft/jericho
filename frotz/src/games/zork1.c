@@ -94,6 +94,26 @@ int zork1_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
 }
 
+void zork1_clean_world_objs(zobject* objs) {
+    char mask;
+    int i;
+    zobject* thief_obj;
+    zobject* thief_loc;
+    mask = ~(1 << 4);
+    thief_obj = &objs[114];
+    thief_loc = &objs[thief_obj->parent];
+    if (thief_loc->child == 114) {
+        thief_loc->child = thief_obj->sibling;
+    }
+    thief_obj->parent = 0;
+    thief_obj->sibling = 0;
+    thief_obj->child = 0;
+    // Zero attribute 3 for all objects
+    for (i=1; i<=zork1_get_num_world_objs(); ++i) {
+        objs[i].attr[0] &= mask;
+    }
+}
+
 // Zork1-specific move count
 int zork1_get_moves() {
   return (((short) zmp[8821]) << 8) | zmp[8822];

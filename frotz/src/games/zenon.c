@@ -89,3 +89,23 @@ int zenon_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void zenon_clean_world_objs(zobject* objs) {
+    char mask;
+    int i;
+    zobject* janitor_obj;
+    zobject* janitor_loc;
+    janitor_obj = &objs[34];
+    janitor_loc = &objs[janitor_obj->parent];
+    if (janitor_loc->child == 34) {
+        janitor_loc->child = janitor_obj->sibling;
+    }
+    janitor_obj->parent = 0;
+    janitor_obj->sibling = 0;
+    janitor_obj->child = 0;
+    mask = ~(1 << 7);
+    // Clear attr 24
+    for (i=1; i<=zenon_get_num_world_objs(); ++i) {
+        objs[i].attr[3] &= mask;
+    }
+}

@@ -1167,6 +1167,69 @@ int (*ignore_attr_clr_fns[]) (zword obj_num, zword attr_idx) = {
   textworld_ignore_attr_clr
 };
 
+void (*clean_world_objs_fns[]) (zobject* objs) = {
+  default_clean_world_objs,
+  acorn_clean_world_objs,
+  adventureland_clean_world_objs,
+  advent_clean_world_objs,
+  afflicted_clean_world_objs,
+  anchor_clean_world_objs,
+  awaken_clean_world_objs,
+  balances_clean_world_objs,
+  ballyhoo_clean_world_objs,
+  curses_clean_world_objs,
+  cutthroat_clean_world_objs,
+  deephome_clean_world_objs,
+  detective_clean_world_objs,
+  dragon_clean_world_objs,
+  enchanter_clean_world_objs,
+  enter_clean_world_objs,
+  gold_clean_world_objs,
+  hhgg_clean_world_objs,
+  hollywood_clean_world_objs,
+  huntdark_clean_world_objs,
+  infidel_clean_world_objs,
+  inhumane_clean_world_objs,
+  jewel_clean_world_objs,
+  karn_clean_world_objs,
+  lgop_clean_world_objs,
+  library_clean_world_objs,
+  loose_clean_world_objs,
+  lostpig_clean_world_objs,
+  ludicorp_clean_world_objs,
+  lurking_clean_world_objs,
+  moonlit_clean_world_objs,
+  murdac_clean_world_objs,
+  night_clean_world_objs,
+  nine05_clean_world_objs,
+  omniquest_clean_world_objs,
+  partyfoul_clean_world_objs,
+  pentari_clean_world_objs,
+  planetfall_clean_world_objs,
+  plundered_clean_world_objs,
+  reverb_clean_world_objs,
+  seastalker_clean_world_objs,
+  sherbet_clean_world_objs,
+  sherlock_clean_world_objs,
+  snacktime_clean_world_objs,
+  sorcerer_clean_world_objs,
+  spellbrkr_clean_world_objs,
+  spirit_clean_world_objs,
+  temple_clean_world_objs,
+  theatre_clean_world_objs,
+  trinity_clean_world_objs,
+  tryst_clean_world_objs,
+  weapon_clean_world_objs,
+  wishbringer_clean_world_objs,
+  yomomma_clean_world_objs,
+  zenon_clean_world_objs,
+  zork1_clean_world_objs,
+  zork2_clean_world_objs,
+  zork3_clean_world_objs,
+  ztuu_clean_world_objs,
+  textworld_clean_world_objs
+};
+
 
 //==========================//
 // Function Instantiations  //
@@ -1222,6 +1285,10 @@ int ignore_attr_diff(zword obj_num, zword dest_num) {
 
 int ignore_attr_clr(zword obj_num, zword dest_num) {
   return (*ignore_attr_clr_fns[ROM_IDX])(obj_num, dest_num);
+}
+
+void clean_world_objs(zobject* objs) {
+  return (*clean_world_objs_fns[ROM_IDX])(objs);
 }
 
 int is_supported(char *story_file) {
@@ -1381,7 +1448,8 @@ int world_changed() {
 
 void get_object(zobject *obj, zword obj_num) {
   int i;
-  int prop_value;
+  zbyte prop_value;
+  zbyte mask;
 
   if (obj_num < 1 || obj_num > get_num_world_objs()) {
     return;
@@ -1409,10 +1477,11 @@ void get_object(zobject *obj, zword obj_num) {
   }
 
   // Get the properties of the object
+  mask = (h_version <= V3) ? 0x1f : 0x3f;
   zword prop_addr = first_property(obj_num);
   LOW_BYTE(prop_addr, prop_value);
   for (i=0; i<16 && prop_value != 0; ++i) {
-    (*obj).properties[i] = (int) (prop_value & (0x20-1));
+    (*obj).properties[i] = prop_value & mask;
     prop_addr = next_property(prop_addr);
     LOW_BYTE(prop_addr, prop_value);
   }
@@ -1421,10 +1490,13 @@ void get_object(zobject *obj, zword obj_num) {
   }
 }
 
-void get_world_objects(zobject *objs) {
+void get_world_objects(zobject *objs, int clean) {
   int i;
   for (i=1; i<=get_num_world_objs(); ++i) {
     get_object(&objs[i], (zword) i);
+  }
+  if (clean > 0) {
+    clean_world_objs(objs);
   }
 }
 

@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Sherlock: http://ifdb.tads.org/viewgame?id=ug3qu521hze8bsvz
 
+const char *sherlock_intro[] = { "\n" };
+
 char** sherlock_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 1;
+  return sherlock_intro;
 }
 
 char* sherlock_clean_observation(char* obs) {
@@ -79,4 +81,7 @@ int sherlock_ignore_attr_diff(zword obj_num, zword attr_idx) {
 
 int sherlock_ignore_attr_clr(zword obj_num, zword attr_idx) {
   return 0;
+}
+
+void sherlock_clean_world_objs(zobject* objs) {
 }

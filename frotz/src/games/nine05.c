@@ -92,3 +92,6 @@ int nine05_ignore_attr_clr(zword obj_num, zword attr_idx) {
     return 1;
   return 0;
 }
+
+void nine05_clean_world_objs(zobject* objs) {
+}

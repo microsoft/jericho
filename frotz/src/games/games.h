@@ -4,6 +4,9 @@
 #ifndef games_h__
 #define games_h__
 
+#include "frotz_interface.h"
+
+
 char** default_intro_actions            (int*);
 int   default_victory                   (void);
 char* default_clean_observation         (char*);
@@ -16,6 +19,7 @@ int   default_max_score                 (void);
 int   default_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   default_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   default_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  default_clean_world_objs          (zobject* objs);
 
 char** acorn_intro_actions              (int*);
 int   acorn_victory                     (void);
@@ -29,6 +33,7 @@ int   acorn_max_score                   (void);
 int   acorn_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   acorn_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   acorn_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  acorn_clean_world_objs            (zobject* objs);
 
 char** adventureland_intro_actions      (int*);
 int   adventureland_victory             (void);
@@ -42,6 +47,7 @@ int   adventureland_max_score           (void);
 int   adventureland_ignore_moved_obj    (zword obj_num, zword dest_num);
 int   adventureland_ignore_attr_diff    (zword obj_num, zword attr_idx);
 int   adventureland_ignore_attr_clr     (zword obj_num, zword attr_idx);
+void  adventureland_clean_world_objs    (zobject* objs);
 
 char** advent_intro_actions             (int*);
 int   advent_victory                    (void);
@@ -55,6 +61,7 @@ int   advent_max_score                  (void);
 int   advent_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   advent_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   advent_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  advent_clean_world_objs           (zobject* objs);
 
 char** afflicted_intro_actions          (int*);
 int   afflicted_victory                 (void);
@@ -68,6 +75,7 @@ int   afflicted_max_score               (void);
 int   afflicted_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   afflicted_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   afflicted_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  afflicted_clean_world_objs        (zobject* objs);
 
 char** anchor_intro_actions             (int*);
 int   anchor_victory                    (void);
@@ -81,6 +89,7 @@ int   anchor_max_score                  (void);
 int   anchor_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   anchor_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   anchor_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  anchor_clean_world_objs           (zobject* objs);
 
 char** awaken_intro_actions             (int*);
 int   awaken_victory                    (void);
@@ -94,6 +103,7 @@ int   awaken_max_score                  (void);
 int   awaken_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   awaken_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   awaken_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  awaken_clean_world_objs           (zobject* objs);
 
 char** balances_intro_actions           (int*);
 int   balances_victory                  (void);
@@ -107,6 +117,7 @@ int   balances_max_score                (void);
 int   balances_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   balances_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   balances_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  balances_clean_world_objs         (zobject* objs);
 
 char** ballyhoo_intro_actions           (int*);
 int   ballyhoo_victory                  (void);
@@ -120,6 +131,7 @@ int   ballyhoo_max_score                (void);
 int   ballyhoo_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   ballyhoo_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   ballyhoo_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  ballyhoo_clean_world_objs         (zobject* objs);
 
 char** curses_intro_actions             (int*);
 int   curses_victory                    (void);
@@ -133,6 +145,7 @@ int   curses_max_score                  (void);
 int   curses_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   curses_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   curses_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  curses_clean_world_objs           (zobject* objs);
 
 char** cutthroat_intro_actions          (int*);
 int   cutthroat_victory                 (void);
@@ -146,6 +159,7 @@ int   cutthroat_max_score               (void);
 int   cutthroat_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   cutthroat_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   cutthroat_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  cutthroat_clean_world_objs        (zobject* objs);
 
 char** deephome_intro_actions           (int*);
 int   deephome_victory                  (void);
@@ -159,6 +173,7 @@ int   deephome_max_score                (void);
 int   deephome_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   deephome_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   deephome_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  deephome_clean_world_objs         (zobject* objs);
 
 char** detective_intro_actions          (int*);
 int   detective_victory                 (void);
@@ -172,6 +187,7 @@ int   detective_max_score               (void);
 int   detective_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   detective_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   detective_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  detective_clean_world_objs        (zobject* objs);
 
 char** dragon_intro_actions             (int*);
 int   dragon_victory                    (void);
@@ -185,6 +201,7 @@ int   dragon_max_score                  (void);
 int   dragon_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   dragon_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   dragon_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  dragon_clean_world_objs           (zobject* objs);
 
 char** enchanter_intro_actions          (int*);
 int   enchanter_victory                 (void);
@@ -198,6 +215,7 @@ int   enchanter_max_score               (void);
 int   enchanter_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   enchanter_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   enchanter_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  enchanter_clean_world_objs        (zobject* objs);
 
 char** enter_intro_actions              (int*);
 int   enter_victory                     (void);
@@ -211,6 +229,7 @@ int   enter_max_score                   (void);
 int   enter_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   enter_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   enter_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  enter_clean_world_objs            (zobject* objs);
 
 char** gold_intro_actions               (int*);
 int   gold_victory                      (void);
@@ -224,6 +243,7 @@ int   gold_max_score                    (void);
 int   gold_ignore_moved_obj             (zword obj_num, zword dest_num);
 int   gold_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   gold_ignore_attr_clr              (zword obj_num, zword attr_idx);
+void  gold_clean_world_objs             (zobject* objs);
 
 char** hhgg_intro_actions               (int*);
 int   hhgg_victory                      (void);
@@ -237,6 +257,7 @@ int   hhgg_max_score                    (void);
 int   hhgg_ignore_moved_obj             (zword obj_num, zword dest_num);
 int   hhgg_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   hhgg_ignore_attr_clr              (zword obj_num, zword attr_idx);
+void  hhgg_clean_world_objs             (zobject* objs);
 
 char** hollywood_intro_actions          (int*);
 int   hollywood_victory                 (void);
@@ -250,6 +271,7 @@ int   hollywood_max_score               (void);
 int   hollywood_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   hollywood_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   hollywood_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  hollywood_clean_world_objs        (zobject* objs);
 
 char** huntdark_intro_actions           (int*);
 int   huntdark_victory                  (void);
@@ -263,6 +285,7 @@ int   huntdark_max_score                (void);
 int   huntdark_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   huntdark_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   huntdark_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  huntdark_clean_world_objs         (zobject* objs);
 
 char** infidel_intro_actions            (int*);
 int   infidel_victory                   (void);
@@ -276,6 +299,7 @@ int   infidel_max_score                 (void);
 int   infidel_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   infidel_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   infidel_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  infidel_clean_world_objs          (zobject* objs);
 
 char** inhumane_intro_actions           (int*);
 int   inhumane_victory                  (void);
@@ -289,6 +313,7 @@ int   inhumane_max_score                (void);
 int   inhumane_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   inhumane_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   inhumane_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  inhumane_clean_world_objs         (zobject* objs);
 
 char** jewel_intro_actions              (int*);
 int   jewel_victory                     (void);
@@ -302,6 +327,7 @@ int   jewel_max_score                   (void);
 int   jewel_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   jewel_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   jewel_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  jewel_clean_world_objs            (zobject* objs);
 
 char** karn_intro_actions               (int*);
 int   karn_victory                      (void);
@@ -315,6 +341,7 @@ int   karn_max_score                    (void);
 int   karn_ignore_moved_obj             (zword obj_num, zword dest_num);
 int   karn_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   karn_ignore_attr_clr              (zword obj_num, zword attr_idx);
+void  karn_clean_world_objs             (zobject* objs);
 
 char** lgop_intro_actions               (int*);
 int   lgop_victory                      (void);
@@ -328,6 +355,7 @@ int   lgop_max_score                    (void);
 int   lgop_ignore_moved_obj             (zword obj_num, zword dest_num);
 int   lgop_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   lgop_ignore_attr_clr              (zword obj_num, zword attr_idx);
+void  lgop_clean_world_objs             (zobject* objs);
 
 char** library_intro_actions            (int*);
 int   library_victory                   (void);
@@ -341,6 +369,7 @@ int   library_max_score                 (void);
 int   library_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   library_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   library_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  library_clean_world_objs          (zobject* objs);
 
 char** loose_intro_actions              (int*);
 int   loose_victory                     (void);
@@ -354,6 +383,7 @@ int   loose_max_score                   (void);
 int   loose_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   loose_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   loose_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  loose_clean_world_objs            (zobject* objs);
 
 char** lostpig_intro_actions            (int*);
 int   lostpig_victory                   (void);
@@ -367,6 +397,7 @@ int   lostpig_max_score                 (void);
 int   lostpig_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   lostpig_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   lostpig_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  lostpig_clean_world_objs          (zobject* objs);
 
 char** ludicorp_intro_actions           (int*);
 int   ludicorp_victory                  (void);
@@ -380,6 +411,7 @@ int   ludicorp_max_score                (void);
 int   ludicorp_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   ludicorp_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   ludicorp_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  ludicorp_clean_world_objs         (zobject* objs);
 
 char** lurking_intro_actions            (int*);
 int   lurking_victory                   (void);
@@ -393,6 +425,7 @@ int   lurking_max_score                 (void);
 int   lurking_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   lurking_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   lurking_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  lurking_clean_world_objs          (zobject* objs);
 
 char** moonlit_intro_actions            (int*);
 int   moonlit_victory                   (void);
@@ -406,6 +439,7 @@ int   moonlit_max_score                 (void);
 int   moonlit_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   moonlit_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   moonlit_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  moonlit_clean_world_objs          (zobject* objs);
 
 char** murdac_intro_actions             (int*);
 int   murdac_victory                    (void);
@@ -419,6 +453,7 @@ int   murdac_max_score                  (void);
 int   murdac_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   murdac_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   murdac_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  murdac_clean_world_objs           (zobject* objs);
 
 char** night_intro_actions              (int*);
 int   night_victory                     (void);
@@ -432,6 +467,7 @@ int   night_max_score                   (void);
 int   night_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   night_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   night_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  night_clean_world_objs            (zobject* objs);
 
 char** nine05_intro_actions             (int*);
 int   nine05_victory                    (void);
@@ -445,6 +481,7 @@ int   nine05_max_score                  (void);
 int   nine05_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   nine05_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   nine05_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  nine05_clean_world_objs           (zobject* objs);
 
 char** omniquest_intro_actions          (int*);
 int   omniquest_victory                 (void);
@@ -458,6 +495,7 @@ int   omniquest_max_score               (void);
 int   omniquest_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   omniquest_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   omniquest_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  omniquest_clean_world_objs        (zobject* objs);
 
 char** partyfoul_intro_actions          (int*);
 int   partyfoul_victory                 (void);
@@ -471,6 +509,7 @@ int   partyfoul_max_score               (void);
 int   partyfoul_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   partyfoul_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   partyfoul_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  partyfoul_clean_world_objs        (zobject* objs);
 
 char** pentari_intro_actions            (int*);
 int   pentari_victory                   (void);
@@ -484,6 +523,7 @@ int   pentari_max_score                 (void);
 int   pentari_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   pentari_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   pentari_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  pentari_clean_world_objs          (zobject* objs);
 
 char** planetfall_intro_actions         (int*);
 int   planetfall_victory                (void);
@@ -497,6 +537,7 @@ int   planetfall_max_score              (void);
 int   planetfall_ignore_moved_obj       (zword obj_num, zword dest_num);
 int   planetfall_ignore_attr_diff       (zword obj_num, zword attr_idx);
 int   planetfall_ignore_attr_clr        (zword obj_num, zword attr_idx);
+void  planetfall_clean_world_objs       (zobject* objs);
 
 char** plundered_intro_actions          (int*);
 int   plundered_victory                 (void);
@@ -510,6 +551,7 @@ int   plundered_max_score               (void);
 int   plundered_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   plundered_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   plundered_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  plundered_clean_world_objs        (zobject* objs);
 
 char** reverb_intro_actions             (int*);
 int   reverb_victory                    (void);
@@ -523,6 +565,7 @@ int   reverb_max_score                  (void);
 int   reverb_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   reverb_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   reverb_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  reverb_clean_world_objs           (zobject* objs);
 
 char** seastalker_intro_actions         (int*);
 int   seastalker_victory                (void);
@@ -536,6 +579,7 @@ int   seastalker_max_score              (void);
 int   seastalker_ignore_moved_obj       (zword obj_num, zword dest_num);
 int   seastalker_ignore_attr_diff       (zword obj_num, zword attr_idx);
 int   seastalker_ignore_attr_clr        (zword obj_num, zword attr_idx);
+void  seastalker_clean_world_objs       (zobject* objs);
 
 char** sherbet_intro_actions            (int*);
 int   sherbet_victory                   (void);
@@ -549,6 +593,7 @@ int   sherbet_max_score                 (void);
 int   sherbet_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   sherbet_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   sherbet_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  sherbet_clean_world_objs          (zobject* objs);
 
 char** sherlock_intro_actions           (int*);
 int   sherlock_victory                  (void);
@@ -562,6 +607,7 @@ int   sherlock_max_score                (void);
 int   sherlock_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   sherlock_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   sherlock_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  sherlock_clean_world_objs         (zobject* objs);
 
 char** snacktime_intro_actions          (int*);
 int   snacktime_victory                 (void);
@@ -575,6 +621,7 @@ int   snacktime_max_score               (void);
 int   snacktime_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   snacktime_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   snacktime_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  snacktime_clean_world_objs        (zobject* objs);
 
 char** sorcerer_intro_actions           (int*);
 int   sorcerer_victory                  (void);
@@ -588,6 +635,7 @@ int   sorcerer_max_score                (void);
 int   sorcerer_ignore_moved_obj         (zword obj_num, zword dest_num);
 int   sorcerer_ignore_attr_diff         (zword obj_num, zword attr_idx);
 int   sorcerer_ignore_attr_clr          (zword obj_num, zword attr_idx);
+void  sorcerer_clean_world_objs         (zobject* objs);
 
 char** spellbrkr_intro_actions          (int*);
 int   spellbrkr_victory                 (void);
@@ -601,6 +649,7 @@ int   spellbrkr_max_score               (void);
 int   spellbrkr_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   spellbrkr_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   spellbrkr_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  spellbrkr_clean_world_objs        (zobject* objs);
 
 char** spirit_intro_actions             (int*);
 int   spirit_victory                    (void);
@@ -614,6 +663,7 @@ int   spirit_max_score                  (void);
 int   spirit_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   spirit_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   spirit_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  spirit_clean_world_objs           (zobject* objs);
 
 char** temple_intro_actions             (int*);
 int   temple_victory                    (void);
@@ -627,6 +677,7 @@ int   temple_max_score                  (void);
 int   temple_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   temple_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   temple_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  temple_clean_world_objs           (zobject* objs);
 
 char** theatre_intro_actions            (int*);
 int   theatre_victory                   (void);
@@ -640,6 +691,7 @@ int   theatre_max_score                 (void);
 int   theatre_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   theatre_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   theatre_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  theatre_clean_world_objs          (zobject* objs);
 
 char** trinity_intro_actions            (int*);
 int   trinity_victory                   (void);
@@ -653,6 +705,7 @@ int   trinity_max_score                 (void);
 int   trinity_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   trinity_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   trinity_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  trinity_clean_world_objs          (zobject* objs);
 
 char** tryst_intro_actions              (int*);
 int   tryst_victory                     (void);
@@ -666,6 +719,7 @@ int   tryst_max_score                   (void);
 int   tryst_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   tryst_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   tryst_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  tryst_clean_world_objs            (zobject* objs);
 
 char** weapon_intro_actions             (int*);
 int   weapon_victory                    (void);
@@ -679,6 +733,7 @@ int   weapon_max_score                  (void);
 int   weapon_ignore_moved_obj           (zword obj_num, zword dest_num);
 int   weapon_ignore_attr_diff           (zword obj_num, zword attr_idx);
 int   weapon_ignore_attr_clr            (zword obj_num, zword attr_idx);
+void  weapon_clean_world_objs           (zobject* objs);
 
 char** wishbringer_intro_actions        (int*);
 int   wishbringer_victory               (void);
@@ -692,6 +747,7 @@ int   wishbringer_max_score             (void);
 int   wishbringer_ignore_moved_obj      (zword obj_num, zword dest_num);
 int   wishbringer_ignore_attr_diff      (zword obj_num, zword attr_idx);
 int   wishbringer_ignore_attr_clr       (zword obj_num, zword attr_idx);
+void  wishbringer_clean_world_objs      (zobject* objs);
 
 char** yomomma_intro_actions            (int*);
 int   yomomma_victory                   (void);
@@ -705,6 +761,7 @@ int   yomomma_max_score                 (void);
 int   yomomma_ignore_moved_obj          (zword obj_num, zword dest_num);
 int   yomomma_ignore_attr_diff          (zword obj_num, zword attr_idx);
 int   yomomma_ignore_attr_clr           (zword obj_num, zword attr_idx);
+void  yomomma_clean_world_objs          (zobject* objs);
 
 char** zenon_intro_actions              (int*);
 int   zenon_victory                     (void);
@@ -718,6 +775,7 @@ int   zenon_max_score                   (void);
 int   zenon_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   zenon_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   zenon_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  zenon_clean_world_objs            (zobject* objs);
 
 char** zork1_intro_actions              (int*);
 int   zork1_victory                     (void);
@@ -731,6 +789,7 @@ int   zork1_max_score                   (void);
 int   zork1_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   zork1_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   zork1_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  zork1_clean_world_objs            (zobject* objs);
 
 char** zork2_intro_actions              (int*);
 int   zork2_victory                     (void);
@@ -744,6 +803,7 @@ int   zork2_max_score                   (void);
 int   zork2_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   zork2_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   zork2_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  zork2_clean_world_objs            (zobject* objs);
 
 char** zork3_intro_actions              (int*);
 int   zork3_victory                     (void);
@@ -757,6 +817,7 @@ int   zork3_max_score                   (void);
 int   zork3_ignore_moved_obj            (zword obj_num, zword dest_num);
 int   zork3_ignore_attr_diff            (zword obj_num, zword attr_idx);
 int   zork3_ignore_attr_clr             (zword obj_num, zword attr_idx);
+void  zork3_clean_world_objs            (zobject* objs);
 
 char** ztuu_intro_actions               (int*);
 int   ztuu_victory                      (void);
@@ -770,6 +831,7 @@ int   ztuu_max_score                    (void);
 int   ztuu_ignore_moved_obj             (zword obj_num, zword dest_num);
 int   ztuu_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   ztuu_ignore_attr_clr              (zword obj_num, zword attr_idx);
+void  ztuu_clean_world_objs             (zobject* objs);
 
 char** textworld_intro_actions          (int*);
 int   textworld_victory                 (void);
@@ -783,6 +845,7 @@ int   textworld_max_score               (void);
 int   textworld_ignore_moved_obj        (zword obj_num, zword dest_num);
 int   textworld_ignore_attr_diff        (zword obj_num, zword attr_idx);
 int   textworld_ignore_attr_clr         (zword obj_num, zword attr_idx);
+void  textworld_clean_world_objs        (zobject* objs);
 void  textworld_parse_object_tree       (char* text);
 void  textworld_parse_player_object     (char* text);
 
