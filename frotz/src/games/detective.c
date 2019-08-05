@@ -39,7 +39,7 @@ char* detective_clean_observation(char* obs) {
 }
 
 int detective_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
