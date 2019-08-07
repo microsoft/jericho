@@ -39,7 +39,7 @@ char* pentari_clean_observation(char* obs) {
 }
 
 int pentari_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -47,7 +47,7 @@ int pentari_victory() {
 }
 
 int pentari_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "*** You have died ***";
   if (strstr(world, death_text)) {
     return 1;
   }

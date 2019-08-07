@@ -47,7 +47,7 @@ int dragon_victory() {
 }
 
 int dragon_game_over() {
-  char *death_text = "You have just been lightly fried by the Dragon,";
+  char *death_text = "Would you like to RESTART, RESTORE a saved game or QUIT";
   if (strstr(world, death_text)) {
     return 1;
   }

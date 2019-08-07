@@ -39,7 +39,7 @@ char* temple_clean_observation(char* obs) {
 }
 
 int temple_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -47,7 +47,7 @@ int temple_victory() {
 }
 
 int temple_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "*** You have died ***";
   if (strstr(world, death_text)) {
     return 1;
   }
