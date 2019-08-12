@@ -39,15 +39,15 @@ char* advent_clean_observation(char* obs) {
 }
 
 int advent_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int advent_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "Do you want me to try to reincarnate you?";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -63,7 +63,7 @@ int advent_get_moves() {
 }
 
 short advent_get_score() {
-  return zmp[15372]; // Also 15374, 15340
+  return (((short) zmp[15371]) << 8) | zmp[15372]; // Also 15374, 15340
 }
 
 int advent_max_score() {
