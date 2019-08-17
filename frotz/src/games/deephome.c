@@ -47,7 +47,7 @@ int deephome_victory() {
 }
 
 int deephome_game_over() {
-  char *death_text = "Would you like to RESTART, RESTORE a saved game, give the FULL score for that game or QUIT?";
+  char *death_text = "Would you like to RESTART, RESTORE a saved game, give the FULL score for that game or QUIT";
   if (strstr(world, death_text)) {
     return 1;
   }
