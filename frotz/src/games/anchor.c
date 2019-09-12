@@ -50,7 +50,8 @@ int anchor_victory() {
 
 int anchor_game_over() {
   char *death_text = "Do you want me to try to reincarnate you?";
-  if (strstr(world, death_text)) {
+  char *death_text2 = "Would you like to RESTART, RESTORE a saved game, UNDO";
+  if (strstr(world, death_text) || strstr(world, death_text2)) {
     return 1;
   }
   return 0;
