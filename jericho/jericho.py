@@ -243,10 +243,13 @@ class FrotzEnv():
         return frotz_lib.halted() > 0
 
     def step(self, action):
-        # Takes an action and returns the next state, total score
+        # Takes an action and returns the next state, reward, termination
+        old_score = frotz_lib.get_score()
         next_state = frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
-        return next_state, frotz_lib.get_score(), (self.game_over() or self.victory()),\
-            {'moves':self.get_moves()}
+        score = frotz_lib.get_score()
+        reward = score - old_score
+        return next_state, reward, (self.game_over() or self.victory()),\
+            {'moves':self.get_moves(), 'score':score}
 
     def world_changed(self):
         # Returns true if the last action caused a change in the world
@@ -367,14 +370,6 @@ class FrotzEnv():
                 break
             cleared_attrs.append((objs[i], dest[i]))
         return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
-
-
-    def get_ram(self):
-        # Returns the contents of the ZMachine's RAM
-        ram_size = frotz_lib.getRAMSize()
-        ram = np.zeros(ram_size, dtype=np.uint8)
-        frotz_lib.getRAM(as_ctypes(ram))
-        return ram
 
     @classmethod
     def is_fully_supported(cls, story_file):
