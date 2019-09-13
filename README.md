@@ -9,40 +9,49 @@
 pip3 install --user jericho
 ```
 
-## Usage
+## Quickstart
 ```python
+import wget, zipfile
 from jericho import *
-env = FrotzEnv("roms/zork1.z5", seed=12)
-# Take an action in the environment using the step() fuction.
-# The resulting text observation and game score is returned.
-observation, score, done, info = env.step('open mailbox')
-# Reset the game to start anew
-env.reset()
-# Game have different max scores
-env.get_max_score()
-# Saving the game is possible with save_str()
+
+# Download supported games
+wget.download('https://github.com/BYU-PCCL/z-machine-games/archive/master.zip')
+with zipfile.ZipFile("z-machine-games-master.zip","r") as zip_ref:
+    zip_ref.extractall()
+
+# Create the environment, optionally specifying a random seed
+env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5", seed=12)
+
+# Take an action in the environment using the step fuction.
+# The resulting text-observation, reward, and game-over indicator is returned.
+observation, reward, done, info = env.step('open mailbox')
+# Total score and move-count are returned in the info dictionary
+print('Total Score', info['score'], 'Moves', info['moves'])
+
+# Reset the game if it's over
+if done:
+    observation = env.reset()
+
+# Jericho provides information about the game:
+print('Max Possible Score', env.get_max_score())
+print('Recognized Vocabulary Words', list(env.get_dictionary()))
+
+# Saving the game state to a string is possible with save_str
 saved_game = env.save_str()
 # Loading is just as easy
 env.load_str(saved_game)
 
-# Jericho supports visibilty into the game including viewing the RAM
-env.get_ram()
-# And the object tree
-env.get_world_objects()
-# As well as shortcuts for particular objects, such as the player
-env.get_player_object()
-# And their inventory
-env.get_inventory()
-# Or their location
-env.get_player_location()
-
-# It's also possible to get the vocabulary words recognized by the game's parser
-game_dict = env.get_dictionary()
-
-# Finally, to detect whether an action was recognized by the parser and changed the game state
-env.step('hail taxi')
+# To detect whether an action changed the game state
+env.step('take leaflet')
 if env.world_changed():
-  print('We found a valid action!')
+  print('Found a valid action!')
+
+# The object tree contains information about all the objects in the game world.
+all_objects = env.get_world_objects()
+# As well as shortcuts for particular objects
+print('Me:', env.get_player_object())
+print('My Inventory:', env.get_inventory())
+print('My Current Location:', env.get_player_location())
 ```
 
 ## Supported Games
