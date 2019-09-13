@@ -17,24 +17,25 @@ def test_loading_a_textworld_game():
     assert env.get_score() == 0
     assert env.get_max_score() == 3
 
-    state, score, done, _ = env.step("go east")
+    state, reward, done, info = env.step("go east")
     assert not done
-    assert score == 0
+    assert reward == 0
 
-    state, score, done, _ = env.step("insert carrot into chest")
+    state, reward, done, info = env.step("insert carrot into chest")
     assert not done
-    assert score == 2
+    assert reward == 2
 
-    state, score, done, _ = env.step("close chest")
+    state, reward, done, info = env.step("close chest")
     assert done
     assert env.victory()
-    assert score == 3
+    assert reward == 1
+    assert info['score'] == 3
 
     state = env.reset()
-    state, score, done, _ = env.step("eat carrot")
+    state, reward, done, info = env.step("eat carrot")
     assert done
     assert env.game_over()  # Lost
-    assert score == 0
+    assert info['score'] == 0
 
 
 def test_cleaning_observation():
