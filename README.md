@@ -54,6 +54,19 @@ print('My Inventory:', env.get_inventory())
 print('My Current Location:', env.get_player_location())
 ```
 
+## Citing Jericho
+If Jericho is used in your research, please cite the following:
+```
+@article{hausknecht19,
+  title={Interactive Fiction Games: A Colossal Adventure},
+  author={Hausknecht, Matthew and Ammanabrolu, Prithviraj and C\^ot\'{e} Marc-Alexandre and Yuan Xingdi},
+  journal={CoRR},
+  year={2019},
+  url={http://arxiv.org/abs/1909.05398},
+  volume={abs/1909.05398}
+}
+```
+
 ## Supported Games
 Game | Download | MD5 Hash
 --- | --- | ---
@@ -115,17 +128,6 @@ Game | Download | MD5 Hash
 [Zork II](http://ifdb.tads.org/viewgame?id=yzzm4puxyjakk8c4) | zork2.z5 | 5bcd91ee055e9bd42812617571be227b
 [Zork III](http://ifdb.tads.org/viewgame?id=vrsot1zgy1wfcdru) | zork3.z5 | ffda9ee2d428fa2fa8e75a1914ff6959
 [Zork: The Undiscovered Underground](http://ifdb.tads.org/viewgame?id=40hswtkhap88gzvn) | ztuu.z5 | d8e1578470cbc676e013e03d72c93141
-
-## Citing Jericho
-If Jericho is used in your research, please cite the following:
-```
-@misc{jericho,
-      author = {Matthew Hausknecht},
-      title = {Jericho: A learning environment for man-made Interactive Fiction games},
-      howpublished = {\url{https://github.com/microsoft/jericho}},
-      year = {2018}}
-```
-
 
 ## Contributing
 
