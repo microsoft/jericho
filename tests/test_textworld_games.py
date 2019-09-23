@@ -78,5 +78,6 @@ def test_cleaning_observation():
     like it's a counter. You see a red apple and a knife on the counter. You make out a stove. But the thing hasn't got anything on
     it.
 
+
     """)
     assert [line.strip() for line in state.split("\n")] == [line.strip() for line in EXPECTED.split("\n")]

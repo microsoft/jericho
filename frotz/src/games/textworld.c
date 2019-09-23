@@ -70,7 +70,7 @@ char* textworld_clean_observation(char* obs) {
   parse_score_and_move_count(obs);
   pch = strrchr(obs, '>');
   if (pch != NULL) {
-    *(pch-2) = '\0';
+    *(pch-1) = '\0';
   }
   return obs+1;
 }
