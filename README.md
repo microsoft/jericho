@@ -16,9 +16,11 @@
   </a>
 <p>
     
+<p align="center">
+  A lightweight python-based interface connecting learning agents with interactive fiction games.
+<p>
+    
 <br>
-
-Jericho is a fast, python-based interface that connects learning agents with interactive fiction games.
 
 ## Requirements
 ***Linux***, ***Python 3***, and basic build tools like ***gcc***.
