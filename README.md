@@ -1,4 +1,21 @@
-# Jericho :ghost: [![Build Status](https://travis-ci.org/Microsoft/jericho.svg?branch=master)](https://travis-ci.org/Microsoft/jericho) [![PyPI version](https://badge.fury.io/py/jericho.svg)](https://badge.fury.io/py/jericho)
+<p align="center">
+    <br>
+    <img src="https://raw.githubusercontent.com/microsoft/jericho/master/docs/source/imgs/jericho.png" width="300"/>
+    <br>
+<p>
+
+<p align="center">
+  <a href='https://jericho-py.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/jericho-py/badge/?version=latest' alt='Documentation Status' />
+  </a>
+  <a href='https://travis-ci.org/microsoft/jericho'>
+    <img src='https://travis-ci.org/microsoft/jericho.svg?branch=master' alt='Build Status' />
+  </a>
+  <a href='https://badge.fury.io/py/jericho'>
+    <img src='https://badge.fury.io/py/jericho.svg' alt='PyPI version' />
+  </a>
+<p>
+
 **Jericho is an environment that connects learning agents with interactive fiction games.** Jericho uses [Frotz](http://frotz.sourceforge.net/) and [Ztools](http://inform-fiction.org/zmachine/ztools.html) to provide a fast, python-based interface to Z-machine games.
 
 ## Requirements
