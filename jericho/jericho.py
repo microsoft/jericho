@@ -27,16 +27,23 @@ frotz_lib = cdll.LoadLibrary(os.path.join(FROTZ_LIB_PATH, 'libfrotz.so'))
 
 
 class ZObject(Structure):
-    """ A Z-Machine Object contains the following fields: More info:
-    http://inform-fiction.org/zmachine/standards/z1point1/sect12.html
+    """
+    A Z-Machine Object contains the following fields:
 
-    num: Object number
-    name: Short object name
-    parent: Object number of parent
-    sibling: Object number of sibling
-    child: Object number of child
-    attr: 32-bit array of object attributes
-    properties: list of object properties
+    :param num: Object number
+    :type num: int
+    :param name: Short object name
+    :type name: string
+    :param parent: Object number of parent
+    :type parent: int
+    :param sibling: Object number of sibling
+    :type sibling: int
+    :param child: Object number of child
+    :type child: int
+    :param attr: 32-bit array of object attributes
+    :type attr: array
+    :param properties: object properties
+    :type properties: list
 
     """
     _fields_ = [("num",        c_int),
@@ -86,15 +93,26 @@ class ZObject(Structure):
 
 class DictionaryWord(Structure):
     """
-    A word contained in the dictionary of a game.
+    A word recognized by a game's parser.
 
-    word: Value of the word.
-    is_*: Boolean indicating accepted parts of speech for this word.
-    is_meta: Used for meta commands like 'verbose' and 'script'
-    is_plural: Used for pluralized nouns (e.g. bookcases, rooms)
-    is_dir: Used for direction words (e.g. north, aft)
-    is_special: Used for special commands like 'again' which repeats last action.
+    :param word: The dictionary word itself.
+    :type word: string
+    :param is_noun: Is the word a noun.
+    :type is_noun: boolean
+    :param is_verb: Is the word a verb.
+    :type is_verb: boolean
+    :param is_prep: Is the word a preposition.
+    :type is_prep: boolean
+    :param is_meta: Used for meta commands like 'verbose' and 'script'
+    :type is_meta: boolean
+    :param is_plural: Used for pluralized nouns (e.g. bookcases, rooms)
+    :type is_plural: boolean
+    :param is_dir: Used for direction words (e.g. north, aft)
+    :type is_dir: boolean
+    :param is_special: Used for special commands like 'again' which repeats last action.
+    :type is_special: boolean
 
+    .. note:: Not all games specify the parts of speech for dictionary words.
     """
     _fields_ = [("_word",      c_char*10),
                 ("is_noun",    c_bool),
@@ -200,8 +218,15 @@ class UnsupportedGameWarning(UserWarning):
 
 
 class FrotzEnv():
-    """ FrotzEnv is a fast interface to the ZMachine. """
+    """
+    The Frotz Environment is a fast interface to Z-Machine games.
 
+    :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
+    :param seed: Seed the random number generator used by the emulator. Default seeds to time.
+    :type story_file: path
+    :type seed: int
+
+    """
     def __init__(self, story_file, seed=-1):
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
@@ -220,30 +245,41 @@ class FrotzEnv():
         frotz_lib.shutdown()
 
     def get_dictionary(self):
-        # Returns a list of dictionary words for the game
+        ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
+        by the game's parser. '''
         word_count = frotz_lib.get_dictionary_word_count(self.story_file)
         words = (DictionaryWord * word_count)()
         frotz_lib.get_dictionary(words, word_count)
         return list(words)
 
     def disassemble_game(self):
-        # Prints the routines and strings used by the game
+        ''' Prints the subroutines and strings used by the game. '''
         frotz_lib.disassemble(self.story_file)
 
     def victory(self):
-        # Returns true if the last step caused the game to be won
+        ''' Returns True if the game is over and the player has won. '''
         return frotz_lib.victory() > 0
 
     def game_over(self):
-        # Returns true if the last step caused the game to be over (lost)
+        ''' Returns True if the game is over and the player has lost. '''
         return frotz_lib.game_over() > 0
 
     def emulator_halted(self):
-        # Returns true if the emulator has halted due to a runtime error
+        ''' Returns True if the emulator has halted. To fix a halt, the emulator must be reset. '''
         return frotz_lib.halted() > 0
 
     def step(self, action):
-        # Takes an action and returns the next state, reward, termination
+        '''
+        Takes an action and returns the next state, reward, termination
+
+        :param action: Text command to send to the interpreter.
+        :type action: string
+
+        :returns: A tuple containing the game's textual response to the action,\
+        the immediate reward, a boolean indicating whether the game is over,\
+        and a dictionary of info.
+        :rtype: string, float, boolean, dictionary
+        '''
         old_score = frotz_lib.get_score()
         next_state = frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
         score = frotz_lib.get_score()
@@ -252,31 +288,54 @@ class FrotzEnv():
             {'moves':self.get_moves(), 'score':score}
 
     def world_changed(self):
-        # Returns true if the last action caused a change in the world
+        ''' Returns True if the last action caused a change in the world. '''
         return frotz_lib.world_changed() > 0
 
     def close(self):
+        ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
         frotz_lib.shutdown()
 
     def reset(self):
-        # Resets the game and returns the initial state
+        '''
+        Resets the game.
+
+        :returns: Textual observation for the initial game state.
+        :rtype: string
+        '''
         self.close()
         return frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
 
     def save(self, fname):
-        # Save the game to file. Prefer save_str() for efficiency.
+        '''
+        Saves the game to a file.
+
+        :param fname: Desired filename to save the game to.
+        :type fname: path
+        :raises RuntimeError: if unable to save.
+        '''
         success = frotz_lib.save(fname.encode('utf-8'))
         if success <= 0:
             raise RuntimeError('Unable to save.')
 
     def load(self, fname):
-        # Restore the game from a save file. Prefer load_str() for efficiency.
+        '''
+        Restores the game from a file.
+
+        :param fname: Desired filename to load the game from.
+        :type fname: path
+        :raises RuntimeError: if unable to load.
+        '''
         success = frotz_lib.restore(fname.encode('utf-8'))
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
     def save_str(self):
-        # Saves the game and returns a string containing the saved game
+        '''
+        Saves the game to a string.
+
+        :returns: String containing saved game.
+        :raises RuntimeError: if unable to save.
+        '''
         buff = np.zeros(8192, dtype=np.uint8)
         success = frotz_lib.save_str(as_ctypes(buff))
         if success <= 0:
@@ -284,19 +343,30 @@ class FrotzEnv():
         return buff
 
     def load_str(self, buff):
-        # Load the game from a string buffer given by save_str()
+        '''
+        Loads the game from a string buffer given by save_str()
+
+        :param buff: Buffer to load the game from.
+        :type buff: string
+        :raises RuntimeError: if unable to load.
+        '''
         success = frotz_lib.restore_str(as_ctypes(buff))
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
     def get_player_location(self):
-        # Returns the object corresponding to the location of the player in the world
+        ''' Returns the :class:`jericho.ZObject` corresponding to the location of the player in the world. '''
         parent = self.get_player_object().parent
         return self.get_object(parent)
 
     def get_object(self, obj_num):
-        # Returns an ZObject with the corresponding number or None if
-        # the object doesn't exist.
+        '''
+        Returns a :class:`jericho.ZObject` with the corresponding number or `None` if the object\
+        doesn't exist in the Object Tree.
+
+        :param obj_num: Object number between 0 and len(get_world_objects()).
+        :type obj_num: int
+        '''
         obj = ZObject()
         frotz_lib.get_object(byref(obj), obj_num)
         if obj.num < 0:
@@ -304,21 +374,26 @@ class FrotzEnv():
         return obj
 
     def get_world_objects(self, clean=False):
-        # Returns an array containing all the zobjects in the game. If
-        # clean is True, then noisy objects like Zork1's thief will be
-        # disconnected, allowing the representation to be used as an
-        # indication of the game state from the player's perspective.
+        ''' Returns an array containing all the :class:`jericho.ZObject` in the game.
+
+        :param clean: If True, disconnects noisy objects like Zork1's theif from\
+        the Object Tree. This is mainly useful if using world objects as an\
+        indication of unique game state.
+        :type clean: Boolean
+
+        :returns: Array of ZObjects.
+        '''
         n_objs = frotz_lib.get_num_world_objs()
         objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
         frotz_lib.get_world_objects(objs, clean)
         return objs
 
     def get_player_object(self):
-        # Returns the object corresponding to the player
+        ''' Returns the :class:`jericho.ZObject` corresponding to the player. '''
         return self.get_object(self.player_obj_num)
 
     def get_inventory(self):
-        # Returns a list of objects in the player's posession.
+        ''' Returns a list of :class:`jericho.ZObject` in the player's posession. '''
         inventory = []
         item_nb = self.get_player_object().child
         while item_nb > 0:
@@ -330,24 +405,27 @@ class FrotzEnv():
         return inventory
 
     def get_moves(self):
-        # Returns the number of moves taken
+        ''' Returns the number of moves taken by the player in the current episode. '''
         return frotz_lib.get_moves()
 
     def get_score(self):
-        # Returns the score for the current game
+        ''' Returns the game score accrued in the current episode. '''
         return frotz_lib.get_score()
 
     def get_max_score(self):
-        # Returns the maximum possible score for the game
+        ''' Returns the maximum possible score for the game. '''
         return frotz_lib.get_max_score()
 
     def get_world_diff(self):
-        # Gets the difference in world objects, set attributes, and
-        # cleared attributes for the last timestep.
-        # Returns three tuples of (obj_nb, dest):
-        #   moved_objs:    Tuple of moved objects (obj_nb, obj_destination)
-        #   set_attrs:     Tuple of objects with attrs set: (obj_nb, attr_nb)
-        #   cleared_attrs: Tuple of objects with attrs cleared: (obj_nb, attr_nb)
+        '''
+        Returns the difference in the world object tree, set attributes, and\
+        cleared attributes for the last timestep.
+
+
+        :returns: A Tuple of tuples containing 1) tuple of world objects that \
+        have moved in the Object Tree, 2) tuple of objects whose attributes have\
+        changed, 3) tuple of world objects whose attributes have been cleared.
+        '''
         objs = np.zeros(48, dtype=np.uint16)
         dest = np.zeros(48, dtype=np.uint16)
         frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
@@ -373,5 +451,5 @@ class FrotzEnv():
 
     @classmethod
     def is_fully_supported(cls, story_file):
-        # Returns true if the story_file is amongst the supported games
+        ''' Returns True if the story_file is amongst Jericho's supported games. '''
         return bool(frotz_lib.is_supported(story_file.encode('utf-8')))
