@@ -18,7 +18,7 @@
     
 <br>
 
-**Jericho is an environment that connects learning agents with interactive fiction games.** Jericho uses [Frotz](http://frotz.sourceforge.net/) and [Ztools](http://inform-fiction.org/zmachine/ztools.html) to provide a fast, python-based interface to Z-machine games.
+Jericho is a fast, python-based interface that connects learning agents with interactive fiction games.
 
 ## Requirements
 ***Linux***, ***Python 3***, and basic build tools like ***gcc***.
