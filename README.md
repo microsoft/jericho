@@ -15,6 +15,8 @@
     <img src='https://badge.fury.io/py/jericho.svg' alt='PyPI version' />
   </a>
 <p>
+    
+<br>
 
 **Jericho is an environment that connects learning agents with interactive fiction games.** Jericho uses [Frotz](http://frotz.sourceforge.net/) and [Ztools](http://inform-fiction.org/zmachine/ztools.html) to provide a fast, python-based interface to Z-machine games.
 
