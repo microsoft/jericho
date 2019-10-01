@@ -231,7 +231,7 @@ class FrotzEnv():
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
 
-        if not self.is_fully_supported(story_file):
+        if not bool(frotz_lib.is_supported(story_file.encode('utf-8'))):
             msg = ("Game '{}' is not fully supported. Score, move, change"
                    " detection will be disabled.").format(story_file)
             warnings.warn(msg, UnsupportedGameWarning)
@@ -448,8 +448,3 @@ class FrotzEnv():
                 break
             cleared_attrs.append((objs[i], dest[i]))
         return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
-
-    @classmethod
-    def is_fully_supported(cls, story_file):
-        ''' Returns True if the story_file is amongst Jericho's supported games. '''
-        return bool(frotz_lib.is_supported(story_file.encode('utf-8')))
