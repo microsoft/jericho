@@ -19,7 +19,9 @@ Jericho documentation
    frotz_env
    object_tree
    dictionary
-   load_save
+   template_action_generator
+   util
+   defines
 
 
 Indices and tables

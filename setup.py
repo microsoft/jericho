@@ -32,14 +32,14 @@ if not os.path.isfile(frotz_c_lib):
     sys.exit(1)
 
 setup(name='jericho',
-      version='1.3.1',
+      version='2.0.0',
       install_requires=['numpy'],
       description='A python interface to text-based adventure games.',
       author='Matthew Hausknecht',
       packages=['jericho'],
       include_package_data=True,
       package_dir={'jericho': 'jericho'},
-      package_data={'jericho': ['libfrotz.so']},
+      package_data={'jericho': ['libfrotz.so', 'clubfloyd_verb_counts.json']},
       classifiers=[
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",

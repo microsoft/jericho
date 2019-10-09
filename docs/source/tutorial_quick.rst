@@ -75,7 +75,7 @@ It's possible to get the list of vocabulary words recognized by a game:
 
                 print('Recognized Vocabulary Words', list(env.get_dictionary()))
 
-Note that most games recognize words up to a fixed length of 6 or 9 characters, so truncated words like 'northe' are functionally equivalent to 'northeast.'
+Note that most games recognize words up to a fixed length of 6 or 9 characters, so truncated words like 'northe' are functionally equivalent to 'northeast.' For more information see :doc:`dictionary`.
 
 
 Loading and Saving
@@ -95,7 +95,16 @@ Or to/from a file:
                 env.save('my_saved_game.qzl')
                 env.load('my_saved_game.qzl')
 
-Note that these functions may throw a `RuntimeError` if Jericho is unable to save/load at the current step.
+.. warning:: There are points in games where it's not possible to save. Notably, when the game is asking the player a question it will dissallow saving until the question is answered. An example of this is when the game is over, the interpreter will commonly ask whether you want to RESTART, RESTORE a saved game, or QUIT? If a save is attempted at this point, Jericho will throw a `RuntimeError` as the interpreter prohibits saving until the question is answered or the environment is reset.
+
+We recommend using taking measures to handle possible errors when saving or loading:
+
+.. code-block:: python
+
+                try:
+                    save = env.save_str()
+                except RuntimeError:
+                    print('Skipping Save')
 
 
 Change Detection
@@ -113,7 +122,7 @@ Since many actions may not be recognized by the game's parser, Jericho provides 
 Object Tree
 -----------
 
-The object tree is an internal representation of game state. Jericho provides functions to access all or parts of this tree:
+The object tree is an internal representation of game state. Jericho provides functions to access all or parts of this tree. For more information see :doc:`object_tree`.
 
 .. code-block:: python
 
@@ -121,3 +130,28 @@ The object tree is an internal representation of game state. Jericho provides fu
                 print('Me:', env.get_player_object())
                 print('My Inventory:', env.get_inventory())
                 print('My Current Location:', env.get_player_location())
+
+
+Finding Valid Actions
+---------------------
+
+One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho provides a facility to best-guess identify a list of *valid-actions* that will have an effect on the current game state.
+
+Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` with :meth:`jericho.FrotzEnv.find_valid_actions`, it's possible to identify valid actions as follows:
+
+
+.. code-block:: python
+
+                >>> from jericho import *
+                >>> from jericho.template_action_generator import TemplateActionGenerator
+                >>> env = FrotzEnv('zork1.z5')
+                >>> bindings = env.load_bindings()
+                >>> act_gen = TemplateActionGenerator(bindings)
+                >>> env.reset()
+                'You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.'
+                >>> interactive_objs = [obj[0] for obj in env.identify_interactive_objects(use_object_tree=True)]
+                ['mailbox', 'boarded', 'white']
+                >>> candidate_actions = act_gen.generate_actions(interactive_objs)
+                ['drive boarded', 'swim in mailbox', 'jump white', 'kick boarded','pour white in boarded', ... ]
+                >>> valid_actions = env.find_valid_actions(candidate_actions)
+                ['south', 'open mailbox', 'west', 'north']

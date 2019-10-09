@@ -17,6 +17,8 @@
 import os
 import warnings
 import numpy as np
+from . import defines
+from . import util as utl
 from ctypes import *
 from numpy.ctypeslib import as_ctypes
 from pkg_resources import Requirement, resource_filename
@@ -44,6 +46,13 @@ class ZObject(Structure):
     :type attr: array
     :param properties: object properties
     :type properties: list
+
+    :Example:
+
+    >>> from jericho import *
+    >>> env = FrotzEnv('zork1.z5')
+    >>> env.get_player_object()
+    Obj4: cretin Parent180 Sibling181 Child0 Attributes [7, 9, 14, 30] Properties [18, 17, 7]
 
     """
     _fields_ = [("num",        c_int),
@@ -112,7 +121,22 @@ class DictionaryWord(Structure):
     :param is_special: Used for special commands like 'again' which repeats last action.
     :type is_special: boolean
 
-    .. note:: Not all games specify the parts of speech for dictionary words.
+    :Example:
+
+    >>> from jericho import *
+    >>> env = FrotzEnv('zork1.z5')
+    >>> vocab = env.get_dictionary()
+    [$ve, ., ,, ", a, across, activa, advent, ... zork, zorkmi, zzmgck]
+    >>> [w for w in vocab if w.is_noun]
+    [advent, advert, air, air-p, altar, art, aviato, ax, axe, bag, ... ]
+    >>> [w for w in vocab if w.is_adj]
+    [ancien, antiqu, bare, beauti, birds, black, bloody, blue, ... ]
+
+    .. note:: Many parsers will recognize only the first six or nine characters of\
+    each word. For example `northwest` is functionally equivalent to `northw`.
+
+    .. warning:: Not all games specify the parts of speech for dictionary words.
+
     """
     _fields_ = [("_word",      c_char*10),
                 ("is_noun",    c_bool),
@@ -222,7 +246,7 @@ class FrotzEnv():
     The Frotz Environment is a fast interface to Z-Machine games.
 
     :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
-    :param seed: Seed the random number generator used by the emulator. Default seeds to time.
+    :param seed: Seed the random number generator used by the emulator. Default value of -1 seeds to time.
     :type story_file: path
     :type seed: int
 
@@ -246,7 +270,7 @@ class FrotzEnv():
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
-        by the game's parser. '''
+        by the game's parser. See :doc:`dictionary`. '''
         word_count = frotz_lib.get_dictionary_word_count(self.story_file)
         words = (DictionaryWord * word_count)()
         frotz_lib.get_dictionary(words, word_count)
@@ -257,15 +281,15 @@ class FrotzEnv():
         frotz_lib.disassemble(self.story_file)
 
     def victory(self):
-        ''' Returns True if the game is over and the player has won. '''
+        ''' Returns `True` if the game is over and the player has won. '''
         return frotz_lib.victory() > 0
 
     def game_over(self):
-        ''' Returns True if the game is over and the player has lost. '''
+        ''' Returns `True` if the game is over and the player has lost. '''
         return frotz_lib.game_over() > 0
 
     def emulator_halted(self):
-        ''' Returns True if the emulator has halted. To fix a halt, the emulator must be reset. '''
+        ''' Returns `True` if the emulator has halted. To fix a halted game, use :meth:`jericho.FrotzEnv.reset`. '''
         return frotz_lib.halted() > 0
 
     def step(self, action):
@@ -288,7 +312,21 @@ class FrotzEnv():
             {'moves':self.get_moves(), 'score':score}
 
     def world_changed(self):
-        ''' Returns True if the last action caused a change in the world. '''
+        ''' Returns True if the last action caused a change in the world.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.step('north')[0]
+        'North of House You are facing the north side of a white house.'
+        >>> env.world_changed()
+        True
+        >>> env.step('south')[0]
+        'The windows are all boarded.'
+        >>> env.world_changed()
+        False
+        '''
         return frotz_lib.world_changed() > 0
 
     def close(self):
@@ -300,7 +338,7 @@ class FrotzEnv():
         Resets the game.
 
         :returns: Textual observation for the initial game state.
-        :rtype: string
+
         '''
         self.close()
         return frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
@@ -312,6 +350,7 @@ class FrotzEnv():
         :param fname: Desired filename to save the game to.
         :type fname: path
         :raises RuntimeError: if unable to save.
+
         '''
         success = frotz_lib.save(fname.encode('utf-8'))
         if success <= 0:
@@ -335,6 +374,16 @@ class FrotzEnv():
 
         :returns: String containing saved game.
         :raises RuntimeError: if unable to save.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> try:
+        >>>     save = env.save_str()
+        >>> except RuntimeError:
+        >>>     print('Skipping Save')
+
         '''
         buff = np.zeros(8192, dtype=np.uint8)
         success = frotz_lib.save_str(as_ctypes(buff))
@@ -349,6 +398,17 @@ class FrotzEnv():
         :param buff: Buffer to load the game from.
         :type buff: string
         :raises RuntimeError: if unable to load.
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> try:
+        >>>     save = env.save_str()
+        >>>     env.step('attack troll') # Oops!
+        'You swing and miss. The troll neatly removes your head.'
+        >>>     env.load_str(save) # Whew, let's try something else
+        >>> except RuntimeError:
+        >>>     print('Skipping Save')
+
         '''
         success = frotz_lib.restore_str(as_ctypes(buff))
         if success <= 0:
@@ -362,7 +422,7 @@ class FrotzEnv():
     def get_object(self, obj_num):
         '''
         Returns a :class:`jericho.ZObject` with the corresponding number or `None` if the object\
-        doesn't exist in the Object Tree.
+        doesn't exist in the :doc:`object_tree`.
 
         :param obj_num: Object number between 0 and len(get_world_objects()).
         :type obj_num: int
@@ -381,7 +441,22 @@ class FrotzEnv():
         indication of unique game state.
         :type clean: Boolean
 
-        :returns: Array of ZObjects.
+        :returns: Array of :class:`jericho.ZObject`.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.get_world_objects()
+         Obj0:  Parent0 Sibling0 Child0 Attributes [] Properties [],
+         Obj1: pair hands Parent247 Sibling2 Child0 Attributes [14, 28] Properties [18, 16],
+         Obj2: zorkmid Parent247 Sibling3 Child0 Attributes [] Properties [18, 17],
+         Obj3: way Parent247 Sibling5 Child0 Attributes [14] Properties [18, 17, 16],
+         Obj4: cretin Parent180 Sibling181 Child0 Attributes [7, 9, 14, 30] Properties [18, 17, 7],
+         Obj5: you Parent247 Sibling6 Child0 Attributes [30] Properties [18, 17],
+         ...
+         Obj250: board Parent249 Sibling73 Child0 Attributes [14] Properties [18, 17]
+
         '''
         n_objs = frotz_lib.get_num_world_objs()
         objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
@@ -405,22 +480,21 @@ class FrotzEnv():
         return inventory
 
     def get_moves(self):
-        ''' Returns the number of moves taken by the player in the current episode. '''
+        ''' Returns the integer number of moves taken by the player in the current episode. '''
         return frotz_lib.get_moves()
 
     def get_score(self):
-        ''' Returns the game score accrued in the current episode. '''
+        ''' Returns the integer current game score. '''
         return frotz_lib.get_score()
 
     def get_max_score(self):
-        ''' Returns the maximum possible score for the game. '''
+        ''' Returns the integer maximum possible score for the game. '''
         return frotz_lib.get_max_score()
 
-    def get_world_diff(self):
+    def _get_world_diff(self):
         '''
         Returns the difference in the world object tree, set attributes, and\
         cleared attributes for the last timestep.
-
 
         :returns: A Tuple of tuples containing 1) tuple of world objects that \
         have moved in the Object Tree, 2) tuple of objects whose attributes have\
@@ -448,3 +522,184 @@ class FrotzEnv():
                 break
             cleared_attrs.append((objs[i], dest[i]))
         return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
+
+    def identify_interactive_objects(self, observation='', use_object_tree=False):
+        """
+        Identifies objects in the current location and inventory that are likely 
+        to be interactive.
+
+        :param observation: (optional) narrative response to the last action, used to extract candidate objects.
+        :type observation: string
+        :param use_object_tree: Query the :doc:`object_tree` for names of surrounding objects.
+        :type use_object_tree: boolean
+        :returns: A list-of-lists containing the name(s) for each interactive object.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> obs = env.reset()
+        'You are standing in an open field west of a white house with a boarded front door. There is a small mailbox here.'
+        >>> env.identify_interactive_objects(obs)
+        [['mailbox', 'small'], ['boarded', 'front', 'door'], ['white', 'house']]
+
+        .. note:: Many objects may be referred to in a variety of ways, such as\
+        Zork1's brass latern which may be referred to either as *brass* or *lantern*.\
+        This method groups all such aliases together into a list for each object.
+        """
+        objs = set()
+        state = None
+        try:
+            state = self.save_str()
+            if observation:
+                # Extract objects from observation
+                obs_objs = utl.extract_objs(observation)
+                objs = objs.union(obs_objs)
+                self.load_str(state)
+            # Extract objects from location description
+            look = utl.clean(self.step('look')[0])
+            look_objs = utl.extract_objs(look)
+            objs = objs.union(look_objs)
+            self.load_str(state)
+            # Extract objects from inventory description
+            inv = utl.clean(self.step('inventory')[0])
+            inv_objs = utl.extract_objs(inv)
+            objs = objs.union(inv_objs)
+            self.load_str(state)
+        except RuntimeError:
+            pass
+
+        # Optionally extract objs from the global object tree
+        if use_object_tree:
+            surrounding = utl.get_subtree(self.get_player_location().child, self.get_world_objects())
+            player_obj = self.get_player_object()
+            if player_obj in surrounding:
+                surrounding.remove(player_obj)
+            surrounding_objs = ' '.join([o.name for o in surrounding]).split()
+            objs = objs.union(surrounding_objs)
+
+        # Filter out the objects that aren't in the dictionary
+        dict_words = [w.word for w in self.get_dictionary()]
+        max_word_length = max([len(w) for w in dict_words])
+        to_remove = set()
+        for obj in objs:
+            if obj[:max_word_length] not in dict_words:
+                to_remove.add(obj)
+        objs.difference_update(to_remove)
+
+        desc2obj = {}
+        try:
+            # Filter out objs that aren't examinable
+            if state is not None:
+                for obj in objs:
+                    self.load_str(state)
+                    ex = self.step('examine ' + obj)[0]
+                    if utl.recognized(ex):
+                        if ex in desc2obj:
+                            desc2obj[ex].append(obj)
+                        else:
+                            desc2obj[ex] = [obj]
+                self.load_str(state)
+        except RuntimeError:
+            # Otherwise just use object name as description
+            for obj in objs:
+                desc2obj[obj] = [obj]
+
+        return list(desc2obj.values())
+
+    def find_valid_actions(self, candidate_actions):
+        """
+        Given a list of candidate actions, returns the subset that change
+        the state of the game. Because many different actions may
+        cause the same world change, this method returns the most
+        commonly used action for each world change.
+
+        :param candidate_actions: Candidate actions to test for validity.
+        :type candidate_actions: list
+        :returns: A list of the candidate actions found to be valid.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.find_valid_actions(['north', 'east', 'open mailbox', 'hail taxi'])
+        ['north', 'open mailbox']
+
+        """
+        if self.game_over() or self.victory() or self.emulator_halted():
+            return []
+        diff2acts = {}
+        orig_score = self.get_score()
+        state = self.save_str()
+        for act in candidate_actions:
+            try:
+                self.load_str(state)
+            except RuntimeError:
+                self.reset()
+                self.load_str(state)
+            if isinstance(act, defines.TemplateAction):
+                obs, score, done, info = self.step(act.action)
+            else:
+                obs, score, done, info = self.step(act)
+            if self.emulator_halted():
+                self.reset()
+                continue
+            if score != orig_score or done or self.world_changed():
+                # Heuristic to ignore actions with side-effect of taking items
+                if '(Taken)' in obs:
+                    continue
+                diff = self._get_world_diff()
+                if diff in diff2acts:
+                    if act not in diff2acts[diff]:
+                        diff2acts[diff].append(act)
+                else:
+                    diff2acts[diff] = [act]
+        valid_acts = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
+        try:
+            self.load_str(state)
+        except RuntimeError:
+            self.reset()
+            self.load_str(state)
+        return valid_acts
+
+    def load_bindings(self):
+        """
+        Loads information pertaining to the current game. Resturns a dictionary
+        with the following keys:
+
+        - `name`: Name of the game. E.g. `zork1`
+        - `rom`: Name of the file used to load the game. E.g. `zork1.z5`
+        - `walkthrough`: A walkthrough for the game.
+        - `seed`: Seed necessary to replicate the walkthrough.
+        - `grammar`: List of action templates for the game.
+        - `max_word_length`: Maximum number of characters per word recognized by the parser.
+
+        :raises ValueError: When there are no bindings defined for the current ROM.
+
+        :returns: Dictionary containing game-specific bindings.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> bindings = env.load_bindings()
+        {
+          'name': 'zork1',
+          'rom': 'zork1.z5',
+          'seed': 12,
+          'max_word_length': 6,
+          'minimal_actions': 'Ulysses/wait/pray/inventory/go down/...',
+          'grammar': 'again/g;answer/reply;back;barf/chomp/...',
+          'walkthrough': 'N/N/U/Get egg/D/S/E/Open window/...'
+        }
+
+        .. note:: Walkthroughs are defined for only a few games.
+        """
+        rom = os.path.basename(self.story_file.decode('cp1252'))
+        for k, v in defines.BINDINGS_DICT.items():
+            if v['rom'] == rom:
+                return v
+        if rom in defines.BINDINGS_DICT:
+            return bindings[rom]
+        else:
+            raise ValueError('No bindings available for rom {}'.format(self.story_file))
