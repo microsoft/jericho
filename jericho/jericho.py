@@ -706,3 +706,32 @@ class FrotzEnv():
             return bindings[rom]
         else:
             raise ValueError('No bindings available for rom {}'.format(self.story_file))
+
+
+    def get_world_state_hash(self):
+        """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
+        useful for identifying when the agent has reached new states or returned
+        to existing ones.
+
+        :Example:
+
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.reset()
+        # Start at West of the House with the following hash
+        >>> env.get_world_state_hash()
+        '79c750fff4368efef349b02ff50ffc23'
+        >>> env.step('n')
+        # Moving to North of House changes the hash
+        >>> get_world_state_hash(env)
+        '8a3a8538c0019a69128f755e4b719fbd'
+        >>> env.step('w')
+        # Moving back to West of House we recover the original hash
+        >>> env.get_world_state_hash()
+        '79c750fff4368efef349b02ff50ffc23'
+
+        """
+        import hashlib
+        world_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
+        m = hashlib.md5()
+        m.update(world_str.encode('utf-8'))
+        return m.hexdigest()

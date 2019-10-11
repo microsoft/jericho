@@ -202,32 +202,3 @@ def verb_usage_count(verb, max_word_length=None):
     if verb in clubfloyd_verb_counts:
         return clubfloyd_verb_counts[verb]
     return 0
-
-
-def get_world_state_hash(env):
-    """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
-    useful for identifying when the agent has reached new states or returned
-    to existing ones.
-
-    :Example:
-
-    >>> env = FrotzEnv('zork1.z5')
-    >>> env.reset()
-    # Start at West of the House with the following hash
-    >>> get_world_state_hash(env)
-    '79c750fff4368efef349b02ff50ffc23'
-    >>> env.step('n')
-    # Moving to North of House changes the hash
-    >>> get_world_state_hash(env)
-    '8a3a8538c0019a69128f755e4b719fbd'
-    >>> env.step('w')
-    # Moving back to West of House we recover the original hash
-    >>> get_world_state_hash(env)
-    '79c750fff4368efef349b02ff50ffc23'
-
-    """
-    import hashlib
-    world_str = ', '.join([str(o) for o in env.get_world_objects(clean=True)])
-    m = hashlib.md5()
-    m.update(world_str.encode('utf-8'))
-    return m.hexdigest()
