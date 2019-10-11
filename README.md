@@ -35,7 +35,9 @@ pip3 install --user jericho
 - [Frotz Environment](https://jericho-py.readthedocs.io/en/latest/frotz_env.html)
 - [Object Tree](https://jericho-py.readthedocs.io/en/latest/object_tree.html)
 - [Game Dictionary](https://jericho-py.readthedocs.io/en/latest/dictionary.html)
-- [Loading and Saving](https://jericho-py.readthedocs.io/en/latest/load_save.html)
+- [Template Action Generator](https://jericho-py.readthedocs.io/en/latest/template_action_generator.html)
+- [Utilities](https://jericho-py.readthedocs.io/en/latest/util.html)
+- [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
 ## Citing Jericho
 If Jericho is used in your research, please cite the following:
