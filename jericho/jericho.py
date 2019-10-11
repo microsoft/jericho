@@ -235,6 +235,8 @@ frotz_lib.get_dictionary_word_count.argtypes = [c_char_p]
 frotz_lib.get_dictionary_word_count.restype = int
 frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord)]
 frotz_lib.get_dictionary.restype = None
+frotz_lib.ztools_cleanup.argtypes = []
+frotz_lib.ztools_cleanup.restype = None
 
 
 class UnsupportedGameWarning(UserWarning):
@@ -274,6 +276,7 @@ class FrotzEnv():
         word_count = frotz_lib.get_dictionary_word_count(self.story_file)
         words = (DictionaryWord * word_count)()
         frotz_lib.get_dictionary(words, word_count)
+        frotz_lib.ztools_cleanup()
         return list(words)
 
     def disassemble_game(self):

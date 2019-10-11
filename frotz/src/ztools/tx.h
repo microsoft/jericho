@@ -387,6 +387,7 @@ extern unsigned long file_size;
 #ifdef __STDC__
 int decode_text (unsigned long *);
 void close_story (void);
+void ztools_cleanup (void);
 void configure (int, int);
 void load_cache (void);
 void open_story (const char *);

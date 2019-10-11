@@ -231,11 +231,35 @@ void close_story (void)
 void close_story ()
 #endif
 {
-
     if (gfp != NULL)
 	(void) fclose (gfp);
 
 }/* close_story */
+
+
+#ifdef __STDC__
+void ztools_cleanup (void)
+#else
+void ztools_cleanup ()
+#endif
+{
+    cache_entry_t *cachep, *lastp;
+    lastp = cache;
+    cachep = cache;
+    for (;cachep->flink != NULL && cachep->page_number;) {
+        lastp = cachep;
+        cachep = cachep->flink;
+        free(lastp);
+    }
+    free(cachep);
+
+    if (datap != NULL) {
+      free(datap);
+    }
+
+    close_story();
+}/* ztools_cleanup */
+
 
 #ifdef __STDC__
 void read_page (unsigned int page, void *buffer)

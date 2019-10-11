@@ -4,5 +4,6 @@
 void print_dictionary(const char *rom_file);
 void print_verbs (const char *rom_file);
 void disassemble (const char *rom_file);
+void ztools_cleanup ();
 
 #endif
