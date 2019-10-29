@@ -8,9 +8,9 @@ DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 def test_valid_action_identification():
     rom_path = pjoin(DATA_PATH, '905.z5')
     env = jericho.FrotzEnv(rom_path)
-    bindings = env.load_bindings()
+    bindings = load_bindings(rom_path)
     act_gen = TemplateActionGenerator(bindings)
-    obs = env.reset()
+    obs, info = env.reset()
     # interactive_objs = [obj[0] for obj in env.identify_interactive_objects(use_object_tree=True)]
     interactive_objs = ['phone', 'keys', 'wallet']
     candidate_actions = act_gen.generate_actions(interactive_objs)

@@ -18,7 +18,7 @@ def test_loading_unsupported_game():
         assert issubclass(w[-1].category, UnsupportedGameWarning)
         assert gamefile in str(w[-1].message)
 
-    state = env.reset()
+    state, info = env.reset()
     assert env.get_score() == 0
     assert env.get_max_score() == 0  # Instead of 3.
 
@@ -32,7 +32,7 @@ def test_loading_unsupported_game():
     assert not done  # Instead of True
     assert not env.victory()  # Instead of True
 
-    state = env.reset()
+    state, info = env.reset()
     state, score, done, _ = env.step("eat carrot")
     assert "You lost" in state
     assert not done  # Instead of True

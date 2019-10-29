@@ -10,7 +10,7 @@ DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 
 def test_loading_a_textworld_game():
     env = jericho.FrotzEnv(pjoin(DATA_PATH, "tw-game.z8"))
-    state = env.reset()
+    state, info = env.reset()
 
     assert not env.victory()
     assert not env.game_over()
@@ -41,7 +41,7 @@ def test_loading_a_textworld_game():
 def test_cleaning_observation():
     gamefile = "tw-cooking-recipe3+cook+cut-2057SPdQu0mWiv0k.z8"
     env = jericho.FrotzEnv(pjoin(DATA_PATH, gamefile))
-    state = env.reset()
+    state, info = env.reset()
 
     EXPECTED = textwrap.dedent(
     r"""
