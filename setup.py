@@ -31,8 +31,9 @@ if not os.path.isfile(frotz_c_lib):
     print('ERROR: Unable to find required library %s.'%(frotz_c_lib))
     sys.exit(1)
 
+exec(open('jericho/version.py').read())
 setup(name='jericho',
-      version='2.0.2',
+      version=__version__,
       install_requires=['numpy'],
       description='A python interface to text-based adventure games.',
       author='Matthew Hausknecht',

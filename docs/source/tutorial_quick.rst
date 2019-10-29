@@ -144,8 +144,9 @@ Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` w
 
                 >>> from jericho import *
                 >>> from jericho.template_action_generator import TemplateActionGenerator
-                >>> env = FrotzEnv('zork1.z5')
-                >>> bindings = env.load_bindings()
+                >>> rom = 'zork1.z5'
+                >>> env = FrotzEnv(rom)
+                >>> bindings = load_bindings(rom)
                 >>> act_gen = TemplateActionGenerator(bindings)
                 >>> env.reset()
                 'You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.'

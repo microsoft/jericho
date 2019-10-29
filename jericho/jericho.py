@@ -239,6 +239,51 @@ frotz_lib.ztools_cleanup.argtypes = []
 frotz_lib.ztools_cleanup.restype = None
 
 
+def load_bindings(rom):
+    """
+    Loads information pertaining to the current game. Resturns a dictionary
+    with the following keys:
+
+    - `name`: Name of the game. E.g. `zork1`
+    - `rom`: Name of the file used to load the game. E.g. `zork1.z5`
+    - `walkthrough`: A walkthrough for the game.
+    - `seed`: Seed necessary to replicate the walkthrough.
+    - `grammar`: List of action templates for the game.
+    - `max_word_length`: Maximum number of characters per word recognized by the parser.
+
+    :param rom: Path or name of rom to load.
+    :type rom: string
+
+    :raises ValueError: When there are no bindings defined for the current ROM.
+
+    :returns: Dictionary containing game-specific bindings.
+
+    :Example:
+
+    >>> import jericho
+    >>> bindings = jericho.load_bindings('zork1')
+    {
+      'name': 'zork1',
+      'rom': 'zork1.z5',
+      'seed': 12,
+      'max_word_length': 6,
+      'minimal_actions': 'Ulysses/wait/pray/inventory/go down/...',
+      'grammar': 'again/g;answer/reply;back;barf/chomp/...',
+      'walkthrough': 'N/N/U/Get egg/D/S/E/Open window/...'
+    }
+
+    .. note:: Walkthroughs are defined for only a few games.
+    """
+    rom = os.path.basename(rom)
+    for k, v in defines.BINDINGS_DICT.items():
+        if v['rom'] == rom:
+            return v
+    if rom in defines.BINDINGS_DICT:
+        return bindings[rom]
+    else:
+        raise ValueError('No bindings available for rom {}'.format(self.story_file))
+
+
 class UnsupportedGameWarning(UserWarning):
     pass
 
@@ -340,11 +385,15 @@ class FrotzEnv():
         '''
         Resets the game.
 
-        :returns: Textual observation for the initial game state.
+        :returns: A tuple containing the initial observation,\
+        and a dictionary of info.
+        :rtype: string, dictionary
 
         '''
         self.close()
-        return frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
+        obs_ini = frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
+        score = frotz_lib.get_score()
+        return obs_ini, {'moves':self.get_moves(), 'score':score}
 
     def save(self, fname):
         '''
@@ -664,49 +713,6 @@ class FrotzEnv():
             self.reset()
             self.load_str(state)
         return valid_acts
-
-    def load_bindings(self):
-        """
-        Loads information pertaining to the current game. Resturns a dictionary
-        with the following keys:
-
-        - `name`: Name of the game. E.g. `zork1`
-        - `rom`: Name of the file used to load the game. E.g. `zork1.z5`
-        - `walkthrough`: A walkthrough for the game.
-        - `seed`: Seed necessary to replicate the walkthrough.
-        - `grammar`: List of action templates for the game.
-        - `max_word_length`: Maximum number of characters per word recognized by the parser.
-
-        :raises ValueError: When there are no bindings defined for the current ROM.
-
-        :returns: Dictionary containing game-specific bindings.
-
-        :Example:
-
-        >>> from jericho import *
-        >>> env = FrotzEnv('zork1.z5')
-        >>> bindings = env.load_bindings()
-        {
-          'name': 'zork1',
-          'rom': 'zork1.z5',
-          'seed': 12,
-          'max_word_length': 6,
-          'minimal_actions': 'Ulysses/wait/pray/inventory/go down/...',
-          'grammar': 'again/g;answer/reply;back;barf/chomp/...',
-          'walkthrough': 'N/N/U/Get egg/D/S/E/Open window/...'
-        }
-
-        .. note:: Walkthroughs are defined for only a few games.
-        """
-        rom = os.path.basename(self.story_file.decode('cp1252'))
-        for k, v in defines.BINDINGS_DICT.items():
-            if v['rom'] == rom:
-                return v
-        if rom in defines.BINDINGS_DICT:
-            return bindings[rom]
-        else:
-            raise ValueError('No bindings available for rom {}'.format(self.story_file))
-
 
     def get_world_state_hash(self):
         """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be

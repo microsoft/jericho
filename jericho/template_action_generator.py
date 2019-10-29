@@ -75,8 +75,7 @@ class TemplateActionGenerator:
 
         >>> import jericho
         >>> from jericho.template_action_generator import TemplateActionGenerator
-        >>> env = jericho.FrotzEnv(rom_path)
-        >>> bindings = env.load_bindings()
+        >>> bindings = jericho.load_bindings(rom_path)
         >>> act_gen = TemplateActionGenerator(bindings)
         >>> interactive_objs = ['phone', 'keys', 'wallet']
         >>> act_gen.generate_actions(interactive_objs)
@@ -114,8 +113,7 @@ class TemplateActionGenerator:
 
         >>> import jericho
         >>> from jericho.template_action_generator import TemplateActionGenerator
-        >>> env = jericho.FrotzEnv(rom_path)
-        >>> bindings = env.load_bindings()
+        >>> bindings = jericho.load_bindings(rom_path)
         >>> act_gen = TemplateActionGenerator(bindings)
         >>> interactive_objs = ['phone', 'keys', 'wallet']
         >>> interactive_obj_ids = [718, 325, 64]
