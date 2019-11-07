@@ -302,7 +302,8 @@ class FrotzEnv():
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
 
-        if not bool(frotz_lib.is_supported(story_file.encode('utf-8'))):
+        self.is_fully_supported = bool(frotz_lib.is_supported(story_file.encode('utf-8')))
+        if not self.is_fully_supported:
             msg = ("Game '{}' is not fully supported. Score, move, change"
                    " detection will be disabled.").format(story_file)
             warnings.warn(msg, UnsupportedGameWarning)
@@ -577,7 +578,7 @@ class FrotzEnv():
 
     def identify_interactive_objects(self, observation='', use_object_tree=False):
         """
-        Identifies objects in the current location and inventory that are likely 
+        Identifies objects in the current location and inventory that are likely
         to be interactive.
 
         :param observation: (optional) narrative response to the last action, used to extract candidate objects.
