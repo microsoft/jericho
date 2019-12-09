@@ -39,6 +39,9 @@ pip3 install --user jericho
 - [Utilities](https://jericho-py.readthedocs.io/en/latest/util.html)
 - [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
+## Agents
+Reference implementations of DRRN and TDQN agents may be found at https://github.com/microsoft/tdqn.
+
 ## Citing Jericho
 If Jericho is used in your research, please cite the following:
 ```
