@@ -241,7 +241,7 @@ frotz_lib.ztools_cleanup.restype = None
 
 def load_bindings(rom):
     """
-    Loads information pertaining to the current game. Resturns a dictionary
+    Loads information pertaining to the current game. Returns a dictionary
     with the following keys:
 
     - `name`: Name of the game. E.g. `zork1`
@@ -276,12 +276,10 @@ def load_bindings(rom):
     """
     rom = os.path.basename(rom)
     for k, v in defines.BINDINGS_DICT.items():
-        if v['rom'] == rom:
+        if k == rom or v['rom'] == rom:
             return v
-    if rom in defines.BINDINGS_DICT:
-        return bindings[rom]
-    else:
-        raise ValueError('No bindings available for rom {}'.format(self.story_file))
+
+    raise ValueError('No bindings available for rom {}'.format(rom))
 
 
 class UnsupportedGameWarning(UserWarning):
