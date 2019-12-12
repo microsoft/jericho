@@ -15,6 +15,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import os
+import shutil
+import tempfile
 import warnings
 import numpy as np
 from . import defines
@@ -23,9 +25,8 @@ from ctypes import *
 from numpy.ctypeslib import as_ctypes
 from pkg_resources import Requirement, resource_filename
 
-FROTZ_LIB_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
-
-frotz_lib = cdll.LoadLibrary(os.path.join(FROTZ_LIB_PATH, 'libfrotz.so'))
+JERICHO_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
+FROTZ_LIB_PATH = os.path.join(JERICHO_PATH, 'libfrotz.so')
 
 
 class ZObject(Structure):
@@ -185,58 +186,68 @@ class DictionaryWord(Structure):
         return pos
 
 
-frotz_lib.setup.argtypes = [c_char_p, c_int]
-frotz_lib.setup.restype = c_char_p
-frotz_lib.shutdown.argtypes = []
-frotz_lib.shutdown.restype = None
-frotz_lib.step.argtypes = [c_char_p]
-frotz_lib.step.restype = c_char_p
-frotz_lib.save.argtypes = [c_char_p]
-frotz_lib.save.restype = int
-frotz_lib.restore.argtypes = [c_char_p]
-frotz_lib.restore.restype = int
-frotz_lib.get_object.argtypes = [c_void_p, c_int]
-frotz_lib.get_object.restype = None
-frotz_lib.get_num_world_objs.argtypes = []
-frotz_lib.get_num_world_objs.restype = int
-frotz_lib.get_world_objects.argtypes = [POINTER(ZObject), c_int]
-frotz_lib.get_world_objects.restype = None
-frotz_lib.get_self_object_num.argtypes = []
-frotz_lib.get_self_object_num.restype = int
-frotz_lib.get_moves.argtypes = []
-frotz_lib.get_moves.restype = int
-frotz_lib.get_score.argtypes = []
-frotz_lib.get_score.restype = c_short
-frotz_lib.get_max_score.argtypes = []
-frotz_lib.get_max_score.restype = int
-frotz_lib.save_str.argtypes = [c_void_p]
-frotz_lib.save_str.restype = int
-frotz_lib.restore_str.argtypes = [c_void_p]
-frotz_lib.restore_str.restype = int
-frotz_lib.world_changed.argtypes = []
-frotz_lib.world_changed.restype = int
-frotz_lib.get_cleaned_world_diff.argtypes = [c_void_p, c_void_p]
-frotz_lib.get_cleaned_world_diff.restype = None
-frotz_lib.game_over.argtypes = []
-frotz_lib.game_over.restype = int
-frotz_lib.victory.argtypes = []
-frotz_lib.victory.restype = int
-frotz_lib.halted.argtypes = []
-frotz_lib.halted.restype = int
-frotz_lib.getRAMSize.argtypes = []
-frotz_lib.getRAMSize.restype = int
-frotz_lib.getRAM.argtypes = [c_void_p]
-frotz_lib.getRAM.restype = None
-frotz_lib.disassemble.argtypes = [c_char_p]
-frotz_lib.disassemble.restype = None
-frotz_lib.is_supported.argtypes = [c_char_p]
-frotz_lib.is_supported.restype = int
-frotz_lib.get_dictionary_word_count.argtypes = [c_char_p]
-frotz_lib.get_dictionary_word_count.restype = int
-frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord)]
-frotz_lib.get_dictionary.restype = None
-frotz_lib.ztools_cleanup.argtypes = []
-frotz_lib.ztools_cleanup.restype = None
+def load_frotz_lib():
+    """ Loads a copy of frotz's shared library. """
+
+    # Make a copy of libfrotz.so before loading it to avoid concurrency issues.
+    with tempfile.TemporaryDirectory() as tmpdir:
+        frotz_lib_path = os.path.join(tmpdir, 'libfrotz.so')
+        shutil.copyfile(FROTZ_LIB_PATH, frotz_lib_path)
+        frotz_lib = cdll.LoadLibrary(frotz_lib_path)
+
+    frotz_lib.setup.argtypes = [c_char_p, c_int]
+    frotz_lib.setup.restype = c_char_p
+    frotz_lib.shutdown.argtypes = []
+    frotz_lib.shutdown.restype = None
+    frotz_lib.step.argtypes = [c_char_p]
+    frotz_lib.step.restype = c_char_p
+    frotz_lib.save.argtypes = [c_char_p]
+    frotz_lib.save.restype = int
+    frotz_lib.restore.argtypes = [c_char_p]
+    frotz_lib.restore.restype = int
+    frotz_lib.get_object.argtypes = [c_void_p, c_int]
+    frotz_lib.get_object.restype = None
+    frotz_lib.get_num_world_objs.argtypes = []
+    frotz_lib.get_num_world_objs.restype = int
+    frotz_lib.get_world_objects.argtypes = [POINTER(ZObject), c_int]
+    frotz_lib.get_world_objects.restype = None
+    frotz_lib.get_self_object_num.argtypes = []
+    frotz_lib.get_self_object_num.restype = int
+    frotz_lib.get_moves.argtypes = []
+    frotz_lib.get_moves.restype = int
+    frotz_lib.get_score.argtypes = []
+    frotz_lib.get_score.restype = c_short
+    frotz_lib.get_max_score.argtypes = []
+    frotz_lib.get_max_score.restype = int
+    frotz_lib.save_str.argtypes = [c_void_p]
+    frotz_lib.save_str.restype = int
+    frotz_lib.restore_str.argtypes = [c_void_p]
+    frotz_lib.restore_str.restype = int
+    frotz_lib.world_changed.argtypes = []
+    frotz_lib.world_changed.restype = int
+    frotz_lib.get_cleaned_world_diff.argtypes = [c_void_p, c_void_p]
+    frotz_lib.get_cleaned_world_diff.restype = None
+    frotz_lib.game_over.argtypes = []
+    frotz_lib.game_over.restype = int
+    frotz_lib.victory.argtypes = []
+    frotz_lib.victory.restype = int
+    frotz_lib.halted.argtypes = []
+    frotz_lib.halted.restype = int
+    frotz_lib.getRAMSize.argtypes = []
+    frotz_lib.getRAMSize.restype = int
+    frotz_lib.getRAM.argtypes = [c_void_p]
+    frotz_lib.getRAM.restype = None
+    frotz_lib.disassemble.argtypes = [c_char_p]
+    frotz_lib.disassemble.restype = None
+    frotz_lib.is_supported.argtypes = [c_char_p]
+    frotz_lib.is_supported.restype = int
+    frotz_lib.get_dictionary_word_count.argtypes = [c_char_p]
+    frotz_lib.get_dictionary_word_count.restype = int
+    frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord)]
+    frotz_lib.get_dictionary.restype = None
+    frotz_lib.ztools_cleanup.argtypes = []
+    frotz_lib.ztools_cleanup.restype = None
+    return frotz_lib
 
 
 def load_bindings(rom):
@@ -300,7 +311,8 @@ class FrotzEnv():
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
 
-        self.is_fully_supported = bool(frotz_lib.is_supported(story_file.encode('utf-8')))
+        self.frotz_lib = load_frotz_lib()
+        self.is_fully_supported = bool(self.frotz_lib.is_supported(story_file.encode('utf-8')))
         if not self.is_fully_supported:
             msg = ("Game '{}' is not fully supported. Score, move, change"
                    " detection will be disabled.").format(story_file)
@@ -308,36 +320,36 @@ class FrotzEnv():
 
         self.story_file = story_file.encode('utf-8')
         self.seed = seed
-        frotz_lib.setup(self.story_file, self.seed)
-        self.player_obj_num = frotz_lib.get_self_object_num()
+        self.frotz_lib.setup(self.story_file, self.seed)
+        self.player_obj_num = self.frotz_lib.get_self_object_num()
 
     def __del__(self):
-        frotz_lib.shutdown()
+        self.frotz_lib.shutdown()
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
         by the game's parser. See :doc:`dictionary`. '''
-        word_count = frotz_lib.get_dictionary_word_count(self.story_file)
+        word_count = self.frotz_lib.get_dictionary_word_count(self.story_file)
         words = (DictionaryWord * word_count)()
-        frotz_lib.get_dictionary(words, word_count)
-        frotz_lib.ztools_cleanup()
+        self.frotz_lib.get_dictionary(words, word_count)
+        self.frotz_lib.ztools_cleanup()
         return list(words)
 
     def disassemble_game(self):
         ''' Prints the subroutines and strings used by the game. '''
-        frotz_lib.disassemble(self.story_file)
+        self.frotz_lib.disassemble(self.story_file)
 
     def victory(self):
         ''' Returns `True` if the game is over and the player has won. '''
-        return frotz_lib.victory() > 0
+        return self.frotz_lib.victory() > 0
 
     def game_over(self):
         ''' Returns `True` if the game is over and the player has lost. '''
-        return frotz_lib.game_over() > 0
+        return self.frotz_lib.game_over() > 0
 
     def emulator_halted(self):
         ''' Returns `True` if the emulator has halted. To fix a halted game, use :meth:`jericho.FrotzEnv.reset`. '''
-        return frotz_lib.halted() > 0
+        return self.frotz_lib.halted() > 0
 
     def step(self, action):
         '''
@@ -351,9 +363,9 @@ class FrotzEnv():
         and a dictionary of info.
         :rtype: string, float, boolean, dictionary
         '''
-        old_score = frotz_lib.get_score()
-        next_state = frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
-        score = frotz_lib.get_score()
+        old_score = self.frotz_lib.get_score()
+        next_state = self.frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
+        score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self.game_over() or self.victory()),\
             {'moves':self.get_moves(), 'score':score}
@@ -374,11 +386,11 @@ class FrotzEnv():
         >>> env.world_changed()
         False
         '''
-        return frotz_lib.world_changed() > 0
+        return self.frotz_lib.world_changed() > 0
 
     def close(self):
         ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
-        frotz_lib.shutdown()
+        self.frotz_lib.shutdown()
 
     def reset(self):
         '''
@@ -390,8 +402,8 @@ class FrotzEnv():
 
         '''
         self.close()
-        obs_ini = frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
-        score = frotz_lib.get_score()
+        obs_ini = self.frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
+        score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self.get_moves(), 'score':score}
 
     def save(self, fname):
@@ -403,7 +415,7 @@ class FrotzEnv():
         :raises RuntimeError: if unable to save.
 
         '''
-        success = frotz_lib.save(fname.encode('utf-8'))
+        success = self.frotz_lib.save(fname.encode('utf-8'))
         if success <= 0:
             raise RuntimeError('Unable to save.')
 
@@ -415,7 +427,7 @@ class FrotzEnv():
         :type fname: path
         :raises RuntimeError: if unable to load.
         '''
-        success = frotz_lib.restore(fname.encode('utf-8'))
+        success = self.frotz_lib.restore(fname.encode('utf-8'))
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
@@ -437,7 +449,7 @@ class FrotzEnv():
 
         '''
         buff = np.zeros(8192, dtype=np.uint8)
-        success = frotz_lib.save_str(as_ctypes(buff))
+        success = self.frotz_lib.save_str(as_ctypes(buff))
         if success <= 0:
             raise RuntimeError('Unable to save.')
         return buff
@@ -461,7 +473,7 @@ class FrotzEnv():
         >>>     print('Skipping Save')
 
         '''
-        success = frotz_lib.restore_str(as_ctypes(buff))
+        success = self.frotz_lib.restore_str(as_ctypes(buff))
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
@@ -479,7 +491,7 @@ class FrotzEnv():
         :type obj_num: int
         '''
         obj = ZObject()
-        frotz_lib.get_object(byref(obj), obj_num)
+        self.frotz_lib.get_object(byref(obj), obj_num)
         if obj.num < 0:
             return None
         return obj
@@ -509,9 +521,9 @@ class FrotzEnv():
          Obj250: board Parent249 Sibling73 Child0 Attributes [14] Properties [18, 17]
 
         '''
-        n_objs = frotz_lib.get_num_world_objs()
+        n_objs = self.frotz_lib.get_num_world_objs()
         objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
-        frotz_lib.get_world_objects(objs, clean)
+        self.frotz_lib.get_world_objects(objs, clean)
         return objs
 
     def get_player_object(self):
@@ -532,15 +544,15 @@ class FrotzEnv():
 
     def get_moves(self):
         ''' Returns the integer number of moves taken by the player in the current episode. '''
-        return frotz_lib.get_moves()
+        return self.frotz_lib.get_moves()
 
     def get_score(self):
         ''' Returns the integer current game score. '''
-        return frotz_lib.get_score()
+        return self.frotz_lib.get_score()
 
     def get_max_score(self):
         ''' Returns the integer maximum possible score for the game. '''
-        return frotz_lib.get_max_score()
+        return self.frotz_lib.get_max_score()
 
     def _get_world_diff(self):
         '''
@@ -553,7 +565,7 @@ class FrotzEnv():
         '''
         objs = np.zeros(48, dtype=np.uint16)
         dest = np.zeros(48, dtype=np.uint16)
-        frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
+        self.frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
         # First 16 spots allocated for objects that have moved
         moved_objs = []
         for i in range(16):
