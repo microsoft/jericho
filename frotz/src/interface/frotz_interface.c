@@ -61,6 +61,7 @@ int ROM_IDX = 0;
 char world[8192] = "";
 int emulator_halted = 0;
 char halted_message[] = "Emulator halted due to runtime error.\n";
+int g_is_running = 0;
 
 // Runs a single opcode on the Z-Machine
 void zstep() {
@@ -293,8 +294,13 @@ void load_rom_bindings(char *story_file) {
   }
 }
 
+int is_running() {
+  return g_is_running;
+}
+
 void shutdown() {
   reset_memory();
+  g_is_running = 0;
 }
 
 // Save the state of the game into a string buffer
@@ -1364,6 +1370,7 @@ char* setup(char *story_file, int seed) {
   text = clean_observation(text);
   strcpy(world, text);
   dumb_clear_screen();
+  g_is_running = 1;
   return world;
 }
 

@@ -184,7 +184,8 @@ class DictionaryWord(Structure):
             pos.append('special')
         return pos
 
-
+frotz_lib.is_running.argtypes = []
+frotz_lib.is_running.restype = int
 frotz_lib.setup.argtypes = [c_char_p, c_int]
 frotz_lib.setup.restype = c_char_p
 frotz_lib.shutdown.argtypes = []
@@ -288,9 +289,16 @@ class UnsupportedGameWarning(UserWarning):
     pass
 
 
-class FrotzEnv():
+class MultipleInstancesWarning(UserWarning):
+    pass
+
+
+class FrotzEnv:
     """
     The Frotz Environment is a fast interface to Z-Machine games.
+
+    Note: This class relies on the Frotz's shared library which contains global variables.
+          For this reason, only a single game can be played per process at once.
 
     :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
     :param seed: Seed the random number generator used by the emulator. Default value of -1 seeds to time.
@@ -301,6 +309,11 @@ class FrotzEnv():
     def __init__(self, story_file, seed=-1):
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
+
+        if frotz_lib.is_running():
+            msg = ("Closing currently running story before loading the new one.")
+            warnings.warn(msg, MultipleInstancesWarning)
+            frotz_lib.shutdown()
 
         self.is_fully_supported = bool(frotz_lib.is_supported(story_file.encode('utf-8')))
         if not self.is_fully_supported:
@@ -314,7 +327,7 @@ class FrotzEnv():
         self.player_obj_num = frotz_lib.get_self_object_num()
 
     def __del__(self):
-        frotz_lib.shutdown()
+        self.close()
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
