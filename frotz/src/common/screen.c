@@ -321,39 +321,39 @@ void screen_word (const zchar *s)
     if (*s == ZC_INDENT && cwp->x_cursor != cwp->left + 1)
 	screen_char (*s++);
 
-    if (units_left () < (width = os_string_width (s))) {
+// Disable word wrapping.
+//     if (units_left () < (width = os_string_width (s))) {
 
-	if (!enable_wrapping) {
+// 	if (!enable_wrapping) {
+// 	    zchar c;
 
-	    zchar c;
+// 	    while ((c = *s++) != 0)
 
-	    while ((c = *s++) != 0)
+// 		if (c == ZC_NEW_FONT || c == ZC_NEW_STYLE) {
 
-		if (c == ZC_NEW_FONT || c == ZC_NEW_STYLE) {
+// 		    int arg = (int) *s++;
 
-		    int arg = (int) *s++;
+// 		    if (c == ZC_NEW_FONT)
+// 			os_set_font (arg);
+// 		    if (c == ZC_NEW_STYLE)
+// 			os_set_text_style (arg);
 
-		    if (c == ZC_NEW_FONT)
-			os_set_font (arg);
-		    if (c == ZC_NEW_STYLE)
-			os_set_text_style (arg);
+// 		} else screen_char (c);
 
-		} else screen_char (c);
+// 	    return;
 
-	    return;
+// 	}
 
-	}
+// 	if (*s == ' ' || *s == ZC_INDENT || *s == ZC_GAP)
+// 	    width = os_string_width (++s);
 
-	if (*s == ' ' || *s == ZC_INDENT || *s == ZC_GAP)
-	    width = os_string_width (++s);
+// #ifdef AMIGA
+// 	if (cwin == 0) Justifiable ();
+// #endif
 
-#ifdef AMIGA
-	if (cwin == 0) Justifiable ();
-#endif
+// 	screen_new_line ();
 
-	screen_new_line ();
-
-    }
+//     }
 
     os_display_string (s); cwp->x_cursor += width;
 
