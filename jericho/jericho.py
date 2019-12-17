@@ -324,7 +324,8 @@ class FrotzEnv():
         self.player_obj_num = self.frotz_lib.get_self_object_num()
 
     def __del__(self):
-        self.frotz_lib.shutdown()
+        if hasattr(self, 'frotz_lib'):
+            self.frotz_lib.shutdown()
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
