@@ -360,6 +360,10 @@ void getRAM(unsigned char *ram) {
   memcpy(ram, zmp, h_dynamic_size);
 }
 
+void setRAM(unsigned char *ram) {
+  memcpy(zmp, ram, h_dynamic_size);
+}
+
 int zmp_diff(int addr) {
   if (zmp[addr] != prev_zmp[addr]) {
     return 1;
@@ -381,16 +385,52 @@ int getPC() {
   return pcp - zmp;
 }
 
+void setPC(int v) {
+  pcp = zmp + v;
+}
+
+int getSP() {
+  return sp - stack;
+}
+
+void setSP(int v) {
+  sp = stack + v;
+}
+
+int getFP() {
+  return fp - stack;
+}
+
+void setFP(int v) {
+  fp = stack + v;
+}
+
+int getFrameCount() {
+  return frame_count;
+}
+
+void setFrameCount(int count) {
+  frame_count = count;
+}
+
 int getStackSize() {
-  return STACK_SIZE;
+  return STACK_SIZE*sizeof(zword);
 }
 
 void getStack(unsigned char *s) {
   memcpy(s, stack, STACK_SIZE*sizeof(zword));
 }
 
+void setStack(unsigned char *s) {
+  memcpy(stack, s, STACK_SIZE*sizeof(zword));
+}
+
 void getZArgs(unsigned char *s) {
   memcpy(s, zargs, 8*sizeof(zword));
+}
+
+void setZArgs(unsigned char *s) {
+  memcpy(zargs, s, 8*sizeof(zword));
 }
 
 void get_world_diff(zword *objs, zword *dest) {

@@ -15,6 +15,7 @@ class TestJericho(unittest.TestCase):
         data2 = jericho.load_bindings("905.z5")
         assert data1 == data2
 
+
 def test_multiple_instances():
     gamefile1 = pjoin(DATA_PATH, "905.z5")
     gamefile2 = pjoin(DATA_PATH, "tw-game.z8")
@@ -75,3 +76,25 @@ def test_for_memory_leaks():
     # Less than 1MB memory leak per 1000 load/unload cycles.
     assert (mem_mid - mem_start) < 1024*1024
     assert (mem_end - mem_mid) < 1024*1024
+
+
+def test_copy():
+    gamefile1 = pjoin(DATA_PATH, "905.z5")
+    env1 = jericho.FrotzEnv(pjoin(DATA_PATH, gamefile1))
+    walkthrough = jericho.load_bindings("905")["walkthrough"]
+
+    for i, cmd in enumerate(walkthrough.split("/")):
+        env2 = env1.copy()
+        obs1, score1, done1, infos1 = env1.step(cmd)
+        obs2, score2, done2, infos2 = env2.step(cmd)
+
+        print(cmd)
+        print(obs1)
+
+        assert env1 != env2
+        assert env1.frotz_lib._handle != env2.frotz_lib._handle
+        assert env1.player_obj_num == env2.player_obj_num
+        assert obs1 == obs2
+        assert score1 == score2
+        assert done1 == done2
+        assert infos1 == infos2
