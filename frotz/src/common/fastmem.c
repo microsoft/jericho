@@ -558,6 +558,9 @@ void reset_memory (void)
 	fclose (story_fp);
     story_fp = NULL;
 
+	if (stf_buff) { free(stf_buff); }
+	stf_buff = NULL;
+
     if (undo_mem) {
 	free_undo (undo_count);
 	free (undo_mem);

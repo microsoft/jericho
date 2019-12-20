@@ -54,6 +54,7 @@ extern void insert_obj(zword obj1, zword obj2);
 extern void seed_random (int value);
 extern void set_random_seed (int seed);
 extern void sum(FILE*, char*);
+extern void dumb_free();
 
 zbyte next_opcode;
 int desired_seed = 0;
@@ -295,6 +296,7 @@ void load_rom_bindings(char *story_file) {
 
 void shutdown() {
   reset_memory();
+  dumb_free();
 }
 
 // Save the state of the game into a string buffer

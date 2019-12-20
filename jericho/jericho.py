@@ -28,6 +28,10 @@ from pkg_resources import Requirement, resource_filename
 JERICHO_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
 FROTZ_LIB_PATH = os.path.join(JERICHO_PATH, 'libfrotz.so')
 
+# Function to unload a shared library.
+dlclose_func = CDLL(None).dlclose  # This WON'T work on Win
+dlclose_func.argtypes = [c_void_p]
+
 
 class ZObject(Structure):
     """
@@ -326,6 +330,7 @@ class FrotzEnv():
     def __del__(self):
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
+            dlclose_func(self.frotz_lib._handle)
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\

@@ -555,3 +555,14 @@ char* dumb_get_screen(void) {
 void dumb_clear_screen(void) {
   screen_buffer_ptr = screen_buffer;
 }
+
+void dumb_free(void) {
+	if (screen_data) {
+      free(screen_data);
+	  screen_data = NULL;
+    }
+    if (screen_changes) {
+      free(screen_changes);
+	  screen_changes = NULL;
+    }
+}
