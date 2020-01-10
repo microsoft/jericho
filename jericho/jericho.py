@@ -257,6 +257,15 @@ def load_frotz_lib():
     frotz_lib.setFrameCount.argtypes = [c_int]
     frotz_lib.setFrameCount.restype = None
 
+    frotz_lib.getRngA.argtypes = []
+    frotz_lib.getRngA.restype = np.int64
+    frotz_lib.getRngInterval.argtypes = []
+    frotz_lib.getRngInterval.restype = int
+    frotz_lib.getRngCounter.argtypes = []
+    frotz_lib.getRngCounter.restype = int
+    frotz_lib.setRng.argtypes = [c_long, c_int, c_int]
+    frotz_lib.setRng.restype = None
+
     frotz_lib.getRAMSize.argtypes = []
     frotz_lib.getRAMSize.restype = int
     frotz_lib.getRAM.argtypes = [c_void_p]
@@ -520,14 +529,18 @@ class FrotzEnv():
         sp = self.frotz_lib.getSP()
         fp = self.frotz_lib.getFP()
         frame_count = self.frotz_lib.getFrameCount()
+        rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
 
         env = FrotzEnv(self.story_file.decode(), seed=self.seed)
+
+        env.frotz_lib.setRng(*rng)
         env.frotz_lib.setRAM(as_ctypes(ram))
         env.frotz_lib.setStack(as_ctypes(stack))
         env.frotz_lib.setPC(pc)
         env.frotz_lib.setSP(sp)
         env.frotz_lib.setFP(fp)
         env.frotz_lib.setFrameCount(frame_count)
+
         return env
 
     def get_player_location(self):

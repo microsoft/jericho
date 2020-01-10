@@ -56,6 +56,11 @@ extern void set_random_seed (int seed);
 extern void sum(FILE*, char*);
 extern void dumb_free();
 
+extern long getRngA();
+extern int getRngInterval();
+extern int getRngCounter();
+extern void setRng(long, int, int);
+
 zbyte next_opcode;
 int desired_seed = 0;
 int ROM_IDX = 0;
