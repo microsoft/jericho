@@ -302,6 +302,7 @@ void load_rom_bindings(char *story_file) {
 void shutdown() {
   reset_memory();
   dumb_free();
+  free_setup();
 }
 
 // Save the state of the game into a string buffer
