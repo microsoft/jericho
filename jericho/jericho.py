@@ -520,7 +520,12 @@ class FrotzEnv():
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
-    def copy(self):
+    def get_state(self):
+        '''
+        Gets the internal state.
+
+        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
+        '''
         ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
         stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
         self.frotz_lib.getRAM(as_ctypes(ram))
@@ -530,17 +535,31 @@ class FrotzEnv():
         fp = self.frotz_lib.getFP()
         frame_count = self.frotz_lib.getFrameCount()
         rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
+        state = ram, stack, pc, sp, fp, frame_count, rng
+        return state
 
+    def set_state(self, state):
+        '''
+        Sets the internal state.
+
+        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
+        obtained by :method:`FrotzEnv.get_state()`.
+        :type state: tuple
+        '''
+        ram, stack, pc, sp, fp, frame_count, rng = state
+        self.frotz_lib.setRng(*rng)
+        self.frotz_lib.setRAM(as_ctypes(ram))
+        self.frotz_lib.setStack(as_ctypes(stack))
+        self.frotz_lib.setPC(pc)
+        self.frotz_lib.setSP(sp)
+        self.frotz_lib.setFP(fp)
+        self.frotz_lib.setFrameCount(frame_count)
+
+    def copy(self):
+        ''' Forks this FrotzEnv instance. '''
+        state = self.get_state()
         env = FrotzEnv(self.story_file.decode(), seed=self.seed)
-
-        env.frotz_lib.setRng(*rng)
-        env.frotz_lib.setRAM(as_ctypes(ram))
-        env.frotz_lib.setStack(as_ctypes(stack))
-        env.frotz_lib.setPC(pc)
-        env.frotz_lib.setSP(sp)
-        env.frotz_lib.setFP(fp)
-        env.frotz_lib.setFrameCount(frame_count)
-
+        env.set_state(state)
         return env
 
     def get_player_location(self):
@@ -677,6 +696,7 @@ class FrotzEnv():
         This method groups all such aliases together into a list for each object.
         """
         objs = set()
+        state = self.get_state()
         try:
             if observation:
                 # Extract objects from observation
@@ -684,18 +704,20 @@ class FrotzEnv():
                 objs = objs.union(obs_objs)
 
             # Extract objects from location description
-            fork = self.copy()
-            look = utl.clean(fork.step('look')[0])
+            self.set_state(state)
+            look = utl.clean(self.step('look')[0])
             look_objs = utl.extract_objs(look)
             objs = objs.union(look_objs)
 
             # Extract objects from inventory description
-            fork = self.copy()
-            inv = utl.clean(fork.step('inventory')[0])
+            self.set_state(state)
+            inv = utl.clean(self.step('inventory')[0])
             inv_objs = utl.extract_objs(inv)
             objs = objs.union(inv_objs)
         except RuntimeError:
             pass
+        finally:
+            self.set_state(state)
 
         # Optionally extract objs from the global object tree
         if use_object_tree:
@@ -719,8 +741,8 @@ class FrotzEnv():
         try:
             # Filter out objs that aren't examinable
             for obj in objs:
-                fork = self.copy()
-                ex = fork.step('examine ' + obj)[0]
+                self.set_state(state)
+                ex = self.step('examine ' + obj)[0]
                 if utl.recognized(ex):
                     if ex in desc2obj:
                         desc2obj[ex].append(obj)
@@ -730,6 +752,8 @@ class FrotzEnv():
             # Otherwise just use object name as description
             for obj in objs:
                 desc2obj[obj] = [obj]
+        finally:
+            self.set_state(state)
 
         return list(desc2obj.values())
 
@@ -756,26 +780,29 @@ class FrotzEnv():
             return []
         diff2acts = {}
         orig_score = self.get_score()
+        state = self.get_state()
         for act in candidate_actions:
-            fork = self.copy()
+            self.set_state(state)
+
             if isinstance(act, defines.TemplateAction):
-                obs, score, done, info = fork.step(act.action)
+                obs, score, done, info = self.step(act.action)
             else:
-                obs, score, done, info = fork.step(act)
-            if fork.emulator_halted():
-                fork.reset()
+                obs, score, done, info = self.step(act)
+            if self.emulator_halted():
+                self.reset()
                 continue
-            if score != orig_score or done or fork.world_changed():
+            if score != orig_score or done or self.world_changed():
                 # Heuristic to ignore actions with side-effect of taking items
                 if '(Taken)' in obs:
                     continue
-                diff = fork._get_world_diff()
+                diff = self._get_world_diff()
                 if diff in diff2acts:
                     if act not in diff2acts[diff]:
                         diff2acts[diff].append(act)
                 else:
                     diff2acts[diff] = [act]
         valid_acts = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
+        self.set_state(state)
         return valid_acts
 
     def get_world_state_hash(self):
