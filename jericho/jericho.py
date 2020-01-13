@@ -697,27 +697,24 @@ class FrotzEnv():
         """
         objs = set()
         state = self.get_state()
-        try:
-            if observation:
-                # Extract objects from observation
-                obs_objs = utl.extract_objs(observation)
-                objs = objs.union(obs_objs)
 
-            # Extract objects from location description
-            self.set_state(state)
-            look = utl.clean(self.step('look')[0])
-            look_objs = utl.extract_objs(look)
-            objs = objs.union(look_objs)
+        if observation:
+            # Extract objects from observation
+            obs_objs = utl.extract_objs(observation)
+            objs = objs.union(obs_objs)
 
-            # Extract objects from inventory description
-            self.set_state(state)
-            inv = utl.clean(self.step('inventory')[0])
-            inv_objs = utl.extract_objs(inv)
-            objs = objs.union(inv_objs)
-        except RuntimeError:
-            pass
-        finally:
-            self.set_state(state)
+        # Extract objects from location description
+        self.set_state(state)
+        look = utl.clean(self.step('look')[0])
+        look_objs = utl.extract_objs(look)
+        objs = objs.union(look_objs)
+
+        # Extract objects from inventory description
+        self.set_state(state)
+        inv = utl.clean(self.step('inventory')[0])
+        inv_objs = utl.extract_objs(inv)
+        objs = objs.union(inv_objs)
+        self.set_state(state)
 
         # Optionally extract objs from the global object tree
         if use_object_tree:
@@ -738,22 +735,16 @@ class FrotzEnv():
         objs.difference_update(to_remove)
 
         desc2obj = {}
-        try:
-            # Filter out objs that aren't examinable
-            for obj in objs:
-                self.set_state(state)
-                ex = self.step('examine ' + obj)[0]
-                if utl.recognized(ex):
-                    if ex in desc2obj:
-                        desc2obj[ex].append(obj)
-                    else:
-                        desc2obj[ex] = [obj]
-        except RuntimeError:
-            # Otherwise just use object name as description
-            for obj in objs:
-                desc2obj[obj] = [obj]
-        finally:
+        # Filter out objs that aren't examinable
+        for obj in objs:
             self.set_state(state)
+            ex = self.step('examine ' + obj)[0]
+            if utl.recognized(ex):
+                if ex in desc2obj:
+                    desc2obj[ex].append(obj)
+                else:
+                    desc2obj[ex] = [obj]
+        self.set_state(state)
 
         return list(desc2obj.values())
 
