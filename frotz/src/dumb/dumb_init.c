@@ -178,26 +178,37 @@ void free_setup()
 {
     if (f_setup.story_file != NULL)
         free(f_setup.story_file);
+    f_setup.story_file = NULL;
     if (f_setup.story_name != NULL)
         free(f_setup.story_name);
+    f_setup.story_name = NULL;
     if (f_setup.story_base != NULL)
         free(f_setup.story_base);
+    f_setup.story_base = NULL;
     if (f_setup.script_name != NULL)
         free(f_setup.script_name);
+    f_setup.script_name = NULL;
     if (f_setup.command_name != NULL)
         free(f_setup.command_name);
+    f_setup.command_name = NULL;
     if (f_setup.save_name != NULL)
         free(f_setup.save_name);
+    f_setup.save_name = NULL;
     if (f_setup.tmp_save_name != NULL)
         free(f_setup.tmp_save_name);
+    f_setup.tmp_save_name = NULL;
     if (f_setup.aux_name != NULL)
         free(f_setup.aux_name);
+    f_setup.aux_name = NULL;
     if (f_setup.story_path != NULL)
         free(f_setup.story_path);
+    f_setup.story_path = NULL;
     if (f_setup.zcode_path != NULL)
         free(f_setup.zcode_path);
+    f_setup.zcode_path = NULL;
     if (f_setup.restricted_path != NULL)
         free(f_setup.restricted_path);
+    f_setup.restricted_path = NULL;
 }
 
 void load_story(char *s)

@@ -237,10 +237,47 @@ def load_frotz_lib():
     frotz_lib.victory.restype = int
     frotz_lib.halted.argtypes = []
     frotz_lib.halted.restype = int
+    frotz_lib.getPC.argtypes = []
+    frotz_lib.getPC.restype = int
+    frotz_lib.setPC.argtypes = [c_int]
+    frotz_lib.setPC.restype = None
+
+    frotz_lib.getSP.argtypes = []
+    frotz_lib.getSP.restype = int
+    frotz_lib.setSP.argtypes = [c_int]
+    frotz_lib.setSP.restype = None
+
+    frotz_lib.getFP.argtypes = []
+    frotz_lib.getFP.restype = int
+    frotz_lib.setFP.argtypes = [c_int]
+    frotz_lib.setFP.restype = None
+
+    frotz_lib.getFrameCount.argtypes = []
+    frotz_lib.getFrameCount.restype = int
+    frotz_lib.setFrameCount.argtypes = [c_int]
+    frotz_lib.setFrameCount.restype = None
+
+    frotz_lib.getRngA.argtypes = []
+    frotz_lib.getRngA.restype = np.int64
+    frotz_lib.getRngInterval.argtypes = []
+    frotz_lib.getRngInterval.restype = int
+    frotz_lib.getRngCounter.argtypes = []
+    frotz_lib.getRngCounter.restype = int
+    frotz_lib.setRng.argtypes = [c_long, c_int, c_int]
+    frotz_lib.setRng.restype = None
+
     frotz_lib.getRAMSize.argtypes = []
     frotz_lib.getRAMSize.restype = int
     frotz_lib.getRAM.argtypes = [c_void_p]
     frotz_lib.getRAM.restype = None
+    frotz_lib.setRAM.argtypes = [c_void_p]
+    frotz_lib.setRAM.restype = None
+    frotz_lib.getStack.argtypes = [c_void_p]
+    frotz_lib.getStack.restype = None
+    frotz_lib.setStack.argtypes = [c_void_p]
+    frotz_lib.setStack.restype = None
+    frotz_lib.getStackSize.argtypes = []
+    frotz_lib.getStackSize.restype = int
     frotz_lib.disassemble.argtypes = [c_char_p]
     frotz_lib.disassemble.restype = None
     frotz_lib.is_supported.argtypes = [c_char_p]
@@ -483,6 +520,48 @@ class FrotzEnv():
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
+    def get_state(self):
+        '''
+        Gets the internal state.
+
+        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
+        '''
+        ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
+        stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
+        self.frotz_lib.getRAM(as_ctypes(ram))
+        self.frotz_lib.getStack(as_ctypes(stack))
+        pc = self.frotz_lib.getPC()
+        sp = self.frotz_lib.getSP()
+        fp = self.frotz_lib.getFP()
+        frame_count = self.frotz_lib.getFrameCount()
+        rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
+        state = ram, stack, pc, sp, fp, frame_count, rng
+        return state
+
+    def set_state(self, state):
+        '''
+        Sets the internal state.
+
+        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
+        obtained by :method:`FrotzEnv.get_state()`.
+        :type state: tuple
+        '''
+        ram, stack, pc, sp, fp, frame_count, rng = state
+        self.frotz_lib.setRng(*rng)
+        self.frotz_lib.setRAM(as_ctypes(ram))
+        self.frotz_lib.setStack(as_ctypes(stack))
+        self.frotz_lib.setPC(pc)
+        self.frotz_lib.setSP(sp)
+        self.frotz_lib.setFP(fp)
+        self.frotz_lib.setFrameCount(frame_count)
+
+    def copy(self):
+        ''' Forks this FrotzEnv instance. '''
+        state = self.get_state()
+        env = FrotzEnv(self.story_file.decode(), seed=self.seed)
+        env.set_state(state)
+        return env
+
     def get_player_location(self):
         ''' Returns the :class:`jericho.ZObject` corresponding to the location of the player in the world. '''
         parent = self.get_player_object().parent
@@ -607,7 +686,7 @@ class FrotzEnv():
 
         >>> from jericho import *
         >>> env = FrotzEnv('zork1.z5')
-        >>> obs = env.reset()
+        >>> obs, info = env.reset()
         'You are standing in an open field west of a white house with a boarded front door. There is a small mailbox here.'
         >>> env.identify_interactive_objects(obs)
         [['mailbox', 'small'], ['boarded', 'front', 'door'], ['white', 'house']]
@@ -617,26 +696,28 @@ class FrotzEnv():
         This method groups all such aliases together into a list for each object.
         """
         objs = set()
-        state = None
+        state = self.get_state()
         try:
-            state = self.save_str()
             if observation:
                 # Extract objects from observation
                 obs_objs = utl.extract_objs(observation)
                 objs = objs.union(obs_objs)
-                self.load_str(state)
+
             # Extract objects from location description
+            self.set_state(state)
             look = utl.clean(self.step('look')[0])
             look_objs = utl.extract_objs(look)
             objs = objs.union(look_objs)
-            self.load_str(state)
+
             # Extract objects from inventory description
+            self.set_state(state)
             inv = utl.clean(self.step('inventory')[0])
             inv_objs = utl.extract_objs(inv)
             objs = objs.union(inv_objs)
-            self.load_str(state)
         except RuntimeError:
             pass
+        finally:
+            self.set_state(state)
 
         # Optionally extract objs from the global object tree
         if use_object_tree:
@@ -659,20 +740,20 @@ class FrotzEnv():
         desc2obj = {}
         try:
             # Filter out objs that aren't examinable
-            if state is not None:
-                for obj in objs:
-                    self.load_str(state)
-                    ex = self.step('examine ' + obj)[0]
-                    if utl.recognized(ex):
-                        if ex in desc2obj:
-                            desc2obj[ex].append(obj)
-                        else:
-                            desc2obj[ex] = [obj]
-                self.load_str(state)
+            for obj in objs:
+                self.set_state(state)
+                ex = self.step('examine ' + obj)[0]
+                if utl.recognized(ex):
+                    if ex in desc2obj:
+                        desc2obj[ex].append(obj)
+                    else:
+                        desc2obj[ex] = [obj]
         except RuntimeError:
             # Otherwise just use object name as description
             for obj in objs:
                 desc2obj[obj] = [obj]
+        finally:
+            self.set_state(state)
 
         return list(desc2obj.values())
 
@@ -699,13 +780,10 @@ class FrotzEnv():
             return []
         diff2acts = {}
         orig_score = self.get_score()
-        state = self.save_str()
+        state = self.get_state()
         for act in candidate_actions:
-            try:
-                self.load_str(state)
-            except RuntimeError:
-                self.reset()
-                self.load_str(state)
+            self.set_state(state)
+
             if isinstance(act, defines.TemplateAction):
                 obs, score, done, info = self.step(act.action)
             else:
@@ -724,11 +802,7 @@ class FrotzEnv():
                 else:
                     diff2acts[diff] = [act]
         valid_acts = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
-        try:
-            self.load_str(state)
-        except RuntimeError:
-            self.reset()
-            self.load_str(state)
+        self.set_state(state)
         return valid_acts
 
     def get_world_state_hash(self):

@@ -27,6 +27,37 @@ static int counter = 0;
 
 
 /*
+ * Functions to get the state of the random number generator.
+ *
+ */
+
+long getRngA() {
+  return A;
+}
+
+int getRngInterval() {
+  return interval;
+}
+
+int getRngCounter() {
+  return counter;
+}
+
+
+/*
+ * set_rng
+ *
+ * Set the state of the random number generator.
+ *
+ */
+void setRng(long p_A, int p_interval, int p_counter) {
+    A = p_A;
+    interval = p_interval;
+    counter = p_counter;
+}
+
+
+/*
  * seed_random
  *
  * Set the seed value for the random number generator.

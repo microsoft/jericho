@@ -1,4 +1,5 @@
 import os
+import sys
 import unittest
 from os.path import join as pjoin
 
@@ -14,6 +15,7 @@ class TestJericho(unittest.TestCase):
         data1 = jericho.load_bindings("905")
         data2 = jericho.load_bindings("905.z5")
         assert data1 == data2
+
 
 def test_multiple_instances():
     gamefile1 = pjoin(DATA_PATH, "905.z5")
@@ -46,13 +48,19 @@ def test_for_memory_leaks():
         import resource
         return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
+    unit = 1024  # Denominator to get memory usage in MB.
+    if sys.platform == 'darwin':
+        # According to https://github.com/apple/darwin-xnu/blob/master/bsd/man/man2/getrusage.2#L95
+        # OSX outputs ru_maxrss in bytes rather then kilobytes.
+        unit = 1024 * 1024
+
     gamefile1 = pjoin(DATA_PATH, "905.z5")
     env1 = jericho.FrotzEnv(gamefile1)
     env1.reset()
     del env1
 
     mem_start = _get_mem()
-    print('Memory usage: {:.1f}MB'.format(mem_start / 1024))
+    print('Memory usage: {:.1f}MB'.format(mem_start / unit))
     for _ in range(1000):
         # Make sure we don't have memory leak.
         env1 = jericho.FrotzEnv(gamefile1)
@@ -61,7 +69,7 @@ def test_for_memory_leaks():
 
     mem_mid = _get_mem()
     print('Memory usage: {:.1f}MB ({:+.1f}MB)'.format(
-           mem_mid / 1024, (mem_mid-mem_start) / 1024 ))
+           mem_mid / unit, (mem_mid-mem_start) / unit ))
 
     for _ in range(1000):
         env1 = jericho.FrotzEnv(gamefile1)
@@ -70,8 +78,28 @@ def test_for_memory_leaks():
 
     mem_end = _get_mem()
     print('Memory usage: {:.1f}MB ({:+.1f}MB)'.format(
-          mem_end / 1024, (mem_end-mem_mid) / 1024))
+          mem_end / unit, (mem_end-mem_mid) / unit))
 
     # Less than 1MB memory leak per 1000 load/unload cycles.
-    assert (mem_mid - mem_start) < 1024*1024
-    assert (mem_end - mem_mid) < 1024*1024
+    assert (mem_mid - mem_start) < 1024 * 1024
+    assert (mem_end - mem_mid) < 1024 * 1024
+
+
+def test_copy():
+    rom = pjoin(DATA_PATH, "905.z5")
+    bindings = jericho.load_bindings(rom)
+    env = jericho.FrotzEnv(rom, seed=bindings['seed'])
+    env.reset()
+
+    walkthrough = bindings['walkthrough'].split('/')
+    expected = [env.step(act) for act in walkthrough]
+
+    env.reset()
+    for i, act in enumerate(walkthrough):
+        obs, rew, done, info = env.step(act)
+
+        if i + 1 < len(walkthrough):
+            fork = env.copy()
+            for j, cmd in enumerate(walkthrough[i+1:], start=i+1):
+                obs, rew, done, info = fork.step(cmd)
+                assert (obs, rew, done, info) == expected[j]
