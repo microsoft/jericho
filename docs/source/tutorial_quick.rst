@@ -23,13 +23,13 @@ From Github
 
 .. code-block:: bash
 
-    git clone https://github.com/microsoft/jericho.git ~/jericho
+    git clone https://github.com/microsoft/jericho.git
 
 2. Install Jericho:
 
 .. code-block:: bash
 
-    cd ~/jericho; pip3 install --user .
+    cd jericho; pip3 install --user .
 
 
 Acquire Games
@@ -81,12 +81,16 @@ Note that most games recognize words up to a fixed length of 6 or 9 characters, 
 Loading and Saving
 ------------------
 
-It's possible to save and load the game state using the following methods:
+It's possible to save and load the game state using :meth:`jericho.FrotzEnv.get_state` and :meth:`jericho.FrotzEnv.set_state`:
 
 .. code-block:: python
 
-                game_state = env.get_state()
-                env.set_state(game_state)
+                from jericho import *
+                env = FrotzEnv(rom_path)
+                state = env.get_state() # Save the game to state
+                env.step('attack troll') # Oops!
+                'You swing and miss. The troll neatly removes your head.'
+                env.set_state(state) # Restore to saved state
 
 
 Change Detection
@@ -138,3 +142,23 @@ Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` w
                 ['drive boarded', 'swim in mailbox', 'jump white', 'kick boarded','pour white in boarded', ... ]
                 >>> valid_actions = env.find_valid_actions(candidate_actions)
                 ['south', 'open mailbox', 'west', 'north']
+
+
+Walkthroughs
+------------
+
+Jericho provides walkthroughs to a subset of the supported games. If a game's walkthrough is defined, it will be stored in the bindings dictionary for the game under the key 'walkthrough'. To use the walkthrough, it is also necessary to set the desired seed when initializing the FrotzEnv.
+
+If you have a walkthrough for a Jericho-supported game, please send us a PR.
+
+.. code-block:: python
+
+                >>> from jericho import *
+                >>> rom = 'zork1.z5'
+                >>> bindings = load_bindings(rom)
+                >>> if 'walkthrough' in bindings:
+                >>>     walkthrough = bindings['walkthrough'].split('/')
+                >>>     seed = bindings['seed']
+                >>>     env = FrotzEnv(rom, seed=seed)
+                >>>     for act in walkthrough:
+                >>>         env.step(act)

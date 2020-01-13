@@ -453,6 +453,9 @@ class FrotzEnv():
         '''
         Saves the game to a file.
 
+        .. deprecated:: 2.3
+           Use :meth:`jericho.FrotzEnv.get_state` instead.
+
         :param fname: Desired filename to save the game to.
         :type fname: path
         :raises RuntimeError: if unable to save.
@@ -466,6 +469,9 @@ class FrotzEnv():
         '''
         Restores the game from a file.
 
+        .. deprecated:: 2.3
+           Use :meth:`jericho.FrotzEnv.set_state` instead.
+
         :param fname: Desired filename to load the game from.
         :type fname: path
         :raises RuntimeError: if unable to load.
@@ -477,6 +483,9 @@ class FrotzEnv():
     def save_str(self):
         '''
         Saves the game to a string.
+
+        .. deprecated:: 2.3
+           Use :meth:`jericho.FrotzEnv.get_state` instead.
 
         :returns: String containing saved game.
         :raises RuntimeError: if unable to save.
@@ -491,6 +500,7 @@ class FrotzEnv():
         >>>     print('Skipping Save')
 
         '''
+        warnings.warn('save_str is deprecated; use get_state instead.', DeprecationWarning)
         buff = np.zeros(8192, dtype=np.uint8)
         success = self.frotz_lib.save_str(as_ctypes(buff))
         if success <= 0:
@@ -500,6 +510,9 @@ class FrotzEnv():
     def load_str(self, buff):
         '''
         Loads the game from a string buffer given by save_str()
+
+        .. deprecated:: 2.3
+           Use :meth:`jericho.FrotzEnv.set_state` instead.
 
         :param buff: Buffer to load the game from.
         :type buff: string
@@ -516,15 +529,25 @@ class FrotzEnv():
         >>>     print('Skipping Save')
 
         '''
+        warnings.warn('load_str is deprecated. Use set_state instead.', DeprecationWarning)
         success = self.frotz_lib.restore_str(as_ctypes(buff))
         if success <= 0:
             raise RuntimeError('Unable to load.')
 
     def get_state(self):
         '''
-        Gets the internal state.
+        Returns the internal game state. This state can be subsequently restored
+        using :meth:`jericho.FrotzEnv.set_state`.
 
         :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> state = env.get_state()
+        >>> env.step('attack troll') # Oops!
+        'You swing and miss. The troll neatly removes your head.'
+        >>> env.set_state(state) # Whew, let's try something else
+
         '''
         ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
         stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
@@ -540,11 +563,19 @@ class FrotzEnv():
 
     def set_state(self, state):
         '''
-        Sets the internal state.
+        Sets the game's internal state.
 
         :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
-        obtained by :method:`FrotzEnv.get_state()`.
+        obtained by :meth:`jericho.FrotzEnv.get_state`.
         :type state: tuple
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> state = env.get_state()
+        >>> env.step('attack troll') # Oops!
+        'You swing and miss. The troll neatly removes your head.'
+        >>> env.set_state(state) # Whew, let's try something else
+
         '''
         ram, stack, pc, sp, fp, frame_count, rng = state
         self.frotz_lib.setRng(*rng)
