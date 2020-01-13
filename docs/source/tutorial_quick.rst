@@ -81,30 +81,12 @@ Note that most games recognize words up to a fixed length of 6 or 9 characters, 
 Loading and Saving
 ------------------
 
-It's possible to save and load the current game state to/from a string:
+It's possible to save and load the game state using the following methods:
 
 .. code-block:: python
 
-                saved_game = env.save_str()
-                env.load_str(saved_game)
-
-Or to/from a file:
-
-.. code-block:: python
-
-                env.save('my_saved_game.qzl')
-                env.load('my_saved_game.qzl')
-
-.. warning:: There are points in games where it's not possible to save. Notably, when the game is asking the player a question it will dissallow saving until the question is answered. An example of this is when the game is over, the interpreter will commonly ask whether you want to RESTART, RESTORE a saved game, or QUIT? If a save is attempted at this point, Jericho will throw a `RuntimeError` as the interpreter prohibits saving until the question is answered or the environment is reset.
-
-We recommend using taking measures to handle possible errors when saving or loading:
-
-.. code-block:: python
-
-                try:
-                    save = env.save_str()
-                except RuntimeError:
-                    print('Skipping Save')
+                game_state = env.get_state()
+                env.set_state(game_state)
 
 
 Change Detection
