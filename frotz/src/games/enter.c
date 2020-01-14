@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* enter_clean_observation(char* obs) {
 }
 
 int enter_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -47,7 +47,7 @@ int enter_victory() {
 }
 
 int enter_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "Would you like to RESTART";
   if (strstr(world, death_text)) {
     return 1;
   }

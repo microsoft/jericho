@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -36,7 +36,7 @@ char* sherlock_clean_observation(char* obs) {
 }
 
 int sherlock_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "Once again, Mr Holmes, we find ourselves in your debt.";
   if (strstr(world, death_text)) {
     return 1;
   }

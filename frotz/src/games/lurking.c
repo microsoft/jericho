@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -44,7 +44,7 @@ char* lurking_clean_observation(char* obs) {
 }
 
 int lurking_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "The hacker, mud-covered and weak, staggers to his feet. \"Can I have my key back?\" he asks.";
   if (strstr(world, death_text)) {
     return 1;
   }

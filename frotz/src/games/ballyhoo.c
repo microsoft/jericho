@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* ballyhoo_clean_observation(char* obs) {
 }
 
 int ballyhoo_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "having saved The Traveling Circus That Time Forgot, Inc.";
   if (strstr(world, death_text)) {
     return 1;
   }
