@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* enchanter_clean_observation(char* obs) {
 }
 
 int enchanter_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "Here ends the first chapter of the Enchanter saga";
   if (strstr(world, death_text)) {
     return 1;
   }
