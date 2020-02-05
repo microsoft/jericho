@@ -63,7 +63,7 @@ int enchanter_get_moves() {
 }
 
 short enchanter_get_score() {
-  return zmp[8766];
+  return (((short) zmp[8765]) << 8 ) | zmp[8766];
 }
 
 int enchanter_max_score() {

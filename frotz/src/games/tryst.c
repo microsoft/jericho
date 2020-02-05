@@ -41,15 +41,15 @@ char* tryst_clean_observation(char* obs) {
 }
 
 int tryst_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int tryst_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "*** You have died ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -65,7 +65,7 @@ int tryst_get_moves() {
 }
 
 short tryst_get_score() {
-  return zmp[15261]; //15285, 15287
+  return (((short) zmp[15260]) << 8) | zmp[15261]; //15285, 15287
 }
 
 int tryst_max_score() {

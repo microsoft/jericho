@@ -39,8 +39,8 @@ char* zenon_clean_observation(char* obs) {
 }
 
 int zenon_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
@@ -63,11 +63,11 @@ int zenon_get_moves() {
 }
 
 short zenon_get_score() {
-  return zmp[3742]; //3766, 3768
+  return (((short) zmp[3741]) << 8) | zmp[3742]; //3766, 3768
 }
 
 int zenon_max_score() {
-  return 350;
+  return 20;
 }
 
 int zenon_get_num_world_objs() {

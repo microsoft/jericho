@@ -63,7 +63,7 @@ int sorcerer_get_moves() {
 }
 
 short sorcerer_get_score() {
-  return zmp[9699];
+  return (((short) zmp[9698]) << 8) | zmp[9699];
 }
 
 int sorcerer_max_score() {

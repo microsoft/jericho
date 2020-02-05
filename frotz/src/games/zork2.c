@@ -63,7 +63,7 @@ int zork2_get_moves() {
 }
 
 short zork2_get_score() {
-  return (char) zmp[8936]; // 9110
+  return (((short) zmp[8935]) << 8) | zmp[8936]; // 9110
 }
 
 int zork2_max_score() {

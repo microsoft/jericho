@@ -39,15 +39,15 @@ char* night_clean_observation(char* obs) {
 }
 
 int night_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have saved your job ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int night_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "*** You have died ***";
   if (strstr(world, death_text)) {
     return 1;
   }

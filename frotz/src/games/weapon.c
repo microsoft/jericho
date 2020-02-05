@@ -39,15 +39,15 @@ char* weapon_clean_observation(char* obs) {
 }
 
 int weapon_victory() {
-  char *death_text = "*** You have won ***";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int weapon_game_over() {
-  char *death_text = "*** You have died ***";
+  char *death_text = "*** You have lost ***";
   if (strstr(world, death_text)) {
     return 1;
   }

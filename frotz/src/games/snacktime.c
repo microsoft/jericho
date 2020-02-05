@@ -39,8 +39,8 @@ char* snacktime_clean_observation(char* obs) {
 }
 
 int snacktime_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have snacked ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;

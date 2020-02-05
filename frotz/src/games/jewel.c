@@ -41,8 +41,8 @@ char* jewel_clean_observation(char* obs) {
 }
 
 int jewel_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;

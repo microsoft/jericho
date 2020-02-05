@@ -36,8 +36,8 @@ char* trinity_clean_observation(char* obs) {
 }
 
 int trinity_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "You've completed the story of TRINITY";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
@@ -60,7 +60,7 @@ int trinity_get_moves() {
 }
 
 short trinity_get_score() {
-  return zmp[34215];
+  return (((short) zmp[34214]) << 8) | zmp[34215];
 }
 
 int trinity_max_score() {

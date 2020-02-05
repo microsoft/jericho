@@ -41,8 +41,8 @@ char* seastalker_clean_observation(char* obs) {
 }
 
 int seastalker_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "CONGRATULATIONS, JOHN! YOU'VE COMPLETED YOUR MISSION!!";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;

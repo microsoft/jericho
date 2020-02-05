@@ -103,7 +103,6 @@ BINDINGS_DICT = {
     'inhumane'      : inhumane,
     'jewel'         : jewel,
     'karn'          : karn,
-    'lgop'          : lgop,
     'library'       : library,
     'loose'         : loose,
     'lostpig'       : lostpig,

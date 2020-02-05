@@ -63,7 +63,7 @@ int infidel_get_moves() {
 }
 
 short infidel_get_score() {
-  return zmp[8912];
+  return (((short) zmp[8911]) << 8) | zmp[8912];
 }
 
 int infidel_max_score() {
