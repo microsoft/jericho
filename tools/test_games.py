@@ -22,9 +22,14 @@ args = parse_args()
 filename_max_length = max(map(len, args.filenames))
 for filename in sorted(args.filenames):
     print(filename.ljust(filename_max_length), end=" ")
-    bindings = jericho.load_bindings(filename)
+    try:
+        bindings = jericho.load_bindings(filename)
+    except ValueError:
+        print(colored("SKIP\tUnsupported game", 'yellow'))
+        continue
+
     if "walkthrough" not in bindings:
-        print(colored("SKIP", 'yellow'))
+        print(colored("SKIP\tMissing walkthrough", 'yellow'))
         continue
 
     env = jericho.FrotzEnv(filename, seed=bindings['seed'])
