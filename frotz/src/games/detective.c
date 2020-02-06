@@ -63,7 +63,7 @@ int detective_get_moves() {
 }
 
 short detective_get_score() {
-  return zmp[6802]; // Also 6776, 6804
+  return (((short) zmp[6801]) << 8) | zmp[6802]; // Also 6776, 6804
 }
 
 int detective_max_score() {

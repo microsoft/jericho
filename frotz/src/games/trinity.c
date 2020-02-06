@@ -64,7 +64,7 @@ short trinity_get_score() {
 }
 
 int trinity_max_score() {
-  return 60;
+  return 100;
 }
 
 int trinity_get_num_world_objs() {

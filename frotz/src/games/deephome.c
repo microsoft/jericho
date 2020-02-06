@@ -63,7 +63,7 @@ int deephome_get_moves() {
 }
 
 short deephome_get_score() {
-  return zmp[12434]; // 12436, 12410: 1.0
+  return (((short) zmp[12433]) << 8) | zmp[12434]; // 12436, 12410: 1.0
 }
 
 int deephome_max_score() {

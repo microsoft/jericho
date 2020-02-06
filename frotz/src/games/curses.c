@@ -65,7 +65,7 @@ int curses_get_moves() {
 }
 
 short curses_get_score() {
-  return zmp[23373]; // Also 23383 23399
+  return (((short) zmp[23372]) << 8) | zmp[23373]; // Also 23383 23399
 }
 
 int curses_max_score() {
