@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* infidel_clean_observation(char* obs) {
 }
 
 int infidel_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "Well, someday, someone will discover your bones here. And then you will get your fame.";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -63,7 +63,7 @@ int infidel_get_moves() {
 }
 
 short infidel_get_score() {
-  return zmp[8912];
+  return (((short) zmp[8911]) << 8) | zmp[8912];
 }
 
 int infidel_max_score() {

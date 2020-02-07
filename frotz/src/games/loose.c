@@ -39,7 +39,7 @@ char* loose_clean_observation(char* obs) {
 }
 
 int loose_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -47,7 +47,7 @@ int loose_victory() {
 }
 
 int loose_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "Would you like to RESTART, RESTORE a saved game";
   if (strstr(world, death_text)) {
     return 1;
   }

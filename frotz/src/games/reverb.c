@@ -39,8 +39,8 @@ char* reverb_clean_observation(char* obs) {
 }
 
 int reverb_victory() {
-  char *death_text = "*** You have won ***";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You Rule!  The game's totally over! ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;

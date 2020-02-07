@@ -41,15 +41,15 @@ char* library_clean_observation(char* obs) {
 }
 
 int library_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int library_game_over() {
-  char *death_text = "Would you like to RESTART";
+  char *death_text = "Would you like to RESTART, RESTORE a saved game";
   if (strstr(world, death_text)) {
     return 1;
   }

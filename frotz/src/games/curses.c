@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -41,7 +41,7 @@ char* curses_clean_observation(char* obs) {
 }
 
 int curses_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -65,7 +65,7 @@ int curses_get_moves() {
 }
 
 short curses_get_score() {
-  return zmp[23373]; // Also 23383 23399
+  return (((short) zmp[23372]) << 8) | zmp[23373]; // Also 23383 23399
 }
 
 int curses_max_score() {

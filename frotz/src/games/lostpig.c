@@ -39,15 +39,15 @@ char* lostpig_clean_observation(char* obs) {
 }
 
 int lostpig_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "***  Grunk bring pig back to farm  ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int lostpig_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "Time for Grunk to RESTART or RESTORE a saved story or UNDO";
   if (strstr(world, death_text)) {
     return 1;
   }

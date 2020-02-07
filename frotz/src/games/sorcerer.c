@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* sorcerer_clean_observation(char* obs) {
 }
 
 int sorcerer_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "Once again, this young Enchanter has done a matchless service to the Guild";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -63,7 +63,7 @@ int sorcerer_get_moves() {
 }
 
 short sorcerer_get_score() {
-  return zmp[9699];
+  return (((short) zmp[9698]) << 8) | zmp[9699];
 }
 
 int sorcerer_max_score() {

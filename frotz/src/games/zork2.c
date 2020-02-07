@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ char* zork2_clean_observation(char* obs) {
 }
 
 int zork2_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "The ultimate adventure concludes in \"Zork III: The Dungeon Master\".";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -63,7 +63,7 @@ int zork2_get_moves() {
 }
 
 short zork2_get_score() {
-  return (char) zmp[8936]; // 9110
+  return (((short) zmp[8935]) << 8) | zmp[8936]; // 9110
 }
 
 int zork2_max_score() {

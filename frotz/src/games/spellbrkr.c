@@ -39,8 +39,8 @@ char* spellbrkr_clean_observation(char* obs) {
 }
 
 int spellbrkr_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "The age of magic is ended, as it must, for as magic can confer absolute power, so it can also produce absolute evil. We may defeat this evil when it appears, but if wizardry builds it anew, we can never ultimately win. The new world will be strange, but in time it will serve us better";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
@@ -63,7 +63,7 @@ int spellbrkr_get_moves() {
 }
 
 short spellbrkr_get_score() {
-  return zmp[8725];
+  return (((short) zmp[8724]) << 8) | zmp[8725];
 }
 
 int spellbrkr_max_score() {

@@ -41,15 +41,15 @@ char* theatre_clean_observation(char* obs) {
 }
 
 int theatre_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "*** You have won ***";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
 }
 
 int theatre_game_over() {
-  char *death_text = "****  You have died  ****";
+  char *death_text = "*** You have died ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -65,7 +65,7 @@ int theatre_get_moves() {
 }
 
 short theatre_get_score() {
-  return zmp[17578]; //17588, 17604
+  return (((short) zmp[17577]) << 8) | zmp[17578]; //17588, 17604
 }
 
 int theatre_max_score() {

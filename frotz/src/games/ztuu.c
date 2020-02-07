@@ -39,7 +39,7 @@ char* ztuu_clean_observation(char* obs) {
 }
 
 int ztuu_victory() {
-  char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won ***";
   if (strstr(world, death_text)) {
     return 1;
   }

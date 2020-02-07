@@ -39,8 +39,8 @@ char* inhumane_clean_observation(char* obs) {
 }
 
 int inhumane_victory() {
-  char *death_text = "****  You have won  ****";
-  if (strstr(world, death_text)) {
+  char *victory_text = "--end of session--";
+  if (strstr(world, victory_text)) {
     return 1;
   }
   return 0;
@@ -65,7 +65,7 @@ short inhumane_get_score() {
 }
 
 int inhumane_max_score() {
-  return 300;
+  return 90;
 }
 
 int inhumane_get_num_world_objs() {
