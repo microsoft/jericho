@@ -83,10 +83,14 @@ int hollywood_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int hollywood_ignore_attr_diff(zword obj_num, zword attr_idx) {
+  if (obj_num == 50 && attr_idx == 23)
+    return 1;
   return 0;
 }
 
 int hollywood_ignore_attr_clr(zword obj_num, zword attr_idx) {
+  if (obj_num == 50 && attr_idx == 23)
+    return 1;
   return 0;
 }
 

@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Snack Time!: http://ifdb.tads.org/viewgame?id=yr3y8s9k8e40hl5q
 
+const char *snacktime_intro[] = { "\n" };
+
 char** snacktime_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 1;
+  return snacktime_intro;
 }
 
 char* snacktime_clean_observation(char* obs) {

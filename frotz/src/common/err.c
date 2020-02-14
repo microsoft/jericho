@@ -104,7 +104,7 @@ void runtime_error (int errnum)
 	|| (!f_setup.ignore_errors && errnum <= ERR_MAX_FATAL)) {
 	flush_buffer ();
 	/* os_fatal (err_messages[errnum - 1]); */
-    fprintf(stderr, "\nRuntime error: %s\n", err_messages[errnum - 1]);
+    /* fprintf(stderr, "\nRuntime error: %s\n", err_messages[errnum - 1]); */
     emulator_halted = 1;
 	return;
     }

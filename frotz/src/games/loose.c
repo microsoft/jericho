@@ -24,9 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Mother Loose: http://ifdb.tads.org/viewgame?id=4wd3lyaxi4thp8qi
 
+const char *loose_intro[] = { "\n" };
+
 char** loose_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 1;
+  return loose_intro;
 }
 
 char* loose_clean_observation(char* obs) {
