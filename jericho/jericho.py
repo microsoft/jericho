@@ -805,15 +805,14 @@ class FrotzEnv():
         state = self.get_state()
         for act in candidate_actions:
             self.set_state(state)
-
             if isinstance(act, defines.TemplateAction):
-                obs, score, done, info = self.step(act.action)
+                obs, rew, done, info = self.step(act.action)
             else:
-                obs, score, done, info = self.step(act)
+                obs, rew, done, info = self.step(act)
             if self.emulator_halted():
                 self.reset()
                 continue
-            if score != orig_score or done or self.world_changed():
+            if info['score'] != orig_score or done or self.world_changed():
                 # Heuristic to ignore actions with side-effect of taking items
                 if '(Taken)' in obs:
                     continue
