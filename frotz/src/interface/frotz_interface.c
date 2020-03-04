@@ -1438,6 +1438,14 @@ char* step(char *next_action) {
   return world;
 }
 
+char* get_narrative_text() {
+  return world;
+}
+
+void set_narrative_text(char* text) {
+  strcpy(world, text);
+}
+
 // Returns a world diff that ignores selected objects
 void get_cleaned_world_diff(zword *objs, zword *dest) {
   int i;

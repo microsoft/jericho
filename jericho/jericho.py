@@ -237,6 +237,12 @@ def load_frotz_lib():
     frotz_lib.victory.restype = int
     frotz_lib.halted.argtypes = []
     frotz_lib.halted.restype = int
+
+    frotz_lib.get_narrative_text.argtypes = []
+    frotz_lib.get_narrative_text.restype = c_char_p
+    frotz_lib.set_narrative_text.argtypes = [c_char_p]
+    frotz_lib.set_narrative_text.restype = None
+
     frotz_lib.getPC.argtypes = []
     frotz_lib.getPC.restype = int
     frotz_lib.setPC.argtypes = [c_int]
@@ -558,7 +564,8 @@ class FrotzEnv():
         fp = self.frotz_lib.getFP()
         frame_count = self.frotz_lib.getFrameCount()
         rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
-        state = ram, stack, pc, sp, fp, frame_count, rng
+        narrative = self.frotz_lib.get_narrative_text()
+        state = ram, stack, pc, sp, fp, frame_count, rng, narrative
         return state
 
     def set_state(self, state):
@@ -577,7 +584,7 @@ class FrotzEnv():
         >>> env.set_state(state) # Whew, let's try something else
 
         '''
-        ram, stack, pc, sp, fp, frame_count, rng = state
+        ram, stack, pc, sp, fp, frame_count, rng, narrative = state
         self.frotz_lib.setRng(*rng)
         self.frotz_lib.setRAM(as_ctypes(ram))
         self.frotz_lib.setStack(as_ctypes(stack))
@@ -585,6 +592,7 @@ class FrotzEnv():
         self.frotz_lib.setSP(sp)
         self.frotz_lib.setFP(fp)
         self.frotz_lib.setFrameCount(frame_count)
+        self.frotz_lib.set_narrative_text(narrative)
 
     def copy(self):
         ''' Forks this FrotzEnv instance. '''
