@@ -33,7 +33,11 @@ class TemplateActionGenerator:
         max_word_length = rom_bindings['max_word_length']
         self.templates = self._preprocess_templates(grammar, max_word_length)
         self.templates.extend(defines.BASIC_ACTIONS)
-
+        # Enchanter and Spellbreaker only recognize abbreviated directions
+        if rom_bindings['name'] in ['enchanter', 'spellbrkr']:
+            for act in ['northeast','northwest','southeast','southwest']:
+                self.templates.remove(act)
+            self.templates.extend(['ne','nw','se','sw'])
 
     def _preprocess_templates(self, templates, max_word_length):
         '''
