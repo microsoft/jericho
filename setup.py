@@ -34,7 +34,10 @@ if not os.path.isfile(frotz_c_lib):
 exec(open('jericho/version.py').read())
 setup(name='jericho',
       version=__version__,
-      install_requires=['numpy'],
+      install_requires=[
+          'numpy',
+          "spacy>=2.1.0"
+      ],
       description='A python interface to text-based adventure games.',
       author='Matthew Hausknecht',
       packages=['jericho'],
@@ -45,5 +48,5 @@ setup(name='jericho',
           "Programming Language :: Python :: 3",
           "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
           "Operating System :: POSIX :: Linux",
-      ],
+      ]
 )

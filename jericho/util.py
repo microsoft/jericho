@@ -39,9 +39,10 @@ def _load_spacy():
         import spacy
         try:
             global spacy_nlp
-            spacy_nlp = spacy.load('en')
+            import en_core_web_sm
+            spacy_nlp = en_core_web_sm.load()
         except Exception as e:
-            print("Failed to load \'en\' with exception {}. Try: python -m spacy download en".format(e))
+            print("Failed to load \'en\' with exception {}. Try: python -m spacy download en_core_web_sm".format(e))
             raise
 
 
