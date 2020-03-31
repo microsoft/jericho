@@ -21,6 +21,7 @@ import warnings
 import numpy as np
 from . import defines
 from . import util as utl
+from .template_action_generator import TemplateActionGenerator
 from ctypes import *
 from numpy.ctypeslib import as_ctypes
 from pkg_resources import Requirement, resource_filename
@@ -369,36 +370,40 @@ class FrotzEnv():
         self.seed = seed
         self.frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = self.frotz_lib.get_self_object_num()
+        try:
+            self.bindings = load_bindings(story_file)
+        except ValueError:
+            self.bindings = None
+        self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
+
 
     def __del__(self):
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
             dlclose_func(self.frotz_lib._handle)
 
-    def get_dictionary(self):
-        ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
-        by the game's parser. See :doc:`dictionary`. '''
-        word_count = self.frotz_lib.get_dictionary_word_count(self.story_file)
-        words = (DictionaryWord * word_count)()
-        self.frotz_lib.get_dictionary(words, word_count)
-        self.frotz_lib.ztools_cleanup()
-        return list(words)
 
-    def disassemble_game(self):
-        ''' Prints the subroutines and strings used by the game. '''
-        self.frotz_lib.disassemble(self.story_file)
+    def reset(self, use_walkthrough_seed=False):
+        '''
+        Resets the game.
 
-    def victory(self):
-        ''' Returns `True` if the game is over and the player has won. '''
-        return self.frotz_lib.victory() > 0
+        :param use_walkthrough_seed: Sets the game seed to that required by the walkthrough.
+        :type use_walkthrough_seed: Boolean
+        :returns: A tuple containing the initial observation,\
+        and a dictionary of info.
+        :rtype: string, dictionary
 
-    def game_over(self):
-        ''' Returns `True` if the game is over and the player has lost. '''
-        return self.frotz_lib.game_over() > 0
+        '''
+        self.close()
+        seed = self.seed
+        if not self.is_fully_supported or not self.bindings:
+            warnings.warn('Unable to find walkthrough seed in unsupported game.', UnsupportedGameWarning)
+        else:
+            seed = self.bindings['seed']
+        obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
+        score = self.frotz_lib._get_score()
+        return obs_ini, {'moves':self._get_moves(), 'score':score}
 
-    def emulator_halted(self):
-        ''' Returns `True` if the emulator has halted. To fix a halted game, use :meth:`jericho.FrotzEnv.reset`. '''
-        return self.frotz_lib.halted() > 0
 
     def step(self, action):
         '''
@@ -412,14 +417,142 @@ class FrotzEnv():
         and a dictionary of info.
         :rtype: string, float, boolean, dictionary
         '''
-        old_score = self.frotz_lib.get_score()
+        old_score = self.frotz_lib._get_score()
         next_state = self.frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
-        score = self.frotz_lib.get_score()
+        score = self.frotz_lib._get_score()
         reward = score - old_score
-        return next_state, reward, (self.game_over() or self.victory()),\
-            {'moves':self.get_moves(), 'score':score}
+        return next_state, reward, (self._game_over() or self._victory()),\
+            {'moves':self._get_moves(), 'score':score}
 
-    def world_changed(self):
+
+    def close(self):
+        ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
+        self.frotz_lib.shutdown()
+
+
+    def get_dictionary(self):
+        ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
+        by the game's parser. See :doc:`dictionary`. '''
+        word_count = self.frotz_lib.get_dictionary_word_count(self.story_file)
+        words = (DictionaryWord * word_count)()
+        self.frotz_lib.get_dictionary(words, word_count)
+        self.frotz_lib.ztools_cleanup()
+        return list(words)
+
+
+    def get_walkthrough(self):
+        ''' Returns the walkthrough for the game, if supported. '''
+        if not self.is_fully_supported or not self.bindings:
+            warnings.warn('Unable to retrieve walkthrough in unsupported game.', UnsupportedGameWarning)
+            return []
+        return self.bindings['walkthrough'].split('/')
+
+
+    def find_valid_actions(self, use_object_tree=False):
+        """
+        Attempts to generate a set of unique valid actions from the current game state.
+
+        :param use_object_tree: Query the :doc:`object_tree` for names of surrounding objects.
+        :type use_object_tree: boolean
+        :returns: A list of valid actions.
+
+        """
+        if not self.is_fully_supported or not self.act_gen:
+            warnings.warn('Unable to find valid actions in an unsupported game.', UnsupportedGameWarning)
+            return []
+        interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
+        best_obj_names    = self._score_object_names(interactive_objs)
+        candidate_actions = self.act_gen.generate_actions(best_obj_names)
+        valid_actions     = self._filter_candidate_actions(candidate_actions)
+        return valid_actions
+
+
+    def set_state(self, state):
+        '''
+        Sets the game's internal state.
+
+        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
+        obtained by :meth:`jericho.FrotzEnv.get_state`.
+        :type state: tuple
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> state = env.get_state()
+        >>> env.step('attack troll') # Oops!
+        'You swing and miss. The troll neatly removes your head.'
+        >>> env.set_state(state) # Whew, let's try something else
+
+        '''
+        ram, stack, pc, sp, fp, frame_count, rng, narrative = state
+        self.frotz_lib.setRng(*rng)
+        self.frotz_lib.setRAM(as_ctypes(ram))
+        self.frotz_lib.setStack(as_ctypes(stack))
+        self.frotz_lib.setPC(pc)
+        self.frotz_lib.setSP(sp)
+        self.frotz_lib.setFP(fp)
+        self.frotz_lib.setFrameCount(frame_count)
+        self.frotz_lib.set_narrative_text(narrative)
+
+
+    def get_state(self):
+        '''
+        Returns the internal game state. This state can be subsequently restored
+        using :meth:`jericho.FrotzEnv.set_state`.
+
+        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
+
+        >>> from jericho import *
+        >>> env = FrotzEnv(rom_path)
+        >>> state = env.get_state()
+        >>> env.step('attack troll') # Oops!
+        'You swing and miss. The troll neatly removes your head.'
+        >>> env.set_state(state) # Whew, let's try something else
+
+        '''
+        ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
+        stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
+        self.frotz_lib.getRAM(as_ctypes(ram))
+        self.frotz_lib.getStack(as_ctypes(stack))
+        pc = self.frotz_lib.getPC()
+        sp = self.frotz_lib.getSP()
+        fp = self.frotz_lib.getFP()
+        frame_count = self.frotz_lib.getFrameCount()
+        rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
+        narrative = self.frotz_lib.get_narrative_text()
+        state = ram, stack, pc, sp, fp, frame_count, rng, narrative
+        return state
+
+
+
+    def _get_moves(self):
+        ''' Returns the integer number of moves taken by the player in the current episode. '''
+        return self.frotz_lib.get_moves()
+
+    def _get_score(self):
+        ''' Returns the integer current game score. '''
+        return self.frotz_lib.get_score()
+
+    def _get_max_score(self):
+        ''' Returns the integer maximum possible score for the game. '''
+        return self.frotz_lib.get_max_score()
+
+    def _disassemble_game(self):
+        ''' Prints the subroutines and strings used by the game. '''
+        self.frotz_lib.disassemble(self.story_file)
+
+    def _victory(self):
+        ''' Returns `True` if the game is over and the player has won. '''
+        return self.frotz_lib.victory() > 0
+
+    def _game_over(self):
+        ''' Returns `True` if the game is over and the player has lost. '''
+        return self.frotz_lib.game_over() > 0
+
+    def _emulator_halted(self):
+        ''' Returns `True` if the emulator has halted. To fix a halted game, use :meth:`jericho.FrotzEnv.reset`. '''
+        return self.frotz_lib.halted() > 0
+
+    def _world_changed(self):
         ''' Returns True if the last action caused a change in the world.
 
         :Example:
@@ -436,24 +569,6 @@ class FrotzEnv():
         False
         '''
         return self.frotz_lib.world_changed() > 0
-
-    def close(self):
-        ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
-        self.frotz_lib.shutdown()
-
-    def reset(self):
-        '''
-        Resets the game.
-
-        :returns: A tuple containing the initial observation,\
-        and a dictionary of info.
-        :rtype: string, dictionary
-
-        '''
-        self.close()
-        obs_ini = self.frotz_lib.setup(self.story_file, self.seed).decode('cp1252')
-        score = self.frotz_lib.get_score()
-        return obs_ini, {'moves':self.get_moves(), 'score':score}
 
     def save(self, fname):
         '''
@@ -485,114 +600,6 @@ class FrotzEnv():
         success = self.frotz_lib.restore(fname.encode('utf-8'))
         if success <= 0:
             raise RuntimeError('Unable to load.')
-
-    def save_str(self):
-        '''
-        Saves the game to a string.
-
-        .. deprecated:: 2.3
-           Use :meth:`jericho.FrotzEnv.get_state` instead.
-
-        :returns: String containing saved game.
-        :raises RuntimeError: if unable to save.
-
-        :Example:
-
-        >>> from jericho import *
-        >>> env = FrotzEnv(rom_path)
-        >>> try:
-        >>>     save = env.save_str()
-        >>> except RuntimeError:
-        >>>     print('Skipping Save')
-
-        '''
-        warnings.warn('save_str is deprecated; use get_state instead.', DeprecationWarning)
-        buff = np.zeros(8192, dtype=np.uint8)
-        success = self.frotz_lib.save_str(as_ctypes(buff))
-        if success <= 0:
-            raise RuntimeError('Unable to save.')
-        return buff
-
-    def load_str(self, buff):
-        '''
-        Loads the game from a string buffer given by save_str()
-
-        .. deprecated:: 2.3
-           Use :meth:`jericho.FrotzEnv.set_state` instead.
-
-        :param buff: Buffer to load the game from.
-        :type buff: string
-        :raises RuntimeError: if unable to load.
-
-        >>> from jericho import *
-        >>> env = FrotzEnv(rom_path)
-        >>> try:
-        >>>     save = env.save_str()
-        >>>     env.step('attack troll') # Oops!
-        'You swing and miss. The troll neatly removes your head.'
-        >>>     env.load_str(save) # Whew, let's try something else
-        >>> except RuntimeError:
-        >>>     print('Skipping Save')
-
-        '''
-        warnings.warn('load_str is deprecated. Use set_state instead.', DeprecationWarning)
-        success = self.frotz_lib.restore_str(as_ctypes(buff))
-        if success <= 0:
-            raise RuntimeError('Unable to load.')
-
-    def get_state(self):
-        '''
-        Returns the internal game state. This state can be subsequently restored
-        using :meth:`jericho.FrotzEnv.set_state`.
-
-        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
-
-        >>> from jericho import *
-        >>> env = FrotzEnv(rom_path)
-        >>> state = env.get_state()
-        >>> env.step('attack troll') # Oops!
-        'You swing and miss. The troll neatly removes your head.'
-        >>> env.set_state(state) # Whew, let's try something else
-
-        '''
-        ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
-        stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
-        self.frotz_lib.getRAM(as_ctypes(ram))
-        self.frotz_lib.getStack(as_ctypes(stack))
-        pc = self.frotz_lib.getPC()
-        sp = self.frotz_lib.getSP()
-        fp = self.frotz_lib.getFP()
-        frame_count = self.frotz_lib.getFrameCount()
-        rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
-        narrative = self.frotz_lib.get_narrative_text()
-        state = ram, stack, pc, sp, fp, frame_count, rng, narrative
-        return state
-
-    def set_state(self, state):
-        '''
-        Sets the game's internal state.
-
-        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
-        obtained by :meth:`jericho.FrotzEnv.get_state`.
-        :type state: tuple
-
-        >>> from jericho import *
-        >>> env = FrotzEnv(rom_path)
-        >>> state = env.get_state()
-        >>> env.step('attack troll') # Oops!
-        'You swing and miss. The troll neatly removes your head.'
-        >>> env.set_state(state) # Whew, let's try something else
-
-        '''
-        ram, stack, pc, sp, fp, frame_count, rng, narrative = state
-        self.frotz_lib.setRng(*rng)
-        self.frotz_lib.setRAM(as_ctypes(ram))
-        self.frotz_lib.setStack(as_ctypes(stack))
-        self.frotz_lib.setPC(pc)
-        self.frotz_lib.setSP(sp)
-        self.frotz_lib.setFP(fp)
-        self.frotz_lib.setFrameCount(frame_count)
-        self.frotz_lib.set_narrative_text(narrative)
 
     def copy(self):
         ''' Forks this FrotzEnv instance. '''
@@ -666,18 +673,6 @@ class FrotzEnv():
             item_nb = item.sibling
         return inventory
 
-    def get_moves(self):
-        ''' Returns the integer number of moves taken by the player in the current episode. '''
-        return self.frotz_lib.get_moves()
-
-    def get_score(self):
-        ''' Returns the integer current game score. '''
-        return self.frotz_lib.get_score()
-
-    def get_max_score(self):
-        ''' Returns the integer maximum possible score for the game. '''
-        return self.frotz_lib.get_max_score()
-
     def _get_world_diff(self):
         '''
         Returns the difference in the world object tree, set attributes, and\
@@ -710,7 +705,24 @@ class FrotzEnv():
             cleared_attrs.append((objs[i], dest[i]))
         return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
 
-    def identify_interactive_objects(self, observation='', use_object_tree=False):
+    def _score_object_names(self, interactive_objs):
+        """ Attempts to choose a sensible name for an object, typically a noun. """
+        def score_fn(obj):
+            score = 0
+            if obj[1] == 'NOUN':
+                score += 1
+            if obj[1] == 'ADJ':
+                score -= 1
+            if obj[2] == 'OBJTREE':
+                score += .5
+            return score
+        best_names = []
+        for desc, objs in interactive_objs.items():
+            sorted_objs = sorted(objs, key=score_fn, reverse=True)
+            best_names.append(sorted_objs[0][0])
+        return best_names
+
+    def _identify_interactive_objects(self, observation='', use_object_tree=False):
         """
         Identifies objects in the current location and inventory that are likely
         to be interactive.
@@ -740,18 +752,21 @@ class FrotzEnv():
         if observation:
             # Extract objects from observation
             obs_objs = utl.extract_objs(observation)
+            obs_objs = [o + ('OBS',) for o in obs_objs]
             objs = objs.union(obs_objs)
 
         # Extract objects from location description
         self.set_state(state)
         look = utl.clean(self.step('look')[0])
         look_objs = utl.extract_objs(look)
+        look_objs = [o + ('LOC',) for o in look_objs]
         objs = objs.union(look_objs)
 
         # Extract objects from inventory description
         self.set_state(state)
         inv = utl.clean(self.step('inventory')[0])
         inv_objs = utl.extract_objs(inv)
+        inv_objs = [o + ('INV',) for o in inv_objs]
         objs = objs.union(inv_objs)
         self.set_state(state)
 
@@ -761,33 +776,49 @@ class FrotzEnv():
             player_obj = self.get_player_object()
             if player_obj in surrounding:
                 surrounding.remove(player_obj)
-            surrounding_objs = ' '.join([o.name for o in surrounding]).split()
-            objs = objs.union(surrounding_objs)
+            world_objs = []
+            for o in surrounding:
+                name = o.name.split()
+                if len(name) == 1:
+                    world_objs.append((o.name, 'NOUN', 'OBJTREE'))
+                elif len(name) > 1:
+                    # In the case of multi-word names, we assume first words are adjectives.
+                    for w in name[:-1]:
+                        world_objs.append((w, 'ADJ', 'OBJTREE'))
+                    world_objs.append((name[-1], 'NOUN', 'OBJTREE'))
+            objs = objs.union(world_objs)
 
         # Filter out the objects that aren't in the dictionary
         dict_words = [w.word for w in self.get_dictionary()]
         max_word_length = max([len(w) for w in dict_words])
         to_remove = set()
         for obj in objs:
-            if obj[:max_word_length] not in dict_words:
+            if obj[0][:max_word_length] not in dict_words:
                 to_remove.add(obj)
         objs.difference_update(to_remove)
+        # print('After dict filter', objs)
 
         desc2obj = {}
         # Filter out objs that aren't examinable
+        name2desc = {}
         for obj in objs:
-            self.set_state(state)
-            ex = self.step('examine ' + obj)[0]
+            if obj[0] in name2desc:
+                ex = name2desc[obj[0]]
+            else:
+                self.set_state(state)
+                ex = utl.clean(self.step('examine ' + obj[0])[0])
+                name2desc[obj[0]] = ex
             if utl.recognized(ex):
                 if ex in desc2obj:
                     desc2obj[ex].append(obj)
                 else:
                     desc2obj[ex] = [obj]
+            # else:
+            #     print('Unrecognized: {} {}'.format(obj, ex))
         self.set_state(state)
+        return desc2obj
 
-        return list(desc2obj.values())
-
-    def find_valid_actions(self, candidate_actions):
+    def _filter_candidate_actions(self, candidate_actions):
         """
         Given a list of candidate actions, returns the subset that change
         the state of the game. Because many different actions may
@@ -802,14 +833,14 @@ class FrotzEnv():
 
         >>> from jericho import *
         >>> env = FrotzEnv('zork1.z5')
-        >>> env.find_valid_actions(['north', 'east', 'open mailbox', 'hail taxi'])
+        >>> env._filter_candidate_actions(['north', 'east', 'open mailbox', 'hail taxi'])
         ['north', 'open mailbox']
 
         """
-        if self.game_over() or self.victory() or self.emulator_halted():
+        if self._game_over() or self._victory() or self._emulator_halted():
             return []
         diff2acts = {}
-        orig_score = self.get_score()
+        orig_score = self._get_score()
         state = self.get_state()
         for act in candidate_actions:
             self.set_state(state)
@@ -817,10 +848,10 @@ class FrotzEnv():
                 obs, rew, done, info = self.step(act.action)
             else:
                 obs, rew, done, info = self.step(act)
-            if self.emulator_halted():
+            if self._emulator_halted():
                 self.reset()
                 continue
-            if info['score'] != orig_score or done or self.world_changed():
+            if info['score'] != orig_score or done or self._world_changed():
                 # Heuristic to ignore actions with side-effect of taking items
                 if '(Taken)' in obs:
                     continue
@@ -834,7 +865,7 @@ class FrotzEnv():
         self.set_state(state)
         return valid_acts
 
-    def get_world_state_hash(self):
+    def _get_world_state_hash(self):
         """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
         useful for identifying when the agent has reached new states or returned
         to existing ones.
