@@ -709,12 +709,14 @@ class FrotzEnv():
         """ Attempts to choose a sensible name for an object, typically a noun. """
         def score_fn(obj):
             score = 0
-            if obj[1] == 'NOUN':
+            if obj[1] == 'PROPN':
                 score += 1
-            if obj[1] == 'ADJ':
-                score -= 1
-            if obj[2] == 'OBJTREE':
+            if obj[1] == 'NOUN':
                 score += .5
+            if obj[1] == 'ADJ':
+                score += 0
+            if obj[2] == 'OBJTREE':
+                score += .1
             return score
         best_names = []
         for desc, objs in interactive_objs.items():
@@ -779,13 +781,13 @@ class FrotzEnv():
             world_objs = []
             for o in surrounding:
                 name = o.name.split()
-                if len(name) == 1:
-                    world_objs.append((o.name, 'NOUN', 'OBJTREE'))
-                elif len(name) > 1:
+                world_objs.append((o.name, 'PROPN', 'OBJTREE'))
+                if len(name) > 1:
                     # In the case of multi-word names, we assume first words are adjectives.
                     for w in name[:-1]:
                         world_objs.append((w, 'ADJ', 'OBJTREE'))
                     world_objs.append((name[-1], 'NOUN', 'OBJTREE'))
+            # print('WorldObjs:', world_objs)
             objs = objs.union(world_objs)
 
         # Filter out the objects that aren't in the dictionary
@@ -793,6 +795,8 @@ class FrotzEnv():
         max_word_length = max([len(w) for w in dict_words])
         to_remove = set()
         for obj in objs:
+            if len(obj[0].split()) > 1:
+                continue
             if obj[0][:max_word_length] not in dict_words:
                 to_remove.add(obj)
         objs.difference_update(to_remove)
