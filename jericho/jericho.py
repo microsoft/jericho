@@ -401,7 +401,7 @@ class FrotzEnv():
         else:
             seed = self.bindings['seed']
         obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
-        score = self.frotz_lib._get_score()
+        score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self._get_moves(), 'score':score}
 
 
