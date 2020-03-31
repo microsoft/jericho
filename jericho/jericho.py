@@ -417,9 +417,9 @@ class FrotzEnv():
         and a dictionary of info.
         :rtype: string, float, boolean, dictionary
         '''
-        old_score = self.frotz_lib._get_score()
+        old_score = self.frotz_lib.get_score()
         next_state = self.frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
-        score = self.frotz_lib._get_score()
+        score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self._game_over() or self._victory()),\
             {'moves':self._get_moves(), 'score':score}
