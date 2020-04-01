@@ -73,8 +73,8 @@ def test_for_memory_leaks():
           mem_end / unit, (mem_end-mem_mid) / unit))
 
     # Less than 1MB memory leak per 1000 load/unload cycles.
-    assert (mem_mid - mem_start) < 1024 * 1024
-    assert (mem_end - mem_mid) < 1024 * 1024
+    assert (mem_mid - mem_start) < unit * unit
+    assert (mem_end - mem_mid) < unit * unit
 
 
 def test_copy():

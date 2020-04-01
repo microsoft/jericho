@@ -4,7 +4,7 @@ Jericho Quick-start
 Install
 -------
 
-Jericho requires Linux, Python 3, and basic build tools like gcc.
+Jericho requires Linux, Python 3, Spacy, and basic build tools like gcc.
 
 There are two ways to install Jericho:
 
@@ -13,7 +13,7 @@ From PyPi
 
 .. code-block:: bash
 
-   pip3 install --user jericho
+   pip3 install jericho
 
 
 From Github
@@ -29,7 +29,7 @@ From Github
 
 .. code-block:: bash
 
-    cd jericho; pip3 install --user .
+    cd jericho; pip3 install .
 
 
 Acquire Games
@@ -69,7 +69,7 @@ Jericho implements a reinforcement learning interface in which the agent provide
 Game Dictionary
 ---------------
 
-It's possible to get the list of vocabulary words recognized by a game:
+:meth:`jericho.FrotzEnv.get_dictionary` returns the list of vocabulary words recognized by a game:
 
 .. code-block:: python
 
@@ -109,9 +109,7 @@ The object tree is an internal representation of game state. Jericho provides fu
 Finding Valid Actions
 ---------------------
 
-One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho provides a facility to best-guess identify a list of *valid-actions* that will have an effect on the current game state.
-
-Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` with :meth:`jericho.FrotzEnv.find_valid_actions`, it's possible to identify valid actions as follows:
+One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho's :meth:`jericho.FrotzEnv.find_valid_actions` provides a best-guess list of *valid-actions* that will have an effect on the current game state:
 
 
 .. code-block:: python
@@ -127,7 +125,7 @@ Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` w
 Walkthroughs
 ------------
 
-Jericho provides walkthroughs for supported games. If a game's walkthrough is defined, it will be stored in the bindings dictionary for the game under the key 'walkthrough'. To use the walkthrough, it is also necessary to reset the environment with the desired seed.
+Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.get_walkthrough`. To use the walkthrough, it is necessary to reset the environment with the desired seed:
 
 .. code-block:: python
 

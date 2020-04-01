@@ -533,6 +533,113 @@ class FrotzEnv():
         ''' Returns the integer maximum possible score for the game. '''
         return self.frotz_lib.get_max_score()
 
+
+    def copy(self):
+        ''' Forks this FrotzEnv instance. '''
+        state = self.get_state()
+        env = FrotzEnv(self.story_file.decode(), seed=self.seed)
+        env.set_state(state)
+        return env
+
+
+    def get_player_location(self):
+        ''' Returns the :class:`jericho.ZObject` corresponding to the location of the player in the world. '''
+        parent = self.get_player_object().parent
+        return self.get_object(parent)
+
+
+    def get_object(self, obj_num):
+        '''
+        Returns a :class:`jericho.ZObject` with the corresponding number or `None` if the object\
+        doesn't exist in the :doc:`object_tree`.
+
+        :param obj_num: Object number between 0 and len(get_world_objects()).
+        :type obj_num: int
+        '''
+        obj = ZObject()
+        self.frotz_lib.get_object(byref(obj), obj_num)
+        if obj.num < 0:
+            return None
+        return obj
+
+
+    def get_world_objects(self, clean=False):
+        ''' Returns an array containing all the :class:`jericho.ZObject` in the game.
+
+        :param clean: If True, disconnects noisy objects like Zork1's theif from\
+        the Object Tree. This is mainly useful if using world objects as an\
+        indication of unique game state.
+        :type clean: Boolean
+
+        :returns: Array of :class:`jericho.ZObject`.
+
+        :Example:
+
+        >>> from jericho import *
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.get_world_objects()
+         Obj0:  Parent0 Sibling0 Child0 Attributes [] Properties [],
+         Obj1: pair hands Parent247 Sibling2 Child0 Attributes [14, 28] Properties [18, 16],
+         Obj2: zorkmid Parent247 Sibling3 Child0 Attributes [] Properties [18, 17],
+         Obj3: way Parent247 Sibling5 Child0 Attributes [14] Properties [18, 17, 16],
+         Obj4: cretin Parent180 Sibling181 Child0 Attributes [7, 9, 14, 30] Properties [18, 17, 7],
+         Obj5: you Parent247 Sibling6 Child0 Attributes [30] Properties [18, 17],
+         ...
+         Obj250: board Parent249 Sibling73 Child0 Attributes [14] Properties [18, 17]
+
+        '''
+        n_objs = self.frotz_lib.get_num_world_objs()
+        objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
+        self.frotz_lib.get_world_objects(objs, clean)
+        return objs
+
+
+    def get_player_object(self):
+        ''' Returns the :class:`jericho.ZObject` corresponding to the player. '''
+        return self.get_object(self.player_obj_num)
+
+
+    def get_inventory(self):
+        ''' Returns a list of :class:`jericho.ZObject` in the player's posession. '''
+        inventory = []
+        item_nb = self.get_player_object().child
+        while item_nb > 0:
+            item = self.get_object(item_nb)
+            if not item:
+                break
+            inventory.append(item)
+            item_nb = item.sibling
+        return inventory
+
+    def get_world_state_hash(self):
+        """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
+        useful for identifying when the agent has reached new states or returned
+        to existing ones.
+
+        :Example:
+
+        >>> env = FrotzEnv('zork1.z5')
+        >>> env.reset()
+        # Start at West of the House with the following hash
+        >>> env.get_world_state_hash()
+        '79c750fff4368efef349b02ff50ffc23'
+        >>> env.step('n')
+        # Moving to North of House changes the hash
+        >>> get_world_state_hash(env)
+        '8a3a8538c0019a69128f755e4b719fbd'
+        >>> env.step('w')
+        # Moving back to West of House we recover the original hash
+        >>> env.get_world_state_hash()
+        '79c750fff4368efef349b02ff50ffc23'
+
+        """
+        import hashlib
+        world_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
+        m = hashlib.md5()
+        m.update(world_str.encode('utf-8'))
+        return m.hexdigest()
+
+
     def _get_moves(self):
         ''' Returns the integer number of moves taken by the player in the current episode. '''
         return self.frotz_lib.get_moves()
@@ -574,109 +681,6 @@ class FrotzEnv():
         False
         '''
         return self.frotz_lib.world_changed() > 0
-
-    def save(self, fname):
-        '''
-        Saves the game to a file.
-
-        .. deprecated:: 2.3
-           Use :meth:`jericho.FrotzEnv.get_state` instead.
-
-        :param fname: Desired filename to save the game to.
-        :type fname: path
-        :raises RuntimeError: if unable to save.
-
-        '''
-        success = self.frotz_lib.save(fname.encode('utf-8'))
-        if success <= 0:
-            raise RuntimeError('Unable to save.')
-
-    def load(self, fname):
-        '''
-        Restores the game from a file.
-
-        .. deprecated:: 2.3
-           Use :meth:`jericho.FrotzEnv.set_state` instead.
-
-        :param fname: Desired filename to load the game from.
-        :type fname: path
-        :raises RuntimeError: if unable to load.
-        '''
-        success = self.frotz_lib.restore(fname.encode('utf-8'))
-        if success <= 0:
-            raise RuntimeError('Unable to load.')
-
-    def copy(self):
-        ''' Forks this FrotzEnv instance. '''
-        state = self.get_state()
-        env = FrotzEnv(self.story_file.decode(), seed=self.seed)
-        env.set_state(state)
-        return env
-
-    def get_player_location(self):
-        ''' Returns the :class:`jericho.ZObject` corresponding to the location of the player in the world. '''
-        parent = self.get_player_object().parent
-        return self.get_object(parent)
-
-    def get_object(self, obj_num):
-        '''
-        Returns a :class:`jericho.ZObject` with the corresponding number or `None` if the object\
-        doesn't exist in the :doc:`object_tree`.
-
-        :param obj_num: Object number between 0 and len(get_world_objects()).
-        :type obj_num: int
-        '''
-        obj = ZObject()
-        self.frotz_lib.get_object(byref(obj), obj_num)
-        if obj.num < 0:
-            return None
-        return obj
-
-    def get_world_objects(self, clean=False):
-        ''' Returns an array containing all the :class:`jericho.ZObject` in the game.
-
-        :param clean: If True, disconnects noisy objects like Zork1's theif from\
-        the Object Tree. This is mainly useful if using world objects as an\
-        indication of unique game state.
-        :type clean: Boolean
-
-        :returns: Array of :class:`jericho.ZObject`.
-
-        :Example:
-
-        >>> from jericho import *
-        >>> env = FrotzEnv('zork1.z5')
-        >>> env.get_world_objects()
-         Obj0:  Parent0 Sibling0 Child0 Attributes [] Properties [],
-         Obj1: pair hands Parent247 Sibling2 Child0 Attributes [14, 28] Properties [18, 16],
-         Obj2: zorkmid Parent247 Sibling3 Child0 Attributes [] Properties [18, 17],
-         Obj3: way Parent247 Sibling5 Child0 Attributes [14] Properties [18, 17, 16],
-         Obj4: cretin Parent180 Sibling181 Child0 Attributes [7, 9, 14, 30] Properties [18, 17, 7],
-         Obj5: you Parent247 Sibling6 Child0 Attributes [30] Properties [18, 17],
-         ...
-         Obj250: board Parent249 Sibling73 Child0 Attributes [14] Properties [18, 17]
-
-        '''
-        n_objs = self.frotz_lib.get_num_world_objs()
-        objs = (ZObject * (n_objs+1))() # Add extra spot for zero'th object
-        self.frotz_lib.get_world_objects(objs, clean)
-        return objs
-
-    def get_player_object(self):
-        ''' Returns the :class:`jericho.ZObject` corresponding to the player. '''
-        return self.get_object(self.player_obj_num)
-
-    def get_inventory(self):
-        ''' Returns a list of :class:`jericho.ZObject` in the player's posession. '''
-        inventory = []
-        item_nb = self.get_player_object().child
-        while item_nb > 0:
-            item = self.get_object(item_nb)
-            if not item:
-                break
-            inventory.append(item)
-            item_nb = item.sibling
-        return inventory
 
     def _get_world_diff(self):
         '''
@@ -792,7 +796,6 @@ class FrotzEnv():
                     for w in name[:-1]:
                         world_objs.append((w, 'ADJ', 'OBJTREE'))
                     world_objs.append((name[-1], 'NOUN', 'OBJTREE'))
-            # print('WorldObjs:', world_objs)
             objs = objs.union(world_objs)
 
         # Filter out the objects that aren't in the dictionary
@@ -805,7 +808,6 @@ class FrotzEnv():
             if obj[0][:max_word_length] not in dict_words:
                 to_remove.add(obj)
         objs.difference_update(to_remove)
-        # print('After dict filter', objs)
 
         desc2obj = {}
         # Filter out objs that aren't examinable
@@ -822,8 +824,6 @@ class FrotzEnv():
                     desc2obj[ex].append(obj)
                 else:
                     desc2obj[ex] = [obj]
-            # else:
-            #     print('Unrecognized: {} {}'.format(obj, ex))
         self.set_state(state)
         return desc2obj
 
@@ -873,31 +873,3 @@ class FrotzEnv():
         valid_acts = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
         self.set_state(state)
         return valid_acts
-
-    def get_world_state_hash(self):
-        """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
-        useful for identifying when the agent has reached new states or returned
-        to existing ones.
-
-        :Example:
-
-        >>> env = FrotzEnv('zork1.z5')
-        >>> env.reset()
-        # Start at West of the House with the following hash
-        >>> env.get_world_state_hash()
-        '79c750fff4368efef349b02ff50ffc23'
-        >>> env.step('n')
-        # Moving to North of House changes the hash
-        >>> get_world_state_hash(env)
-        '8a3a8538c0019a69128f755e4b719fbd'
-        >>> env.step('w')
-        # Moving back to West of House we recover the original hash
-        >>> env.get_world_state_hash()
-        '79c750fff4368efef349b02ff50ffc23'
-
-        """
-        import hashlib
-        world_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
-        m = hashlib.md5()
-        m.update(world_str.encode('utf-8'))
-        return m.hexdigest()
