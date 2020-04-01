@@ -11,7 +11,8 @@ DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 
 class TestJericho(unittest.TestCase):
     def test_load_bindings(self):
-        self.assertRaises(ValueError, jericho._load_bindings, "")
+        with self.assertRaises(ValueError):
+            jericho._load_bindings("")
         data1 = jericho._load_bindings("905")
         data2 = jericho._load_bindings("905.z5")
         assert data1 == data2
