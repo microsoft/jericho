@@ -191,7 +191,7 @@ class DictionaryWord(Structure):
         return pos
 
 
-def load_frotz_lib():
+def _load_frotz_lib():
     """ Loads a copy of frotz's shared library. """
 
     # Make a copy of libfrotz.so before loading it to avoid concurrency issues.
@@ -298,7 +298,7 @@ def load_frotz_lib():
     return frotz_lib
 
 
-def load_bindings(rom):
+def _load_bindings(rom):
     """
     Loads information pertaining to the current game. Returns a dictionary
     with the following keys:
@@ -320,7 +320,7 @@ def load_bindings(rom):
     :Example:
 
     >>> import jericho
-    >>> bindings = jericho.load_bindings('zork1')
+    >>> bindings = jericho._load_bindings('zork1')
     {
       'name': 'zork1',
       'rom': 'zork1.z5',
@@ -359,7 +359,7 @@ class FrotzEnv():
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
 
-        self.frotz_lib = load_frotz_lib()
+        self.frotz_lib = _load_frotz_lib()
         self.is_fully_supported = bool(self.frotz_lib.is_supported(story_file.encode('utf-8')))
         if not self.is_fully_supported:
             msg = ("Game '{}' is not fully supported. Score, move, change"
@@ -371,7 +371,7 @@ class FrotzEnv():
         self.frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = self.frotz_lib.get_self_object_num()
         try:
-            self.bindings = load_bindings(story_file)
+            self.bindings = _load_bindings(story_file)
         except ValueError:
             self.bindings = None
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
@@ -387,7 +387,7 @@ class FrotzEnv():
         '''
         Resets the game.
 
-        :param use_walkthrough_seed: Sets the game seed to that required by the walkthrough.
+        :param use_walkthrough_seed: Seed the emulator to reproduce the walkthrough.
         :type use_walkthrough_seed: Boolean
         :returns: A tuple containing the initial observation,\
         and a dictionary of info.
@@ -441,7 +441,13 @@ class FrotzEnv():
 
 
     def get_walkthrough(self):
-        ''' Returns the walkthrough for the game, if supported. '''
+        ''' Returns the walkthrough for the game.
+
+        :returns: A list containing walkthrough action strings needed to complete the game.
+
+        .. note:: To reproduce the walkthrought it's also necessary to reset the environment\
+        with use_walkthrough_seed=True.
+        '''
         if not self.is_fully_supported or not self.bindings:
             warnings.warn('Unable to retrieve walkthrough in unsupported game.', UnsupportedGameWarning)
             return []
@@ -523,6 +529,9 @@ class FrotzEnv():
         return state
 
 
+    def get_max_score(self):
+        ''' Returns the integer maximum possible score for the game. '''
+        return self.frotz_lib.get_max_score()
 
     def _get_moves(self):
         ''' Returns the integer number of moves taken by the player in the current episode. '''
@@ -531,10 +540,6 @@ class FrotzEnv():
     def _get_score(self):
         ''' Returns the integer current game score. '''
         return self.frotz_lib.get_score()
-
-    def _get_max_score(self):
-        ''' Returns the integer maximum possible score for the game. '''
-        return self.frotz_lib.get_max_score()
 
     def _disassemble_game(self):
         ''' Prints the subroutines and strings used by the game. '''
@@ -869,7 +874,7 @@ class FrotzEnv():
         self.set_state(state)
         return valid_acts
 
-    def _get_world_state_hash(self):
+    def get_world_state_hash(self):
         """ Returns a MD5 hash of the clean world-object-tree. Such a hash may be
         useful for identifying when the agent has reached new states or returned
         to existing ones.

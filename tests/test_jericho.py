@@ -12,8 +12,8 @@ DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 class TestJericho(unittest.TestCase):
     def test_load_bindings(self):
         self.assertRaises(ValueError, jericho.load_bindings, "")
-        data1 = jericho.load_bindings("905")
-        data2 = jericho.load_bindings("905.z5")
+        data1 = jericho._load_bindings("905")
+        data2 = jericho._load_bindings("905.z5")
         assert data1 == data2
 
 
@@ -87,11 +87,10 @@ def test_for_memory_leaks():
 
 def test_copy():
     rom = pjoin(DATA_PATH, "905.z5")
-    bindings = jericho.load_bindings(rom)
-    env = jericho.FrotzEnv(rom, seed=bindings['seed'])
-    env.reset()
+    env = jericho.FrotzEnv(rom)
+    env.reset(seed_to_walkthrough=True)
 
-    walkthrough = bindings['walkthrough'].split('/')
+    walkthrough = env.get_walkthrough()
     expected = [env.step(act) for act in walkthrough]
 
     env.reset()
