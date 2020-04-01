@@ -717,10 +717,10 @@ class FrotzEnv():
     def _score_object_names(self, interactive_objs):
         """ Attempts to choose a sensible name for an object, typically a noun. """
         def score_fn(obj):
-            score = 0
-            if obj[1] == 'PROPN':
-                score += 1
+            score = -.01 * len(obj[0])
             if obj[1] == 'NOUN':
+                score += 1
+            if obj[1] == 'PROPN':
                 score += .5
             if obj[1] == 'ADJ':
                 score += 0
