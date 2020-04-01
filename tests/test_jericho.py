@@ -9,13 +9,6 @@ import jericho
 DATA_PATH = os.path.abspath(pjoin(__file__, '..', "data"))
 
 
-class TestJericho(unittest.TestCase):
-    def test_load_bindings(self):
-        data1 = jericho.FrotzEnv("905").bindings
-        data2 = jericho.FrotzEnv("905.z5").bindings
-        assert data1 == data2
-
-
 def test_multiple_instances():
     gamefile1 = pjoin(DATA_PATH, "905.z5")
     gamefile2 = pjoin(DATA_PATH, "tw-game.z8")
