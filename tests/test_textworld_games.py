@@ -12,9 +12,9 @@ def test_loading_a_textworld_game():
     env = jericho.FrotzEnv(pjoin(DATA_PATH, "tw-game.z8"))
     state, info = env.reset()
 
-    assert not env.victory()
-    assert not env.game_over()
-    assert env.get_score() == 0
+    assert not env._victory()
+    assert not env._game_over()
+    assert env._get_score() == 0
     assert env.get_max_score() == 3
 
     state, reward, done, info = env.step("go east")
@@ -27,14 +27,14 @@ def test_loading_a_textworld_game():
 
     state, reward, done, info = env.step("close chest")
     assert done
-    assert env.victory()
+    assert env._victory()
     assert reward == 1
     assert info['score'] == 3
 
     state = env.reset()
     state, reward, done, info = env.step("eat carrot")
     assert done
-    assert env.game_over()  # Lost
+    assert env._game_over()  # Lost
     assert info['score'] == 0
 
 
