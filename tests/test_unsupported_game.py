@@ -19,7 +19,7 @@ def test_loading_unsupported_game():
         assert gamefile in str(w[-1].message)
 
     state, info = env.reset()
-    assert env._get_score() == 0
+    assert env.get_score() == 0
     assert env.get_max_score() == 0  # Instead of 3.
 
     state, score, done, _ = env.step("go east")
@@ -30,10 +30,10 @@ def test_loading_unsupported_game():
 
     assert "The End" in state
     assert not done  # Instead of True
-    assert not env._victory()  # Instead of True
+    assert not env.victory()  # Instead of True
 
     state, info = env.reset()
     state, score, done, _ = env.step("eat carrot")
     assert "You lost" in state
     assert not done  # Instead of True
-    assert not env._game_over()  # Instead of True
+    assert not env.game_over()  # Instead of True
