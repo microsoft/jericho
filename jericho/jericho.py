@@ -376,12 +376,10 @@ class FrotzEnv():
             self.bindings = None
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
 
-
     def __del__(self):
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
             dlclose_func(self.frotz_lib._handle)
-
 
     def reset(self, use_walkthrough_seed=False):
         '''
@@ -402,8 +400,7 @@ class FrotzEnv():
             seed = self.bindings['seed']
         obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
         score = self.frotz_lib.get_score()
-        return obs_ini, {'moves':self._get_moves(), 'score':score}
-
+        return obs_ini, {'moves':self.get_moves(), 'score':score}
 
     def step(self, action):
         '''
@@ -421,14 +418,12 @@ class FrotzEnv():
         next_state = self.frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
         score = self.frotz_lib.get_score()
         reward = score - old_score
-        return next_state, reward, (self._game_over() or self._victory()),\
-            {'moves':self._get_moves(), 'score':score}
-
+        return next_state, reward, (self.game_over() or self.victory()),\
+            {'moves':self.get_moves(), 'score':score}
 
     def close(self):
         ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
         self.frotz_lib.shutdown()
-
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
@@ -439,13 +434,12 @@ class FrotzEnv():
         self.frotz_lib.ztools_cleanup()
         return list(words)
 
-
     def get_walkthrough(self):
         ''' Returns the walkthrough for the game.
 
         :returns: A list containing walkthrough action strings needed to complete the game.
 
-        .. note:: To reproduce the walkthrought it's also necessary to reset the environment\
+        .. note:: To reproduce the walkthrough it's also necessary to reset the environment\
         with use_walkthrough_seed=True.
         '''
         if not self.is_fully_supported or not self.bindings:
@@ -453,8 +447,7 @@ class FrotzEnv():
             return []
         return self.bindings['walkthrough'].split('/')
 
-
-    def find_valid_actions(self, use_object_tree=False):
+    def get_valid_actions(self, use_object_tree=False):
         """
         Attempts to generate a set of unique valid actions from the current game state.
 
@@ -471,7 +464,6 @@ class FrotzEnv():
         candidate_actions = self.act_gen.generate_actions(best_obj_names)
         valid_actions     = self._filter_candidate_actions(candidate_actions)
         return valid_actions
-
 
     def set_state(self, state):
         '''
@@ -498,7 +490,6 @@ class FrotzEnv():
         self.frotz_lib.setFP(fp)
         self.frotz_lib.setFrameCount(frame_count)
         self.frotz_lib.set_narrative_text(narrative)
-
 
     def get_state(self):
         '''
@@ -528,11 +519,9 @@ class FrotzEnv():
         state = ram, stack, pc, sp, fp, frame_count, rng, narrative
         return state
 
-
     def get_max_score(self):
         ''' Returns the integer maximum possible score for the game. '''
         return self.frotz_lib.get_max_score()
-
 
     def copy(self):
         ''' Forks this FrotzEnv instance. '''
@@ -541,12 +530,10 @@ class FrotzEnv():
         env.set_state(state)
         return env
 
-
     def get_player_location(self):
         ''' Returns the :class:`jericho.ZObject` corresponding to the location of the player in the world. '''
         parent = self.get_player_object().parent
         return self.get_object(parent)
-
 
     def get_object(self, obj_num):
         '''
@@ -561,7 +548,6 @@ class FrotzEnv():
         if obj.num < 0:
             return None
         return obj
-
 
     def get_world_objects(self, clean=False):
         ''' Returns an array containing all the :class:`jericho.ZObject` in the game.
@@ -593,11 +579,9 @@ class FrotzEnv():
         self.frotz_lib.get_world_objects(objs, clean)
         return objs
 
-
     def get_player_object(self):
         ''' Returns the :class:`jericho.ZObject` corresponding to the player. '''
         return self.get_object(self.player_obj_num)
-
 
     def get_inventory(self):
         ''' Returns a list of :class:`jericho.ZObject` in the player's posession. '''
@@ -639,26 +623,25 @@ class FrotzEnv():
         m.update(world_str.encode('utf-8'))
         return m.hexdigest()
 
-
-    def _get_moves(self):
+    def get_moves(self):
         ''' Returns the integer number of moves taken by the player in the current episode. '''
         return self.frotz_lib.get_moves()
 
-    def _get_score(self):
+    def get_score(self):
         ''' Returns the integer current game score. '''
         return self.frotz_lib.get_score()
+
+    def victory(self):
+        ''' Returns `True` if the game is over and the player has won. '''
+        return self.frotz_lib.victory() > 0
+
+    def game_over(self):
+        ''' Returns `True` if the game is over and the player has lost. '''
+        return self.frotz_lib.game_over() > 0
 
     def _disassemble_game(self):
         ''' Prints the subroutines and strings used by the game. '''
         self.frotz_lib.disassemble(self.story_file)
-
-    def _victory(self):
-        ''' Returns `True` if the game is over and the player has won. '''
-        return self.frotz_lib.victory() > 0
-
-    def _game_over(self):
-        ''' Returns `True` if the game is over and the player has lost. '''
-        return self.frotz_lib.game_over() > 0
 
     def _emulator_halted(self):
         ''' Returns `True` if the emulator has halted. To fix a halted game, use :meth:`jericho.FrotzEnv.reset`. '''
@@ -846,10 +829,10 @@ class FrotzEnv():
         ['north', 'open mailbox']
 
         """
-        if self._game_over() or self._victory() or self._emulator_halted():
+        if self.game_over() or self.victory() or self._emulator_halted():
             return []
         diff2acts = {}
-        orig_score = self._get_score()
+        orig_score = self.get_score()
         state = self.get_state()
         for act in candidate_actions:
             self.set_state(state)

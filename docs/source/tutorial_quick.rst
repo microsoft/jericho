@@ -14,6 +14,7 @@ From PyPi
 .. code-block:: bash
 
    pip3 install jericho
+   python3 -m spacy download en_core_web_sm
 
 
 From Github
@@ -23,13 +24,14 @@ From Github
 
 .. code-block:: bash
 
-    git clone https://github.com/microsoft/jericho.git
+   git clone https://github.com/microsoft/jericho.git
 
 2. Install Jericho:
 
 .. code-block:: bash
 
-    cd jericho; pip3 install .
+   cd jericho; pip3 install .
+   python3 -m spacy download en_core_web_sm
 
 
 Acquire Games
@@ -106,10 +108,10 @@ The object tree is an internal representation of game state. Jericho provides fu
                 print('My Current Location:', env.get_player_location())
 
 
-Finding Valid Actions
+Getting Valid Actions
 ---------------------
 
-One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho's :meth:`jericho.FrotzEnv.find_valid_actions` provides a best-guess list of *valid-actions* that will have an effect on the current game state:
+One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho's :meth:`jericho.FrotzEnv.get_valid_actions` provides a best-guess list of *valid-actions* that will have an effect on the current game state:
 
 
 .. code-block:: python
@@ -118,7 +120,7 @@ One of the most common difficulties with parser-based text games is identifying 
                 >>> env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 >>> env.reset()
                 'You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.'
-                >>> valid_actions = env.find_valid_actions()
+                >>> valid_actions = env.get_valid_actions()
                 ['south', 'open mailbox', 'west', 'north']
 
 
