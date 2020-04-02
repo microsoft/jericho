@@ -19,6 +19,7 @@ import shutil
 import tempfile
 import warnings
 import numpy as np
+import hashlib
 from . import defines
 from . import util as utl
 from .template_action_generator import TemplateActionGenerator
@@ -298,7 +299,7 @@ def _load_frotz_lib():
     return frotz_lib
 
 
-def _load_bindings(rom):
+def _load_bindings(md5hash):
     """
     Loads information pertaining to the current game. Returns a dictionary
     with the following keys:
@@ -333,12 +334,7 @@ def _load_bindings(rom):
 
     .. note:: Walkthroughs are defined for only a few games.
     """
-    rom = os.path.basename(rom)
-    for k, v in defines.BINDINGS_DICT.items():
-        if k == rom or v['rom'] == rom:
-            return v
-
-    raise ValueError('No bindings available for rom {}'.format(rom))
+    return defines.BINDINGS_DICT[md5hash]
 
 
 class UnsupportedGameWarning(UserWarning):
@@ -370,8 +366,9 @@ class FrotzEnv():
         self.seed = seed
         self.frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = self.frotz_lib.get_self_object_num()
+        md5hash = hashlib.md5(open(self.story_file, 'rb').read()).hexdigest()
         try:
-            self.bindings = _load_bindings(story_file)
+            self.bindings = _load_bindings(md5hash)
         except ValueError:
             self.bindings = None
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
