@@ -334,7 +334,11 @@ def _load_bindings(md5hash):
 
     .. note:: Walkthroughs are defined for only a few games.
     """
-    return defines.BINDINGS_DICT[md5hash]
+    try:
+        bindings = defines.BINDINGS_DICT[md5hash]
+    except KeyError:
+        bindings = None
+    return bindings
 
 
 class UnsupportedGameWarning(UserWarning):
@@ -367,10 +371,7 @@ class FrotzEnv():
         self.frotz_lib.setup(self.story_file, self.seed)
         self.player_obj_num = self.frotz_lib.get_self_object_num()
         md5hash = hashlib.md5(open(self.story_file, 'rb').read()).hexdigest()
-        try:
-            self.bindings = _load_bindings(md5hash)
-        except ValueError:
-            self.bindings = None
+        self.bindings = _load_bindings(md5hash)
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
 
     def __del__(self):
@@ -392,7 +393,7 @@ class FrotzEnv():
         self.close()
         seed = self.seed
         if not self.is_fully_supported or not self.bindings:
-            warnings.warn('Unable to find walkthrough seed in unsupported game.', UnsupportedGameWarning)
+            warnings.warn('Unable to find walkthrough seed for this game.', UnsupportedGameWarning)
         else:
             seed = self.bindings['seed']
         obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
@@ -440,7 +441,7 @@ class FrotzEnv():
         with use_walkthrough_seed=True.
         '''
         if not self.is_fully_supported or not self.bindings:
-            warnings.warn('Unable to retrieve walkthrough in unsupported game.', UnsupportedGameWarning)
+            warnings.warn('Unable to retrieve walkthrough for this game.', UnsupportedGameWarning)
             return []
         return self.bindings['walkthrough'].split('/')
 
