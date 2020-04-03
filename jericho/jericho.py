@@ -460,7 +460,8 @@ class FrotzEnv():
         interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
         best_obj_names    = self._score_object_names(interactive_objs)
         candidate_actions = self.act_gen.generate_actions(best_obj_names)
-        valid_actions     = self._filter_candidate_actions(candidate_actions)
+        diff2acts         = self._filter_candidate_actions(candidate_actions)
+        valid_actions     = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
         return valid_actions
 
     def set_state(self, state):
@@ -810,21 +811,13 @@ class FrotzEnv():
 
     def _filter_candidate_actions(self, candidate_actions):
         """
-        Given a list of candidate actions, returns the subset that change
-        the state of the game. Because many different actions may
-        cause the same world change, this method returns the most
-        commonly used action for each world change.
+        Given a list of candidate actions, returns a dictionary mapping world_diff
+        to the list of candidate actions that cause this diff. Only actions that
+        cause a valid world diff are returned.
 
         :param candidate_actions: Candidate actions to test for validity.
         :type candidate_actions: list
-        :returns: A list of the candidate actions found to be valid.
-
-        :Example:
-
-        >>> from jericho import *
-        >>> env = FrotzEnv('zork1.z5')
-        >>> env._filter_candidate_actions(['north', 'east', 'open mailbox', 'hail taxi'])
-        ['north', 'open mailbox']
+        :returns: Dictionary of world_diff to list of actions.
 
         """
         if self.game_over() or self.victory() or self._emulator_halted():
@@ -851,6 +844,5 @@ class FrotzEnv():
                         diff2acts[diff].append(act)
                 else:
                     diff2acts[diff] = [act]
-        valid_acts = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
         self.set_state(state)
-        return valid_acts
+        return diff2acts
