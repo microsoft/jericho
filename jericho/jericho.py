@@ -240,6 +240,11 @@ def _load_frotz_lib():
     frotz_lib.halted.argtypes = []
     frotz_lib.halted.restype = int
 
+    frotz_lib.getRAMSize.argtypes = []
+    frotz_lib.getRAMSize.restype = int
+    frotz_lib.getRAM.argtypes = [c_void_p]
+    frotz_lib.getRAM.restype = None
+
     frotz_lib.get_narrative_text.argtypes = []
     frotz_lib.get_narrative_text.restype = c_char_p
     frotz_lib.set_narrative_text.argtypes = [c_char_p]
@@ -445,7 +450,7 @@ class FrotzEnv():
             return []
         return self.bindings['walkthrough'].split('/')
 
-    def get_valid_actions(self, use_object_tree=False):
+    def get_valid_actions(self, use_object_tree=True):
         """
         Attempts to generate a set of unique valid actions from the current game state.
 
@@ -806,6 +811,8 @@ class FrotzEnv():
                     desc2obj[ex].append(obj)
                 else:
                     desc2obj[ex] = [obj]
+        # Add 'all' as a wildcard object
+        desc2obj['all'] = [('all', 'NOUN', 'LOC')]
         self.set_state(state)
         return desc2obj
 
@@ -846,3 +853,13 @@ class FrotzEnv():
                     diff2acts[diff] = [act]
         self.set_state(state)
         return diff2acts
+
+    def _get_ram(self):
+        """
+        Returns a numpy array containing the contents of the Z-Machine's RAM.
+
+        """
+        ram_size = self.frotz_lib.getRAMSize()
+        ram = np.zeros(ram_size, dtype=np.uint8)
+        self.frotz_lib.getRAM(as_ctypes(ram))
+        return ram
