@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Goldilocks is a FOX!: http://ifdb.tads.org/viewgame?id=59ztsy9p01avd6wp
 
+zword* gold_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** gold_intro_actions(int *n) {
   *n = 0;
   return NULL;

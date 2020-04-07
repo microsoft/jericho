@@ -67,6 +67,14 @@ int ROM_IDX = 0;
 char world[8192] = "";
 int emulator_halted = 0;
 char halted_message[] = "Emulator halted due to runtime error.\n";
+// Track the addresses and values of special per-game ram locations.
+int num_special_addrs = 0;
+zword *special_ram_addrs = NULL;
+zbyte *special_ram_values = NULL;
+int ram_diff_cnt;
+zword ram_diff_addr[16];
+zword ram_diff_value[16];
+
 
 // Runs a single opcode on the Z-Machine
 void zstep() {
@@ -119,7 +127,6 @@ enum SUPPORTED {
   INHUMANE_,
   JEWEL_,
   KARN_,
-  LGOP_,
   LIBRARY_,
   LOOSE_,
   LOSTPIG_,
@@ -222,8 +229,6 @@ void load_rom_bindings(char *story_file) {
     ROM_IDX = JEWEL_;
   } else if (strcmp(md5_hash, "EC55791BE814DB3663AD1AEC0D6B7690") == 0) {
     ROM_IDX = KARN_;
-  } else if (strcmp(md5_hash, "8241AFDADBDCDB934EE06AFC6BA59B67") == 0) {
-    ROM_IDX = LGOP_;
   } else if (strcmp(md5_hash, "DAF57133D346442B983BD333FB586CC4") == 0) {
     ROM_IDX = LIBRARY_;
   } else if (strcmp(md5_hash, "31A0C1E360DCE94AA5BECE5240691D17") == 0) {
@@ -303,6 +308,10 @@ void shutdown() {
   reset_memory();
   dumb_free();
   free_setup();
+  if (special_ram_values != NULL) {
+    free(special_ram_values);
+    special_ram_values = NULL;
+  }
 }
 
 // Save the state of the game into a string buffer
@@ -439,25 +448,71 @@ void setZArgs(unsigned char *s) {
   memcpy(zargs, s, 8*sizeof(zword));
 }
 
-void get_world_diff(zword *objs, zword *dest) {
-  int i;
-  for (i=0; i<move_diff_cnt; ++i) {
-    objs[i] = move_diff_objs[i];
-    dest[i] = move_diff_dest[i];
-  }
-  for (i=0; i<attr_diff_cnt; ++i) {
-    objs[16+i] = attr_diff_objs[i];
-    dest[16+i] = attr_diff_nb[i];
-  }
-  for (i=0; i<attr_clr_cnt; ++i) {
-    objs[32+i] = attr_clr_objs[i];
-    dest[32+i] = attr_clr_nb[i];
-  }
-}
-
 //==========================//
 //   Function pointers      //
 //==========================//
+
+char** (*ram_addr_fns[]) (int* num_actions) = {
+  default_ram_addrs,
+  acorn_ram_addrs,
+  adventureland_ram_addrs,
+  advent_ram_addrs,
+  afflicted_ram_addrs,
+  anchor_ram_addrs,
+  awaken_ram_addrs,
+  balances_ram_addrs,
+  ballyhoo_ram_addrs,
+  curses_ram_addrs,
+  cutthroat_ram_addrs,
+  deephome_ram_addrs,
+  detective_ram_addrs,
+  dragon_ram_addrs,
+  enchanter_ram_addrs,
+  enter_ram_addrs,
+  gold_ram_addrs,
+  hhgg_ram_addrs,
+  hollywood_ram_addrs,
+  huntdark_ram_addrs,
+  infidel_ram_addrs,
+  inhumane_ram_addrs,
+  jewel_ram_addrs,
+  karn_ram_addrs,
+  library_ram_addrs,
+  loose_ram_addrs,
+  lostpig_ram_addrs,
+  ludicorp_ram_addrs,
+  lurking_ram_addrs,
+  moonlit_ram_addrs,
+  murdac_ram_addrs,
+  night_ram_addrs,
+  nine05_ram_addrs,
+  omniquest_ram_addrs,
+  partyfoul_ram_addrs,
+  pentari_ram_addrs,
+  planetfall_ram_addrs,
+  plundered_ram_addrs,
+  reverb_ram_addrs,
+  seastalker_ram_addrs,
+  sherbet_ram_addrs,
+  sherlock_ram_addrs,
+  snacktime_ram_addrs,
+  sorcerer_ram_addrs,
+  spellbrkr_ram_addrs,
+  spirit_ram_addrs,
+  temple_ram_addrs,
+  theatre_ram_addrs,
+  trinity_ram_addrs,
+  tryst_ram_addrs,
+  weapon_ram_addrs,
+  wishbringer_ram_addrs,
+  yomomma_ram_addrs,
+  zenon_ram_addrs,
+  zork1_ram_addrs,
+  zork2_ram_addrs,
+  zork3_ram_addrs,
+  ztuu_ram_addrs,
+  textworld_ram_addrs
+};
 
 char** (*intro_action_fns[]) (int* num_actions) = {
   default_intro_actions,
@@ -484,7 +539,6 @@ char** (*intro_action_fns[]) (int* num_actions) = {
   inhumane_intro_actions,
   jewel_intro_actions,
   karn_intro_actions,
-  lgop_intro_actions,
   library_intro_actions,
   loose_intro_actions,
   lostpig_intro_actions,
@@ -547,7 +601,6 @@ char* (*clean_observation_fns[]) (char* obs) = {
   inhumane_clean_observation,
   jewel_clean_observation,
   karn_clean_observation,
-  lgop_clean_observation,
   library_clean_observation,
   loose_clean_observation,
   lostpig_clean_observation,
@@ -610,7 +663,6 @@ int (*victory_fns[]) (void) = {
   inhumane_victory,
   jewel_victory,
   karn_victory,
-  lgop_victory,
   library_victory,
   loose_victory,
   lostpig_victory,
@@ -673,7 +725,6 @@ int (*game_over_fns[]) (void) = {
   inhumane_game_over,
   jewel_game_over,
   karn_game_over,
-  lgop_game_over,
   library_game_over,
   loose_game_over,
   lostpig_game_over,
@@ -736,7 +787,6 @@ int (*get_self_object_num_fns[]) (void) = {
   inhumane_get_self_object_num,
   jewel_get_self_object_num,
   karn_get_self_object_num,
-  lgop_get_self_object_num,
   library_get_self_object_num,
   loose_get_self_object_num,
   lostpig_get_self_object_num,
@@ -799,7 +849,6 @@ int (*get_moves_fns[]) (void) = {
   inhumane_get_moves,
   jewel_get_moves,
   karn_get_moves,
-  lgop_get_moves,
   library_get_moves,
   loose_get_moves,
   lostpig_get_moves,
@@ -862,7 +911,6 @@ short (*get_score_fns[]) (void) = {
   inhumane_get_score,
   jewel_get_score,
   karn_get_score,
-  lgop_get_score,
   library_get_score,
   loose_get_score,
   lostpig_get_score,
@@ -925,7 +973,6 @@ int (*get_num_world_objs_fns[]) (void) = {
   inhumane_get_num_world_objs,
   jewel_get_num_world_objs,
   karn_get_num_world_objs,
-  lgop_get_num_world_objs,
   library_get_num_world_objs,
   loose_get_num_world_objs,
   lostpig_get_num_world_objs,
@@ -988,7 +1035,6 @@ int (*max_score_fns[]) (void) = {
   inhumane_max_score,
   jewel_max_score,
   karn_max_score,
-  lgop_max_score,
   library_max_score,
   loose_max_score,
   lostpig_max_score,
@@ -1051,7 +1097,6 @@ int (*ignore_moved_obj_fns[]) (zword obj_num, zword dest_num) = {
   inhumane_ignore_moved_obj,
   jewel_ignore_moved_obj,
   karn_ignore_moved_obj,
-  lgop_ignore_moved_obj,
   library_ignore_moved_obj,
   loose_ignore_moved_obj,
   lostpig_ignore_moved_obj,
@@ -1114,7 +1159,6 @@ int (*ignore_attr_diff_fns[]) (zword obj_num, zword attr_idx) = {
   inhumane_ignore_attr_diff,
   jewel_ignore_attr_diff,
   karn_ignore_attr_diff,
-  lgop_ignore_attr_diff,
   library_ignore_attr_diff,
   loose_ignore_attr_diff,
   lostpig_ignore_attr_diff,
@@ -1177,7 +1221,6 @@ int (*ignore_attr_clr_fns[]) (zword obj_num, zword attr_idx) = {
   inhumane_ignore_attr_clr,
   jewel_ignore_attr_clr,
   karn_ignore_attr_clr,
-  lgop_ignore_attr_clr,
   library_ignore_attr_clr,
   loose_ignore_attr_clr,
   lostpig_ignore_attr_clr,
@@ -1240,7 +1283,6 @@ void (*clean_world_objs_fns[]) (zobject* objs) = {
   inhumane_clean_world_objs,
   jewel_clean_world_objs,
   karn_clean_world_objs,
-  lgop_clean_world_objs,
   library_clean_world_objs,
   loose_clean_world_objs,
   lostpig_clean_world_objs,
@@ -1282,6 +1324,10 @@ void (*clean_world_objs_fns[]) (zobject* objs) = {
 //==========================//
 // Function Instantiations  //
 //==========================//
+
+zword* get_ram_addrs(int* num_addrs) {
+  return (*ram_addr_fns[ROM_IDX])(num_addrs);
+}
 
 char** get_intro_actions(int* num_actions) {
   return (*intro_action_fns[ROM_IDX])(num_actions);
@@ -1359,6 +1405,42 @@ void take_intro_actions() {
   }
 }
 
+// Create memory used to hold the special ram values
+void init_special_ram() {
+  special_ram_addrs = get_ram_addrs(&num_special_addrs);
+  if (special_ram_values != NULL) {
+    free(special_ram_values);
+  }
+  if (num_special_addrs > 0) {
+    special_ram_values = (zbyte*) malloc(num_special_addrs * sizeof(zbyte));
+  }
+}
+
+// Updates the special ram values to reflect the current memory
+void update_special_ram() {
+  int i;
+  for (i=0; i<num_special_addrs; ++i) {
+    special_ram_values[i] = zmp[special_ram_addrs[i]];
+  }
+}
+
+// Records changes to the special ram addresses and updates their values.
+void update_ram_diff() {
+  int i;
+  zbyte curr_ram_value;
+  zword addr;
+  for (i=0; i<num_special_addrs; ++i) {
+    addr = special_ram_addrs[i];
+    curr_ram_value = zmp[addr];
+    if (curr_ram_value != special_ram_values[i]) {
+      // Record the difference in global ram_diff_addr / ram_diff_value
+      ram_diff_addr[ram_diff_cnt] = addr;
+      ram_diff_value[ram_diff_cnt] = (zword) curr_ram_value;
+      ram_diff_cnt++;
+    }
+  }
+}
+
 char* setup(char *story_file, int seed) {
   char* text;
   emulator_halted = 0;
@@ -1380,6 +1462,7 @@ char* setup(char *story_file, int seed) {
   run_free();
   load_rom_bindings(story_file);
   take_intro_actions();
+  init_special_ram();
 
   // Extra procedures for TextWorld
   if (ROM_IDX == TEXTWORLD_) {
@@ -1421,16 +1504,20 @@ char* step(char *next_action) {
   if (emulator_halted > 0)
     return halted_message;
 
-  // Clear the object & attr diff
+  // Clear the object, attr, and ram diffs
   move_diff_cnt = 0;
   attr_diff_cnt = 0;
   attr_clr_cnt = 0;
+  ram_diff_cnt = 0;
+  update_special_ram();
 
   dumb_set_next_action(next_action);
 
   zstep();
   run_free();
 
+  // Check for changes to special ram
+  update_ram_diff();
   text = dumb_get_screen();
   text = clean_observation(text);
   strcpy(world, text);
@@ -1476,6 +1563,12 @@ void get_cleaned_world_diff(zword *objs, zword *dest) {
     dest[32+j] = attr_clr_nb[i];
     j++;
   }
+  j = 0;
+  for (i=0; i<ram_diff_cnt; ++i) {
+    objs[48+j] = ram_diff_addr[i];
+    dest[48+j] = ram_diff_value[i];
+    j++;
+  }
 }
 
 // Returns 1 if the last action changed the state of the world.
@@ -1497,6 +1590,9 @@ int world_changed() {
     if (ignore_attr_clr(attr_clr_objs[i], attr_clr_nb[i])) {
       continue;
     }
+    return 1;
+  }
+  if (ram_diff_cnt > 0) {
     return 1;
   }
   return 0;

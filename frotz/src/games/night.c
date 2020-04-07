@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Night at the Computer Center: http://ifdb.tads.org/viewgame?id=ydhwa11st460g9u3
 
+zword* night_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** night_intro_actions(int *n) {
   *n = 0;
   return NULL;

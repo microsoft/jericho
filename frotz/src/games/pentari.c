@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Pentari: http://ifdb.tads.org/viewgame?id=llchvog0ukwrphih
 
+zword* pentari_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** pentari_intro_actions(int *n) {
   *n = 0;
   return NULL;

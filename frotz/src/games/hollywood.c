@@ -28,6 +28,11 @@ const char *hollywood_intro[] = { "turn statue west\n",
                                   "turn statue east\n",
                                   "turn statue north\n" };
 
+zword* hollywood_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** hollywood_intro_actions(int *n) {
   *n = 3;
   return hollywood_intro;

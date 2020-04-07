@@ -565,6 +565,11 @@ extern int attr_clr_cnt;
 extern zword attr_clr_objs[16];
 extern zword attr_clr_nb[16];
 
+// Keep track of up to n=16 changes to special ram locations defined by the game
+extern int ram_diff_cnt;
+extern zword ram_diff_addr[16];
+extern zword ram_diff_value[16];
+
 // Set to True when the game has encountered a fatal error
 extern int emulator_halted;
 

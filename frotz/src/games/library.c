@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *library_intro[] = { "\n" };
 
+zword* library_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** library_intro_actions(int *n) {
   *n = 1;
   return library_intro;

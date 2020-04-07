@@ -29,6 +29,11 @@ const char *lurking_intro[] = { "sit on chair\n",
                                 "login 872325412\n",
                                 "password uhlersoth\n" };
 
+zword* lurking_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** lurking_intro_actions(int *n) {
   *n = 4;
   return lurking_intro;

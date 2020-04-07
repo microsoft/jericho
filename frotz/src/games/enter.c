@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Enterprise Incidents: http://ifdb.tads.org/viewgame?id=ld1f3t5epeagilfz
 
+zword* enter_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** enter_intro_actions(int *n) {
   *n = 0;
   return NULL;

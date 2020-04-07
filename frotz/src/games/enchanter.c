@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Enchanter: http://ifdb.tads.org/viewgame?id=vu4xhul3abknifcr
 
+zword* enchanter_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** enchanter_intro_actions(int *n) {
   *n = 0;
   return NULL;

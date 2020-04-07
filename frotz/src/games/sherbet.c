@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *sherbet_intro[] = { " \n" };
 
+zword* sherbet_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** sherbet_intro_actions(int *n) {
   *n = 1;
   return sherbet_intro;

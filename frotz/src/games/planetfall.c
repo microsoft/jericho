@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Planetfall: http://ifdb.tads.org/viewgame?id=xe6kb3cuqwie2q38
 
+zword* planetfall_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** planetfall_intro_actions(int *n) {
   *n = 0;
   return NULL;

@@ -676,10 +676,11 @@ class FrotzEnv():
 
         :returns: A Tuple of tuples containing 1) tuple of world objects that \
         have moved in the Object Tree, 2) tuple of objects whose attributes have\
-        changed, 3) tuple of world objects whose attributes have been cleared.
+        changed, 3) tuple of world objects whose attributes have been cleared, and
+        4) tuple of special ram locations whose values have changed.
         '''
-        objs = np.zeros(48, dtype=np.uint16)
-        dest = np.zeros(48, dtype=np.uint16)
+        objs = np.zeros(64, dtype=np.uint16)
+        dest = np.zeros(64, dtype=np.uint16)
         self.frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
         # First 16 spots allocated for objects that have moved
         moved_objs = []
@@ -699,7 +700,13 @@ class FrotzEnv():
             if objs[i] == 0 or dest[i] == 0:
                 break
             cleared_attrs.append((objs[i], dest[i]))
-        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs))
+        # Fourth 16 spots allocated to ram locations & values that have changed
+        ram_diffs = []
+        for i in range(48, 64):
+            if objs[i] == 0:
+                break
+            ram_diffs.append((objs[i], dest[i]))
+        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(ram_diffs))
 
     def _score_object_names(self, interactive_objs):
         """ Attempts to choose a sensible name for an object, typically a noun. """

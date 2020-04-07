@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Spellbreaker: http://ifdb.tads.org/viewgame?id=wqsmrahzozosu3r
 
+zword* spellbrkr_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** spellbrkr_intro_actions(int *n) {
   *n = 0;
   return NULL;

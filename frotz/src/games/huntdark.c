@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *huntdark_intro[] = { "\n", "\n" };
 
+zword* huntdark_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** huntdark_intro_actions(int *n) {
   *n = 2;
   return huntdark_intro;
