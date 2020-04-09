@@ -21,17 +21,15 @@ def parse_args():
 
 args = parse_args()
 
-bindings = jericho.load_bindings(args.filename)
-env = jericho.FrotzEnv(args.filename, seed=bindings['seed'])
-
 history = []
+env = jericho.FrotzEnv(args.filename)
 obs, info = env.reset()
 
 history.append(env.get_state())
 
 STEP_BY_STEP_WALKTRHOUGH = True
 
-walkthrough = bindings.get('walkthrough', '').split('/')
+walkthrough = env.get_walkthrough()
 if args.walkthrough:
     walkthrough = []
     for line in open(args.walkthrough):
@@ -73,15 +71,6 @@ while True:
         obs_list.append(obs)
         history.append(env.get_state())
         cpt += 1
-
-# while not done:
-#     print(obs)
-#     cmd = input("> ")
-#     if cmd == "DEBUG":
-#         from ipdb import set_trace; set_trace()
-
-#     commands.append(cmd)
-#     obs, rew, done, info = env.step(cmd)
 
 print()
 print("/".join(commands).replace('"', '\\"'))

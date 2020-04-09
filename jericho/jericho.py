@@ -319,9 +319,8 @@ def _load_bindings(md5hash):
     :param rom: Path or name of rom to load.
     :type rom: string
 
-    :raises ValueError: When there are no bindings defined for the current ROM.
-
-    :returns: Dictionary containing game-specific bindings.
+    :returns: Dictionary containing game-specific bindings if it exists.
+              Otherwise, an empty dictionary.
 
     :Example:
 
@@ -339,11 +338,7 @@ def _load_bindings(md5hash):
 
     .. note:: Walkthroughs are defined for only a few games.
     """
-    try:
-        bindings = defines.BINDINGS_DICT[md5hash]
-    except KeyError:
-        bindings = None
-    return bindings
+    return defines.BINDINGS_DICT.get(md5hash, {})
 
 
 class UnsupportedGameWarning(UserWarning):
@@ -355,12 +350,14 @@ class FrotzEnv():
     The Frotz Environment is a fast interface to Z-Machine games.
 
     :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
-    :param seed: Seed the random number generator used by the emulator. Default value of -1 seeds to time.
+    :param seed: Seed the random number generator used by the emulator.
+                 Default: use walkthrough's seed if it exists,
+                          otherwise use value of -1 which changes with time.
     :type story_file: path
     :type seed: int
 
     """
-    def __init__(self, story_file, seed=-1):
+    def __init__(self, story_file, seed=None):
         if not os.path.isfile(story_file):
             raise FileNotFoundError(story_file)
 
@@ -372,37 +369,41 @@ class FrotzEnv():
             warnings.warn(msg, UnsupportedGameWarning)
 
         self.story_file = story_file.encode('utf-8')
-        self.seed = seed
-        self.frotz_lib.setup(self.story_file, self.seed)
-        self.player_obj_num = self.frotz_lib.get_self_object_num()
         md5hash = hashlib.md5(open(self.story_file, 'rb').read()).hexdigest()
         self.bindings = _load_bindings(md5hash)
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
+        self.seed(seed)
+
+    def seed(self, seed=None):
+        '''
+        Changes seed used for the emulator's random number generator
+
+        :param seed: Seed the random number generator used by the emulator.
+                     Default: use walkthrough's seed if it exists,
+                              otherwise use value of -1 which changes with time.
+        '''
+        self.close()  # In case it is running.
+        self._seed = seed or self.bindings.get('seed', -1)
+        self.frotz_lib.setup(self.story_file, self._seed)
+        self.player_obj_num = self.frotz_lib.get_self_object_num()
 
     def __del__(self):
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
             dlclose_func(self.frotz_lib._handle)
 
-    def reset(self, use_walkthrough_seed=False):
+    def reset(self):
         '''
         Resets the game.
 
         :param use_walkthrough_seed: Seed the emulator to reproduce the walkthrough.
-        :type use_walkthrough_seed: Boolean
         :returns: A tuple containing the initial observation,\
         and a dictionary of info.
         :rtype: string, dictionary
 
         '''
         self.close()
-        seed = self.seed
-        if use_walkthrough_seed:
-            if not self.is_fully_supported or not self.bindings:
-                warnings.warn('Unable to find walkthrough seed for this game.', UnsupportedGameWarning)
-            else:
-                seed = self.bindings['seed']
-        obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
+        obs_ini = self.frotz_lib.setup(self.story_file, self._seed).decode('cp1252')
         score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self.get_moves(), 'score':score}
 
@@ -531,7 +532,7 @@ class FrotzEnv():
     def copy(self):
         ''' Forks this FrotzEnv instance. '''
         state = self.get_state()
-        env = FrotzEnv(self.story_file.decode(), seed=self.seed)
+        env = FrotzEnv(self.story_file.decode(), seed=self._seed)
         env.set_state(state)
         return env
 

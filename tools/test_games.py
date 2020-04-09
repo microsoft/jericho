@@ -22,21 +22,20 @@ args = parse_args()
 filename_max_length = max(map(len, args.filenames))
 for filename in sorted(args.filenames):
     print(filename.ljust(filename_max_length), end=" ")
-    try:
-        bindings = jericho.load_bindings(filename)
-    except ValueError:
+
+    env = jericho.FrotzEnv(filename)
+    if not env.is_fully_supported:
         print(colored("SKIP\tUnsupported game", 'yellow'))
         continue
 
-    if "walkthrough" not in bindings:
+    if "walkthrough" not in env.bindings:
         print(colored("SKIP\tMissing walkthrough", 'yellow'))
         continue
 
-    env = jericho.FrotzEnv(filename, seed=bindings['seed'])
     env.reset()
 
-    walkthrough = bindings['walkthrough'].split('/')
-    for cmd in walkthrough:
+    #walkthrough = bindings['walkthrough'].split('/')
+    for cmd in env.get_walkthrough():
         obs, rew, done, info = env.step(cmd)
 
     if not done:
