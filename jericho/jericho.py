@@ -397,10 +397,11 @@ class FrotzEnv():
         '''
         self.close()
         seed = self.seed
-        if not self.is_fully_supported or not self.bindings:
-            warnings.warn('Unable to find walkthrough seed for this game.', UnsupportedGameWarning)
-        else:
-            seed = self.bindings['seed']
+        if use_walkthrough_seed:
+            if not self.is_fully_supported or not self.bindings:
+                warnings.warn('Unable to find walkthrough seed for this game.', UnsupportedGameWarning)
+            else:
+                seed = self.bindings['seed']
         obs_ini = self.frotz_lib.setup(self.story_file, seed).decode('cp1252')
         score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self.get_moves(), 'score':score}
