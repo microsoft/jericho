@@ -367,21 +367,6 @@ int   karn_ignore_attr_diff             (zword obj_num, zword attr_idx);
 int   karn_ignore_attr_clr              (zword obj_num, zword attr_idx);
 void  karn_clean_world_objs             (zobject* objs);
 
-zword* lgop_ram_addrs                   (int*);
-char** lgop_intro_actions               (int*);
-int   lgop_victory                      (void);
-char* lgop_clean_observation            (char*);
-int   lgop_game_over                    (void);
-int   lgop_get_num_world_objs           (void);
-int   lgop_get_self_object_num          (void);
-int   lgop_get_moves                    (void);
-short lgop_get_score                    (void);
-int   lgop_max_score                    (void);
-int   lgop_ignore_moved_obj             (zword obj_num, zword dest_num);
-int   lgop_ignore_attr_diff             (zword obj_num, zword attr_idx);
-int   lgop_ignore_attr_clr              (zword obj_num, zword attr_idx);
-void  lgop_clean_world_objs             (zobject* objs);
-
 zword* library_ram_addrs                (int*);
 char** library_intro_actions            (int*);
 int   library_victory                   (void);
