@@ -27,7 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 const zword zork1_special_ram_addrs[3] = {
   2842, // Activated after 'read prayer' to dispel spirits; Alternative: 9108
   8856, // Activated by 'dig sand'
-  5657  // Tracks theif health
+  5657  // Tracks thief health
 };
 
 zword* zork1_ram_addrs(int *n) {
