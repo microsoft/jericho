@@ -373,17 +373,6 @@ class FrotzEnv():
         self.bindings = _load_bindings(md5hash)
         self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
         self.seed(seed)
-
-    def seed(self, seed=None):
-        '''
-        Changes seed used for the emulator's random number generator
-
-        :param seed: Seed the random number generator used by the emulator.
-                     Default: use walkthrough's seed if it exists,
-                              otherwise use value of -1 which changes with time.
-        '''
-        self.close()  # In case it is running.
-        self._seed = seed or self.bindings.get('seed', -1)
         self.frotz_lib.setup(self.story_file, self._seed)
         self.player_obj_num = self.frotz_lib.get_self_object_num()
 
@@ -391,6 +380,22 @@ class FrotzEnv():
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
             dlclose_func(self.frotz_lib._handle)
+
+    def seed(self, seed=None):
+        '''
+        Changes seed used for the emulator's random number generator.
+
+        :param seed: Seed the random number generator used by the emulator.
+                     Default: use walkthrough's seed if it exists,
+                              otherwise use value of -1 which changes with time.
+        :returns: The value of the seed.
+
+        .. note:: :meth:`jericho.FrotzEnv.reset()` must be called before the seed takes effect.
+
+        '''
+        seed = seed or self.bindings.get('seed', -1)
+        self._seed = seed
+        return seed
 
     def reset(self):
         '''
