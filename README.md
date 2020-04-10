@@ -41,7 +41,9 @@ python3 -m spacy download en_core_web_sm
 - [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
 ## Agents
-Reference implementations of DRRN and TDQN agents may be found at https://github.com/microsoft/tdqn.
+Reference agent implementations:
+- [Template-DQN and DRRN](https://github.com/microsoft/tdqn)
+- [Knowledge Graph Advantage Actor Critic (KG-A2C)](https://github.com/rajammanabrolu/KG-A2C)
 
 ## Citing Jericho
 If Jericho is used in your research, please cite the following:
