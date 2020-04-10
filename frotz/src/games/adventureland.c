@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Adventureland: http://ifdb.tads.org/viewgame?id=dy4ok8sdlut6ddj7
 
+zword* adventureland_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** adventureland_intro_actions(int *n) {
   *n = 0;
   return NULL;

@@ -27,6 +27,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 const char *partyfoul_intro[] = { "\n",
                                   "no\n" };
 
+zword* partyfoul_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** partyfoul_intro_actions(int *n) {
   *n = 2;
   return partyfoul_intro;

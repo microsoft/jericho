@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Detective: http://ifdb.tads.org/viewgame?id=1po9rgq2xssupefw
 
+zword* detective_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** detective_intro_actions(int *n) {
   *n = 0;
   return NULL;

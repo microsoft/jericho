@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Ballyhoo: http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg
 
+zword* ballyhoo_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** ballyhoo_intro_actions(int *n) {
   *n = 0;
   return NULL;

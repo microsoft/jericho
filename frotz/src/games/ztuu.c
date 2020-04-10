@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork: The Undiscovered Underground: http://ifdb.tads.org/viewgame?id=40hswtkhap88gzvn
 
+zword* ztuu_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** ztuu_intro_actions(int *n) {
   *n = 0;
   return NULL;

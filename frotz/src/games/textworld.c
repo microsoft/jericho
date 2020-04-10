@@ -60,6 +60,11 @@ void parse_score_and_move_count(char* obs) {
   }
 }
 
+zword* textworld_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** textworld_intro_actions(int *n) {
   *n = 0;
   return NULL;

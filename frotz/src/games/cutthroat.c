@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Cutthroats: http://ifdb.tads.org/viewgame?id=4ao65o1u0xuvj8jf
 
+zword* cutthroat_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** cutthroat_intro_actions(int *n) {
   *n = 0;
   return NULL;

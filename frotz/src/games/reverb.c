@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Reverberations: http://ifdb.tads.org/viewgame?id=dop7nbjl90r5zmf9
 
+zword* reverb_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** reverb_intro_actions(int *n) {
   *n = 0;
   return NULL;

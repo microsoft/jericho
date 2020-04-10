@@ -15,19 +15,20 @@
     <img src='https://badge.fury.io/py/jericho.svg' alt='PyPI version' />
   </a>
 <p>
-    
+
 <p align="center">
   A lightweight python-based interface connecting learning agents with interactive fiction games.
 <p>
-    
+
 <br>
 
 ## Requirements
-***Linux***, ***Python 3***, and basic build tools like ***gcc***.
+***Linux***, ***Python 3***, ***Spacy***, and basic build tools like ***gcc***.
 
 ## Install
 ```bash
-pip3 install --user jericho
+pip3 install jericho
+python3 -m spacy download en_core_web_sm
 ```
 
 ## Documentation

@@ -122,8 +122,10 @@ def extract_objs(text):
     doc = spacy_nlp(text)
     s = set()
     for token in doc:
-        if token.pos_ == 'ADJ' or token.pos_ == 'NOUN' or token.pos_ == 'PROPN':
-            s.add(token.text.lower())
+        if token.pos_ == 'ADJ':
+            s.add((token.text.lower(), 'ADJ'))
+        elif token.pos_ == 'NOUN' or token.pos_ == 'PROPN':
+            s.add((token.text.lower(), 'NOUN'))
     return s
 
 

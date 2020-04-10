@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Moonlit Tower - http://ifdb.tads.org/viewgame?id=10387w68qlwehbyq
 
+zword* moonlit_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** moonlit_intro_actions(int *n) {
   *n = 0;
   return NULL;

@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Return to Karn: http://ifdb.tads.org/viewgame?id=bx8118ggp6j7nslo
 
+zword* karn_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** karn_intro_actions(int *n) {
   *n = 0;
   return NULL;

@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Acorn Court: http://ifdb.tads.org/viewgame?id=tqvambr6vowym20v
 
+zword* acorn_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** acorn_intro_actions(int *n) {
   *n = 0;
   return NULL;

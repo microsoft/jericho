@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Monsters of Murdac: http://ifdb.tads.org/viewgame?id=q36lh5np0q9nak28
 
+zword* murdac_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** murdac_intro_actions(int *n) {
   *n = 0;
   return NULL;

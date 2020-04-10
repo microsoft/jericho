@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Weapon: http://ifdb.tads.org/viewgame?id=tcebhl79rlxo3qrk
 
+zword* weapon_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** weapon_intro_actions(int *n) {
   *n = 0;
   return NULL;

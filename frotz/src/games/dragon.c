@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Dragon Adventure: http://ifdb.tads.org/viewgame?id=sjiyffz8n5patu8l
 
+zword* dragon_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** dragon_intro_actions(int *n) {
   *n = 0;
   return NULL;

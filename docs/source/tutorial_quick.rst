@@ -4,7 +4,7 @@ Jericho Quick-start
 Install
 -------
 
-Jericho requires Linux, Python 3, and basic build tools like gcc.
+Jericho requires Linux, Python 3, Spacy, and basic build tools like gcc.
 
 There are two ways to install Jericho:
 
@@ -13,7 +13,8 @@ From PyPi
 
 .. code-block:: bash
 
-   pip3 install --user jericho
+   pip3 install jericho
+   python3 -m spacy download en_core_web_sm
 
 
 From Github
@@ -23,13 +24,14 @@ From Github
 
 .. code-block:: bash
 
-    git clone https://github.com/microsoft/jericho.git
+   git clone https://github.com/microsoft/jericho.git
 
 2. Install Jericho:
 
 .. code-block:: bash
 
-    cd jericho; pip3 install --user .
+   cd jericho; pip3 install .
+   python3 -m spacy download en_core_web_sm
 
 
 Acquire Games
@@ -54,8 +56,8 @@ Jericho implements a reinforcement learning interface in which the agent provide
 
                 from jericho import *
                 # Create the environment, optionally specifying a random seed
-                env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5", seed=12)
-                initial_observation = env.reset()
+                env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
+                initial_observation, info = env.reset()
                 done = False
                 while not done:
                     # Take an action in the environment using the step fuction.
@@ -69,7 +71,7 @@ Jericho implements a reinforcement learning interface in which the agent provide
 Game Dictionary
 ---------------
 
-It's possible to get the list of vocabulary words recognized by a game:
+:meth:`jericho.FrotzEnv.get_dictionary` returns the list of vocabulary words recognized by a game:
 
 .. code-block:: python
 
@@ -93,18 +95,6 @@ It's possible to save and load the game state using :meth:`jericho.FrotzEnv.get_
                 env.set_state(state) # Restore to saved state
 
 
-Change Detection
-----------------
-
-Since many actions may not be recognized by the game's parser, Jericho provides a best-guess facility to determine if the last action changed the state of the game:
-
-.. code-block:: python
-
-                env.step('take leaflet')
-                if env.world_changed():
-                    print('Found a valid action!')
-
-
 Object Tree
 -----------
 
@@ -118,47 +108,31 @@ The object tree is an internal representation of game state. Jericho provides fu
                 print('My Current Location:', env.get_player_location())
 
 
-Finding Valid Actions
+Getting Valid Actions
 ---------------------
 
-One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho provides a facility to best-guess identify a list of *valid-actions* that will have an effect on the current game state.
-
-Pairing the :class:`jericho.template_action_generator.TemplateActionGenerator` with :meth:`jericho.FrotzEnv.find_valid_actions`, it's possible to identify valid actions as follows:
+One of the most common difficulties with parser-based text games is identifying which actions are recognized by the parser and applicable in the current location. Jericho's :meth:`jericho.FrotzEnv.get_valid_actions` provides a best-guess list of *valid-actions* that will have an effect on the current game state:
 
 
 .. code-block:: python
 
                 >>> from jericho import *
-                >>> from jericho.template_action_generator import TemplateActionGenerator
-                >>> rom = 'zork1.z5'
-                >>> env = FrotzEnv(rom)
-                >>> bindings = load_bindings(rom)
-                >>> act_gen = TemplateActionGenerator(bindings)
+                >>> env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 >>> env.reset()
                 'You are standing in an open field west of a white house, with a boarded front door. There is a small mailbox here.'
-                >>> interactive_objs = [obj[0] for obj in env.identify_interactive_objects(use_object_tree=True)]
-                ['mailbox', 'boarded', 'white']
-                >>> candidate_actions = act_gen.generate_actions(interactive_objs)
-                ['drive boarded', 'swim in mailbox', 'jump white', 'kick boarded','pour white in boarded', ... ]
-                >>> valid_actions = env.find_valid_actions(candidate_actions)
+                >>> valid_actions = env.get_valid_actions()
                 ['south', 'open mailbox', 'west', 'north']
 
 
 Walkthroughs
 ------------
 
-Jericho provides walkthroughs to a subset of the supported games. If a game's walkthrough is defined, it will be stored in the bindings dictionary for the game under the key 'walkthrough'. To use the walkthrough, it is also necessary to set the desired seed when initializing the FrotzEnv.
-
-If you have a walkthrough for a Jericho-supported game, please send us a PR.
+Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.get_walkthrough`. To use the walkthrough, it is necessary to reset the environment with the desired seed:
 
 .. code-block:: python
 
                 >>> from jericho import *
-                >>> rom = 'zork1.z5'
-                >>> bindings = load_bindings(rom)
-                >>> if 'walkthrough' in bindings:
-                >>>     walkthrough = bindings['walkthrough'].split('/')
-                >>>     seed = bindings['seed']
-                >>>     env = FrotzEnv(rom, seed=seed)
-                >>>     for act in walkthrough:
-                >>>         env.step(act)
+                >>> env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
+                >>> walkthrough = env.get_walkthrough()
+                >>> for act in walkthrough:
+                >>>     env.step(act)

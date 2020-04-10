@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *snacktime_intro[] = { "\n" };
 
+zword* snacktime_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** snacktime_intro_actions(int *n) {
   *n = 1;
   return snacktime_intro;

@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hitchhiker's Guide to the Galaxy: http://ifdb.tads.org/viewgame?id=ouv80gvsl32xlion
 
+zword* hhgg_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** hhgg_intro_actions(int *n) {
   *n = 0;
   return NULL;

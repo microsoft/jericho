@@ -5,8 +5,7 @@ import argparse
 import random
 from termcolor import colored
 
-from jericho import FrotzEnv, load_bindings
-from jericho.template_action_generator import TemplateActionGenerator
+from jericho import FrotzEnv
 
 
 # Create the environment, optionally specifying a random seed
@@ -23,12 +22,8 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_random_action(env, act_gen, args):
-    interactive_objs = [obj[0] for obj in env.identify_interactive_objects(use_object_tree=True)]
-    #ex. ['mailbox', 'boarded', 'white']
-    candidate_actions = act_gen.generate_actions(interactive_objs)
-    #ex. ['drive boarded', 'swim in mailbox', 'jump white', 'kick boarded','pour white in boarded', ... ]
-    valid_actions = env.find_valid_actions(candidate_actions)
+def get_random_action(env, args):
+    valid_actions = env.get_valid_actions()
     chosen_action = random.choice(valid_actions)
     if args.verbose:
         print(colored(("valid actions:", valid_actions), 'green'))
@@ -37,9 +32,7 @@ def get_random_action(env, act_gen, args):
 
 
 args = parse_args()
-env = FrotzEnv(args.rom_path, seed=12)
-bindings = load_bindings(args.rom_path)
-act_gen = TemplateActionGenerator(bindings)
+env = FrotzEnv(args.rom_path)
 obs, info = env.reset()
 done = False
 
@@ -52,7 +45,7 @@ while not done:
         break
 
     # Use TemplateActionGenerator to select an action
-    chosen_action = get_random_action(env, act_gen, args)
+    chosen_action = get_random_action(env, args)
 
     # Take an action in the environment using the step fuction.
     # The resulting text-observation, reward, and game-over indicator is returned.

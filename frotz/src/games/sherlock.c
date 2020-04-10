@@ -26,6 +26,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *sherlock_intro[] = { "\n" };
 
+zword* sherlock_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** sherlock_intro_actions(int *n) {
   *n = 1;
   return sherlock_intro;

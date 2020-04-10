@@ -24,6 +24,11 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Raising the Flag on Mount Yomomma - http://ifdb.tads.org/viewgame?id=1iqmpkn009h9gbug
 
+zword* yomomma_ram_addrs(int *n) {
+    *n = 0;
+    return NULL;
+}
+
 char** yomomma_intro_actions(int *n) {
   *n = 0;
   return NULL;
