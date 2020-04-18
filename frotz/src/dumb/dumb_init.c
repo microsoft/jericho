@@ -240,6 +240,13 @@ void load_story(char *s)
     strncat(f_setup.command_name, EXT_COMMAND, strlen(EXT_COMMAND));
 }
 
+void load_story_rom(char *s, void *buf, size_t size)
+{
+    load_story(s);
+    f_setup.story_rom = buf;
+    f_setup.story_rom_size = size;
+}
+
 void os_init_screen(void)
 {
     if (h_version == V3 && user_tandy_bit)
@@ -301,7 +308,12 @@ FILE *os_load_story(void)
 	  break;
     }
 
-    fp = fopen(f_setup.story_file, "rb");
+    if (f_setup.story_rom) {
+        fp = fmemopen(f_setup.story_rom, f_setup.story_rom_size, "rb");
+    }
+    else {
+        fp = fopen(f_setup.story_file, "rb");
+    }
 
     /* Is this a Blorb file containing Zcode? */
     if (f_setup.exec_in_blorb)

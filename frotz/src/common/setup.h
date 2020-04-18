@@ -30,6 +30,8 @@ typedef struct frotz_setup_struct {
         char *aux_name;
         char *story_path;
         char *zcode_path;
+        void *story_rom;
+		size_t story_rom_size;
 	char *restricted_path;
 	int restore_mode; /* for a save file passed from command line*/
 

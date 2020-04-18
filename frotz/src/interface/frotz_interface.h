@@ -30,7 +30,7 @@ typedef struct {
   unsigned char properties[16];
 } zobject;
 
-extern char* setup(char *story_file, int seed);
+extern char* setup(char *story_file, int seed, void* rom, size_t rom_size);
 
 extern void shutdown();
 
