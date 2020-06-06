@@ -201,7 +201,7 @@ def _load_frotz_lib():
         shutil.copyfile(FROTZ_LIB_PATH, frotz_lib_path)
         frotz_lib = cdll.LoadLibrary(frotz_lib_path)
 
-    frotz_lib.setup.argtypes = [c_char_p, c_int]
+    frotz_lib.setup.argtypes = [c_char_p, c_int, c_char_p, c_int]
     frotz_lib.setup.restype = c_char_p
     frotz_lib.shutdown.argtypes = []
     frotz_lib.shutdown.restype = None
@@ -358,28 +358,52 @@ class FrotzEnv():
 
     """
     def __init__(self, story_file, seed=None):
-        if not os.path.isfile(story_file):
-            raise FileNotFoundError(story_file)
-
+        self._cache = {}
         self.frotz_lib = _load_frotz_lib()
-        self.is_fully_supported = bool(self.frotz_lib.is_supported(story_file.encode('utf-8')))
-        if not self.is_fully_supported:
-            msg = ("Game '{}' is not fully supported. Score, move, change"
-                   " detection will be disabled.").format(story_file)
-            warnings.warn(msg, UnsupportedGameWarning)
-
-        self.story_file = story_file.encode('utf-8')
-        md5hash = hashlib.md5(open(self.story_file, 'rb').read()).hexdigest()
-        self.bindings = _load_bindings(md5hash)
-        self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
-        self.seed(seed)
-        self.frotz_lib.setup(self.story_file, self._seed)
-        self.player_obj_num = self.frotz_lib.get_self_object_num()
+        self.load(story_file, seed)
 
     def __del__(self):
         if hasattr(self, 'frotz_lib'):
             self.frotz_lib.shutdown()
             dlclose_func(self.frotz_lib._handle)
+
+    def load(self, story_file, seed=None):
+        '''
+        Loads a Z-Machine game.
+
+        :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
+        :param seed: Seed the random number generator used by the emulator.
+                    Default: use walkthrough's seed if it exists,
+                            otherwise use value of -1 which changes with time.
+        :type story_file: path
+        :type seed: int
+        '''
+        self.story_file = story_file.encode('utf-8')
+
+        if story_file not in self._cache:
+            if not os.path.isfile(story_file):
+                raise FileNotFoundError(story_file)
+
+            with open(story_file, "rb") as f:
+                rom = f.read()
+
+            self.is_fully_supported = bool(self.frotz_lib.is_supported(self.story_file))
+            if not self.is_fully_supported:
+                msg = ("Game '{}' is not fully supported. Score, move, change"
+                    " detection will be disabled.").format(story_file)
+                warnings.warn(msg, UnsupportedGameWarning)
+
+            md5hash = hashlib.md5(rom).hexdigest()
+            self.bindings = _load_bindings(md5hash)
+            self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
+
+            self._cache[story_file] = (rom, self.bindings, self.act_gen)
+
+        rom, self.bindings, self.act_gen = self._cache[story_file]
+
+        self.seed(seed)
+        self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom))
+        self.player_obj_num = self.frotz_lib.get_self_object_num()
 
     def seed(self, seed=None):
         '''
@@ -408,7 +432,8 @@ class FrotzEnv():
 
         '''
         self.close()
-        obs_ini = self.frotz_lib.setup(self.story_file, self._seed).decode('cp1252')
+        rom, _, _ = self._cache[self.story_file.decode()]
+        obs_ini = self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom)).decode('cp1252')
         score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self.get_moves(), 'score':score}
 

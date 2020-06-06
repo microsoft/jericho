@@ -38,6 +38,7 @@ extern char* dumb_get_screen(void);
 extern void dumb_clear_screen(void);
 extern void z_save (void);
 extern void load_story(char *s);
+extern void load_story_rom(char *s, void* rom, size_t rom_size);
 extern zword save_quetzal (FILE *, FILE *);
 extern zword restore_quetzal (FILE *, FILE *);
 extern int restore_undo (void);
@@ -1441,13 +1442,18 @@ void update_ram_diff() {
   }
 }
 
-char* setup(char *story_file, int seed) {
+char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   char* text;
   emulator_halted = 0;
   os_init_setup();
   desired_seed = seed;
   set_random_seed(desired_seed);
-  load_story(story_file);
+  if (rom) {
+    load_story_rom(story_file, rom, rom_size);
+  }
+  else {
+    load_story(story_file);
+  }
   init_buffer();
   init_err();
   init_memory();
