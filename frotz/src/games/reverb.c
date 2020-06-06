@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Reverberations: http://ifdb.tads.org/viewgame?id=dop7nbjl90r5zmf9
 
+const zword reverb_special_ram_addrs[1] = {
+  5927  // Tracks kicking thug
+};
+
 zword* reverb_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return reverb_special_ram_addrs;
 }
 
 char** reverb_intro_actions(int *n) {

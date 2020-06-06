@@ -24,9 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Acorn Court: http://ifdb.tads.org/viewgame?id=tqvambr6vowym20v
 
+const zword acorn_special_ram_addrs[4] = {
+  3641, // Counts number of holes in bucket
+  3687, // Boolean if machine aimed at tree
+  3694, // Boolean if rope tied to bucket
+  3699  // Boolean if bucket is raised or lowered (e.g. turn crank)
+};
+
 zword* acorn_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+  *n = 4;
+  return acorn_special_ram_addrs;
 }
 
 char** acorn_intro_actions(int *n) {

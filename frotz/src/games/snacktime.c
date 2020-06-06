@@ -26,9 +26,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *snacktime_intro[] = { "\n" };
 
+const zword snacktime_special_ram_addrs[2] = {
+  20743, // Used to quantify how awake the pet is
+  8445 // Set when pet is fully awake
+};
+
 zword* snacktime_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 2;
+    return snacktime_special_ram_addrs;
 }
 
 char** snacktime_intro_actions(int *n) {
