@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Inhumane: http://ifdb.tads.org/viewgame?id=wvs2vmbigm9unlpd
 
+const zword inhumane_special_ram_addrs[1] = {
+  4376, // Track rotation of wheel
+};
+
 zword* inhumane_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return inhumane_special_ram_addrs;
 }
 
 char** inhumane_intro_actions(int *n) {

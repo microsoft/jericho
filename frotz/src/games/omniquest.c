@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Omniquest: http://ifdb.tads.org/viewgame?id=mygqz9tzxqvryead
 
+const zword omniquest_special_ram_addrs[1] = {
+  2123 // Keep track of whether you've given sushi to samurai; Also 2135.
+};
+
 zword* omniquest_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return omniquest_special_ram_addrs;
 }
 
 char** omniquest_intro_actions(int *n) {
