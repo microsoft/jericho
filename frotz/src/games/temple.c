@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Temple: http://ifdb.tads.org/viewgame?id=kq9qgjkf2k6xn1c0
 
+const zword temple_special_ram_addrs[2] = {
+  1953, // Indicates tunnel blocked; Also 1955
+  9856 // Set to 1 when you throw bottle at thing
+};
+
+
 zword* temple_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 2;
+    return temple_special_ram_addrs;
 }
 
 char** temple_intro_actions(int *n) {
