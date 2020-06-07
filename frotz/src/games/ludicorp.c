@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Ludicorp Mystery: http://ifdb.tads.org/viewgame?id=r6g7pflngn3uxbam
 
+const zword ludicorp_special_ram_addrs[2] = {
+  24139,  // Tracks button presses
+  24158,  // Tracks punch card
+};
+
+
 zword* ludicorp_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 2;
+    return ludicorp_special_ram_addrs;
 }
 
 char** ludicorp_intro_actions(int *n) {
