@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Moonlit Tower - http://ifdb.tads.org/viewgame?id=10387w68qlwehbyq
 
+const zword moonlit_special_ram_addrs[3] = {
+  7517, // Activated by setting constellation to horse, Also 7516
+};
+
 zword* moonlit_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return moonlit_special_ram_addrs;
 }
 
 char** moonlit_intro_actions(int *n) {

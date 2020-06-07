@@ -24,9 +24,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Monsters of Murdac: http://ifdb.tads.org/viewgame?id=q36lh5np0q9nak28
 
+const zword murdac_special_ram_addrs[9] = {
+  3909,  // Blow shawm; Also 525
+  3587,  // Tracks state of door. Also 3626
+  4659,  // Tracks throwing plank, rod.
+  637,   // Scare centaur with blow shawm
+  2934,  // Eat toadstone
+  5838,  // Wave scroll, dig;
+  3042,  // Tracks lion health
+  2548,  // Fill bowl, look
+  3365,  // Prick dummy, exodus
+};
+
 zword* murdac_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 9;
+    return murdac_special_ram_addrs;
 }
 
 char** murdac_intro_actions(int *n) {
