@@ -24,9 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Enterprise Incidents: http://ifdb.tads.org/viewgame?id=ld1f3t5epeagilfz
 
+const zword enter_special_ram_addrs[6] = {
+  9667, // Say -120 to garrulous
+  10249, //Take candygram / talk to queenie
+  11607, // Put gram in basket
+  11219, // Talk to Emperius / take jar
+  10644, // Say firefly to jim
+  10259, // Ask Queenie to dance; Also 10264
+};
+
 zword* enter_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 6;
+    return enter_special_ram_addrs;
 }
 
 char** enter_intro_actions(int *n) {
