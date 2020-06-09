@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Wishbringer: http://ifdb.tads.org/viewgame?id=z02joykzh66wfhcl
 
+const zword wishbringer_special_ram_addrs[3] = {
+  9384, // Insert wishbringer into statue
+  9678, // Yes/No questions
+  11154, // Press button in arcade
+};
+
 zword* wishbringer_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return wishbringer_special_ram_addrs;
 }
 
 char** wishbringer_intro_actions(int *n) {
