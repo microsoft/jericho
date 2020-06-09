@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Deephome: A Telleen Adventure: http://ifdb.tads.org/viewgame?id=x85otcikhwp8bwup
 
+const zword deephome_special_ram_addrs[3] = {
+  12396, // Track eranti health
+  12262, // Open net, manaz
+  12432, // Pray to kraxis
+};
+
 zword* deephome_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return deephome_special_ram_addrs;
 }
 
 char** deephome_intro_actions(int *n) {

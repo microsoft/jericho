@@ -809,20 +809,22 @@ class FrotzEnv():
 
         # Optionally extract objs from the global object tree
         if use_object_tree:
-            surrounding = utl.get_subtree(self.get_player_location().child, self.get_world_objects())
-            player_obj = self.get_player_object()
-            if player_obj in surrounding:
-                surrounding.remove(player_obj)
-            world_objs = []
-            for o in surrounding:
-                name = o.name.split()
-                world_objs.append((o.name, 'PROPN', 'OBJTREE'))
-                if len(name) > 1:
-                    # In the case of multi-word names, we assume first words are adjectives.
-                    for w in name[:-1]:
-                        world_objs.append((w, 'ADJ', 'OBJTREE'))
-                    world_objs.append((name[-1], 'NOUN', 'OBJTREE'))
-            objs = objs.union(world_objs)
+            player_loc = self.get_player_location()
+            if player_loc is not None:
+                surrounding = utl.get_subtree(player_loc.child, self.get_world_objects())
+                player_obj = self.get_player_object()
+                if player_obj in surrounding:
+                    surrounding.remove(player_obj)
+                world_objs = []
+                for o in surrounding:
+                    name = o.name.split()
+                    world_objs.append((o.name, 'PROPN', 'OBJTREE'))
+                    if len(name) > 1:
+                        # In the case of multi-word names, we assume first words are adjectives.
+                        for w in name[:-1]:
+                            world_objs.append((w, 'ADJ', 'OBJTREE'))
+                        world_objs.append((name[-1], 'NOUN', 'OBJTREE'))
+                objs = objs.union(world_objs)
 
         # Filter out the objects that aren't in the dictionary
         dict_words = [w.word for w in self.get_dictionary()]
