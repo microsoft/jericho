@@ -24,9 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Adventure: http://ifdb.tads.org/viewgame?id=fft6pu91j85y4acv
 
+const zword advent_special_ram_addrs[5] = {
+  15198, // Kill dragon
+  15191, // Pour water on plant
+  15287, // Give food to bear
+  15282, // Bear following you
+  15642, // FEE/FIE/FOE/FOO
+};
+
 zword* advent_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 5;
+    return advent_special_ram_addrs;
 }
 
 char** advent_intro_actions(int *n) {
