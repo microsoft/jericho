@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Raising the Flag on Mount Yomomma - http://ifdb.tads.org/viewgame?id=1iqmpkn009h9gbug
 
+const zword yomomma_special_ram_addrs[3] = {
+  21060, // Climb on stage
+  16005, // Counts stage victories
+  36238, // Discovered Ralph's secrets
+};
+
 zword* yomomma_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return yomomma_special_ram_addrs;
 }
 
 char** yomomma_intro_actions(int *n) {
