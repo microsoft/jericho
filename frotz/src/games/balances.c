@@ -24,9 +24,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Balances: http://ifdb.tads.org/viewgame?id=x6ne0bbd2oqm6h3a
 
+const zword balances_special_ram_addrs[8] = {
+    4162, // Write cave on cube
+    1217, // urbzig snake (Also 1219, 3776)
+    3760, // write chasm on cube
+    5086, // Give silver to barker
+    3327, // Keeps track of number of yomins memorized
+    5217, // write prize on featureless
+    4640, // write mace on featureless
+    4589, // Process to acquire the mace cube
+};
+
 zword* balances_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 8;
+    return balances_special_ram_addrs;
 }
 
 char** balances_intro_actions(int *n) {
