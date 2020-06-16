@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork II: http://ifdb.tads.org/viewgame?id=yzzm4puxyjakk8c4
 
+const zword zork2_special_ram_addrs[1] = {
+  9346, // Say float
+};
+
 zword* zork2_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return zork2_special_ram_addrs;
 }
 
 char** zork2_intro_actions(int *n) {
