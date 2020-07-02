@@ -867,7 +867,7 @@ class FrotzEnv():
 
         """
         if self.game_over() or self.victory() or self._emulator_halted():
-            return []
+            return {} 
         diff2acts = {}
         orig_score = self.get_score()
         state = self.get_state()
