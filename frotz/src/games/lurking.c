@@ -1,3 +1,4 @@
+
 /*
 Copyright (C) 2018 Microsoft Corporation
 
@@ -24,14 +25,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Lurking Horror: http://ifdb.tads.org/viewgame?id=jhbd0kja1t57uop
 
+const zword lurking_special_ram_addrs[6] = {
+  11251, // Microwave timer
+  961, // Microwave setting
+  1145, // Cleaning up junk
+  4889, // Drinking coke
+  935, // Position of valve
+  883, // Cutting line
+};
+
 const char *lurking_intro[] = { "sit on chair\n",
                                 "turn pc on\n",
                                 "login 872325412\n",
                                 "password uhlersoth\n" };
 
 zword* lurking_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 6;
+    return lurking_special_ram_addrs;
 }
 
 char** lurking_intro_actions(int *n) {
