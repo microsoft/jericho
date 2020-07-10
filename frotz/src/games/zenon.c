@@ -24,9 +24,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Escape from the Starship Zenon: http://ifdb.tads.org/viewgame?id=rw7zv98mifbr3335
 
+const zword zenon_special_ram_addrs[2] = {
+  3764, // Push button
+  2519, // Grenade countdown after pulling pin
+};
+
 zword* zenon_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 2;
+    return zenon_special_ram_addrs;
 }
 
 char** zenon_intro_actions(int *n) {
