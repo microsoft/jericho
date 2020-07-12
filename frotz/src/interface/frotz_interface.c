@@ -20,6 +20,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <string.h>
 #include <stdio.h>
 #include <errno.h>
+#include <time.h>
 #include "frotz.h"
 #include "frotz_interface.h"
 #include "games.h"
@@ -85,9 +86,19 @@ void zstep() {
 
 // Run the Z-Machine until it requires user input
 void run_free() {
+  clock_t start = clock(), diff;
+  long step = 0;
   // Opcode 228 (z_read) and 246 (z_read_char) indicate need for user input
   while (next_opcode != 228 && next_opcode != 246 && emulator_halted <= 0) {
     zstep();
+    step++;
+    if (step % 1000 == 0) {
+      diff = clock() - start;
+      if (diff * 1000 / CLOCKS_PER_SEC > 10000) {
+        emulator_halted = 1;
+        break;
+      }
+    }
   }
 }
 
