@@ -94,7 +94,7 @@ void run_free() {
     step++;
     if (step % 1000 == 0) {
       diff = clock() - start;
-      if (diff * 1000 / CLOCKS_PER_SEC > 10000) {
+      if (diff * 1000 / CLOCKS_PER_SEC > 1000) {
         emulator_halted = 1;
         break;
       }
