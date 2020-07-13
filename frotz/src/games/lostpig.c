@@ -24,9 +24,19 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Lost Pig: http://ifdb.tads.org/viewgame?id=mohwfk47yjzii14w
 
+const zword lostpig_special_ram_addrs[7] = {
+  13958, // Looking for pig.
+  2757, // Coin in box.
+  2795, // Have chair
+  2921, // Acquiring book
+  2575, // Fill hat with water
+  2846, // Chest open
+  2895, // Picking up, dropping various objects
+};
+
 zword* lostpig_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 7;
+    return lostpig_special_ram_addrs;
 }
 
 char** lostpig_intro_actions(int *n) {
