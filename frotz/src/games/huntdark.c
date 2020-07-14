@@ -24,11 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hunter, in Darkness: http://ifdb.tads.org/viewgame?id=mh1a6hizgwjdbeg7
 
+const zword huntdark_special_ram_addrs[4] = {
+  8130, // Crossbow cocked
+  8201, // Going left
+  8551, // Birth
+  8824, // Bats
+};
+
 const char *huntdark_intro[] = { "\n", "\n" };
 
 zword* huntdark_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 4;
+    return huntdark_special_ram_addrs;
 }
 
 char** huntdark_intro_actions(int *n) {
