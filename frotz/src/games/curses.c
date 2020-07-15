@@ -24,11 +24,23 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Curses: http://ifdb.tads.org/viewgame?id=plvzam05bmz3enh8
 
+const zword curses_special_ram_addrs[9] = {
+  23655, // Hole
+  23673, // Maze navigation
+  23675, // Maze navigation
+  13293, // Revolving door
+  23663, // Tarot cards
+  15147, // Talking to Homer
+  23681, // Pacing
+  23683, // Pacing
+  20911, // Turn sceptre
+};
+
 const char *curses_intro[] = { "\n" };
 
 zword* curses_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 9;
+    return curses_special_ram_addrs;
 }
 
 char** curses_intro_actions(int *n) {
