@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Sorcerer: http://ifdb.tads.org/viewgame?id=lidg5nx9ig0bwk55
 
+const zword sorcerer_special_ram_addrs[1] = {
+  9807,  // Inside glass maze
+};
+
 zword* sorcerer_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return sorcerer_special_ram_addrs;
 }
 
 char** sorcerer_intro_actions(int *n) {
