@@ -24,11 +24,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Tryst of Fate: http://ifdb.tads.org/viewgame?id=ic0ebhbi70bdmyc2
 
+const zword tryst_special_ram_addrs[18] = {
+  10890,  // Sharpen rock
+  8624, // Move rail
+  8499, // Oil handcar
+  13821, // Turn wheel
+  8525, // Pull Lever
+  14316, // Close flue
+  6868, // Dehlila
+  15805, // Chew gum
+  15571, // 1st wheel
+  15573, // 2nd wheel
+  15575, // 3rd wheel
+  15577, // 4th wheel
+  15579, // 5th wheel
+  10500, // Tear cloth
+  10742, // Clean table
+  15531, // Beetlebaum
+  9116, // Digging
+  9362, // Door
+};
+
 const char *tryst_intro[] = { "\n" };
 
 zword* tryst_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 18;
+    return tryst_special_ram_addrs;
 }
 
 char** tryst_intro_actions(int *n) {
