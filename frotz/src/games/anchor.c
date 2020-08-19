@@ -26,9 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *anchor_intro[] = { "\n", "\n", "\n" };
 
+const zword anchor_special_ram_addrs[4] = {
+  21922, // Combination lock
+  40660, // Bathe
+  38470, // Transitions between days
+  37992, // Sleep
+};
+
 zword* anchor_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 4;
+    return anchor_special_ram_addrs;
 }
 
 char** anchor_intro_actions(int *n) {
