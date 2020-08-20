@@ -24,9 +24,25 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Planetfall: http://ifdb.tads.org/viewgame?id=xe6kb3cuqwie2q38
 
+const zword planetfall_special_ram_addrs[13] = {
+  10741, // Blue button
+  10234, // Enable elevator
+  10218, // Pour fluid in hole
+  10408, // Hunger
+  10711, // Red button
+  10420, // Pull lever
+  10404, // Sickness
+  10444, // Teleportation Card
+  10642, // Miniaturization card
+  10058, // Dial
+  10052, // Laser
+  10060, // Bye laser
+  10612, // Emergency button
+};
+
 zword* planetfall_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 13;
+    return planetfall_special_ram_addrs;
 }
 
 char** planetfall_intro_actions(int *n) {
