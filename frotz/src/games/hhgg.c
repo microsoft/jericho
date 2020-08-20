@@ -24,9 +24,28 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hitchhiker's Guide to the Galaxy: http://ifdb.tads.org/viewgame?id=ouv80gvsl32xlion
 
+const zword hhgg_special_ram_addrs[16] = {
+  8767, // Lie down in front of bulldozer
+  8189, // Wait on bulldozer
+  8169, // Beer
+  8333, // Access Improbability Drive
+  8115, // Beast
+  8701, // Nutrimat
+  8325, // Put bit in tea
+  8053, // Sensations
+  8087, // Autopilot
+  8091, // Steering
+  8085, // Crowd
+  8171, // give towel to Arthur
+  8185, // Walk around bulldozer
+  8187, // Prossner lie in the mud
+  8041, // no tea
+  8349, // Marvin, open hatch
+};
+
 zword* hhgg_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 16;
+    return hhgg_special_ram_addrs;
 }
 
 char** hhgg_intro_actions(int *n) {
