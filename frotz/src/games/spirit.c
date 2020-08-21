@@ -24,9 +24,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Spiritwrak: http://ifdb.tads.org/viewgame?id=tqpowvmdoemtooqf
 
+const zword spirit_special_ram_addrs[17] = {
+  36911, // turn knob
+  10836, // espnis thug
+  16010, // turn knob
+  2527, // push knob
+  36580, // turn knob
+  26594, // drop volcano into water
+  29833, // taclor me
+  32030, // gloth dough
+  31923, // turn dial
+  5515,  // swanko spirit
+  11227, // ledak painting
+  36413, // pull lever
+  9043,  // swanko spirit
+  36422, // dial
+  9728,  // swanko sprit
+  35997, // join rods
+  35414, // throw * at *
+};
+
 zword* spirit_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 17;
+    return spirit_special_ram_addrs;
 }
 
 char** spirit_intro_actions(int *n) {
