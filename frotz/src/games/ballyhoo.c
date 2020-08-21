@@ -24,9 +24,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Ballyhoo: http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg
 
+const zword ballyhoo_special_ram_addrs[19] = {
+  8835, // Lion
+  8723, // Give case to harry
+  9067, // buy candy
+  8791, // stand
+  9053, // get out of line
+  8539, // tina
+  8911, // radio
+  8643, // tape
+  9047, // radio on/off
+  8629, // search desk
+  8759, // cards
+  8989, // ladder
+  2735, // veil
+  1691, // dress
+  8905, // mahler
+  8623, // tightrope
+  8543, // tightrope
+  8545, // wpdl
+  9113, // turnstile
+};
+
 zword* ballyhoo_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 19;
+    return ballyhoo_special_ram_addrs;
 }
 
 char** ballyhoo_intro_actions(int *n) {
