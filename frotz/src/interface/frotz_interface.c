@@ -1406,6 +1406,19 @@ void take_intro_actions() {
   }
 }
 
+// Returns the number of special ram addresses
+int get_special_ram_size() {
+  return num_special_addrs;
+}
+
+// Returns the current values of the special ram addresses
+void get_special_ram(unsigned char *ram) {
+  int i;
+  for (i=0; i<num_special_addrs; ++i) {
+    ram[i] = zmp[special_ram_addrs[i]];
+  }
+}
+
 // Create memory used to hold the special ram values
 void init_special_ram() {
   special_ram_addrs = get_ram_addrs(&num_special_addrs);

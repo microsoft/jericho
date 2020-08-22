@@ -245,6 +245,11 @@ def _load_frotz_lib():
     frotz_lib.getRAM.argtypes = [c_void_p]
     frotz_lib.getRAM.restype = None
 
+    frotz_lib.get_special_ram_size.argtypes = []
+    frotz_lib.get_special_ram_size.restype = int
+    frotz_lib.get_special_ram.argtypes = [c_void_p]
+    frotz_lib.get_special_ram.restype = None
+
     frotz_lib.get_narrative_text.argtypes = []
     frotz_lib.get_narrative_text.restype = c_char_p
     frotz_lib.set_narrative_text.argtypes = [c_char_p]
@@ -654,9 +659,11 @@ class FrotzEnv():
 
         """
         import hashlib
-        world_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
+        world_objs_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
+        special_ram_addrs = self._get_special_ram()
+        world_state_str = world_objs_str + str(special_ram_addrs)
         m = hashlib.md5()
-        m.update(world_str.encode('utf-8'))
+        m.update(world_state_str.encode('utf-8'))
         return m.hexdigest()
 
     def get_moves(self):
@@ -869,7 +876,7 @@ class FrotzEnv():
 
         """
         if self.game_over() or self.victory() or self._emulator_halted():
-            return {} 
+            return {}
         diff2acts = {}
         orig_score = self.get_score()
         state = self.get_state()
@@ -903,4 +910,14 @@ class FrotzEnv():
         ram_size = self.frotz_lib.getRAMSize()
         ram = np.zeros(ram_size, dtype=np.uint8)
         self.frotz_lib.getRAM(as_ctypes(ram))
+        return ram
+
+    def _get_special_ram(self):
+        """
+        Returns a numpy array containing the contents of the special ram addresses for the game.
+
+        """
+        ram_size = self.frotz_lib.get_special_ram_size()
+        ram = np.zeros(ram_size, dtype=np.uint8)
+        self.frotz_lib.get_special_ram(as_ctypes(ram))
         return ram
