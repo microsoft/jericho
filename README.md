@@ -41,8 +41,12 @@ python3 -m spacy download en_core_web_sm
 - [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
 ## Agents
-- [Template-DQN and DRRN](https://github.com/microsoft/tdqn)
+
+- [Reading Comprehension Deep Q-Network (RCDQN)](https://github.com/XiaoxiaoGuo/rcdqn)
+- [Contextual Action Language Model (CALM)](https://github.com/princeton-nlp/calm-textgame)
+- [Q*BERT](https://github.com/rajammanabrolu/Q-BERT)
 - [Knowledge Graph Advantage Actor Critic (KG-A2C)](https://github.com/rajammanabrolu/KG-A2C)
+- [Template-DQN and DRRN](https://github.com/microsoft/tdqn)
 
 ## Citing Jericho
 If Jericho is used in your research, please cite the following:
