@@ -2,7 +2,7 @@
  * informinfo V7/3
  *
  * Inform 6 specific routines.
- * 
+ *
  * Matthew T. Russotto 7 February 1998 russotto@pond.com
  *
  */
@@ -82,7 +82,7 @@ int attr_no;
 #endif
 {
 	unsigned long address;
-	
+
 	address = attr_names_base + attr_no * 2;
 	address = (unsigned long) read_data_word (&address);
 	if (address == 0)
@@ -101,7 +101,7 @@ int prop_no;
 #endif
 {
 	unsigned long address;
-	
+
 	address = prop_names_base + prop_no * 2;
 	address = (unsigned long) read_data_word (&address);
 	if (address == 0)
@@ -120,7 +120,7 @@ int action_no;
 #endif
 {
 	unsigned long address;
-	
+
 	address = action_names_base + action_no * 2;
 	address = (unsigned long) read_data_word (&address);
 	if (address == 0)

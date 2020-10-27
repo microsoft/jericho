@@ -20,6 +20,14 @@ static void show_words
     (unsigned int, unsigned long, unsigned int, unsigned int);
 static unsigned long lookup_word
     (unsigned long, unsigned int, unsigned int, unsigned int);
+void configure_inform_tables
+    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
+     unsigned long, unsigned long, unsigned long);
+int print_attribute_name (unsigned long, int);
+int print_inform_action_name (unsigned long, int);
+void configure_object_tables
+    (unsigned int *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *);
 #else
 static void show_verb_parse_table ();
 static void show_action_tables ();
@@ -27,6 +35,10 @@ static void show_preposition_table ();
 static void show_preposition ();
 static void show_words ();
 static unsigned long lookup_word ();
+void configure_inform_tables ();
+int print_attribute_name ();
+int print_inform_action_name ();
+void configure_object_tables ();
 #endif
 
 static const int verb_sizes[4] = { 2, 4, 7, 0 };
@@ -113,14 +125,14 @@ static const int verb_sizes[4] = { 2, 4, 7, 0 };
  * uses the flags bytes in the dictionary entry in a slightly different
  * manner than Infocom games.
  *
- * Graphic (V6) Infocom games use a different grammar format.  The basic  
- * elements are mostly still there, but in a different set of tables.  
+ * Graphic (V6) Infocom games use a different grammar format.  The basic
+ * elements are mostly still there, but in a different set of tables.
  * The table of pointers to the verb entries is gone.  Instead, the
  * first word of 'extra' dictionary information contains a pointer to the
  * verb entry. Pointers to the action and preaction tables are in
- * the next-to-last and last global variables respectively, but in practice 
+ * the next-to-last and last global variables respectively, but in practice
  * the tables are in their usual location right after the verb grammar table,
- * which is in its usual location at the base of dynamic memory.  The 
+ * which is in its usual location at the base of dynamic memory.  The
  * verb grammar table has the following format
  *
  * Bytes 0-1: Action/pre-action index of the 0-object entry.  That is, action
@@ -163,7 +175,7 @@ static const int verb_sizes[4] = { 2, 4, 7, 0 };
  * Note also that the dictionary flags have moved from the first to the last byte
  * of each dictionary entry, and that while Zork Zero has only three bytes of
  * extra dictionary data (as with V1-5), Shogun and Arthur have four.
- * Also, I believe there is more grammar data than I've listed here, though how 
+ * Also, I believe there is more grammar data than I've listed here, though how
  * much is for the parser proper and how much for the helper I don't know -- MTR
  *
  * Journey has no grammar.
@@ -359,7 +371,7 @@ unsigned long *prep_table_end;
     /* Distinguishing between GV1 and GV2 isn't trivial.
        Here I check the length of the first entry.  It will be 1 mod 3
        for GV2 and 1 mod 8 for GV1. If it's 1 mod 24, first I check to see if
-       its length matches the GV1 length.  Then I check for illegal GV1 values. 
+       its length matches the GV1 length.  Then I check for illegal GV1 values.
        If they aren't found, I assume GV1.  I believe it is actually possible for
        a legal (if somewhat nonsensical) GV1 table to be the same as a legal GV2
        table, but I haven't actually constructed such a weird table.  In practice,
@@ -839,16 +851,16 @@ unsigned long attr_names_base;
                     verb_entry += 8; /* skip preposition and direct object and preposition and indirect object*/
                 }
             }
-        }       
+        }
         else {
             /* Get the parse data address for this entry */
-        
+
             verb_entry = (unsigned long) read_data_word (&address);
             entry_count = (unsigned int) read_data_byte (&verb_entry);
-        
+
             /* Look through the sentence structures looking for a match */
-        
-            while (entry_count--) { 
+
+            while (entry_count--) {
                 parse_entry = verb_entry;
                 if (parser_type >= inform_gv2) { /* GV2, variable length with terminator */
                     action_index = read_data_word(&verb_entry) & 0x3FF;
@@ -856,7 +868,7 @@ unsigned long attr_names_base;
                     while (val != ENDIT) {
                         read_data_word(&verb_entry);
                         val = read_data_byte(&verb_entry);
-                    }   
+                    }
                 }
                 else if (parser_type != infocom_variable) { /* Index is in last (8th) byte */
                     verb_entry += 7;
@@ -866,9 +878,9 @@ unsigned long attr_names_base;
                     action_index = (unsigned int) read_data_byte (&verb_entry);
                     verb_entry += verb_sizes[(object_count >> 6) & 0x03] - 2;
                 }
-        
+
                 /* Check if this verb/sentence structure uses the action routine */
-        
+
                 if (action_index == (unsigned int) action) {
                     show_verb_grammar (parse_entry, VERB_NUM(i, parser_type), (int) parser_type, 0,
                                        (int) prep_type, prep_table_base, attr_names_base);
@@ -1321,7 +1333,7 @@ unsigned long prep_table_base;
             (void) decode_text (&verb_address);
         else
             tx_printf ("no-verb");
-        
+
         if (v6_number_objects > 0) {
             tx_printf(" ");
 
@@ -1347,7 +1359,7 @@ unsigned long prep_table_base;
     }
     else if (parser_type >= inform_gv2) {
         /* Inform 6 GV2 verb entry */
-        
+
         tx_printf ("\"");
 
         /* Print verb if one is present */
@@ -1360,7 +1372,7 @@ unsigned long prep_table_base;
             tx_printf ("no-verb");
 
         action = read_data_word(&address); /* Action # and flags*/
-        
+
         val = read_data_byte(&address);
         while (val != ENDIT) {
             if (((val & 0x30) == 0x10) || ((val & 0x30) == 0x30)) /* 2nd ... nth byte of alternative list */
@@ -1369,7 +1381,7 @@ unsigned long prep_table_base;
             token_type = val&0xF;
             token_data = read_data_word(&address);
             switch (token_type) {
-                case TT_ELEMENTARY: 
+                case TT_ELEMENTARY:
                     if (token_data < (sizeof(GV2_elementary)/ sizeof (char *)))
                         tx_printf(GV2_elementary[token_data]);
                     else
@@ -1646,7 +1658,7 @@ unsigned int parser_type;
     /* Correct Inform verb mask -- Inform sets both 0x40 and 0x01, but only 0x01 is documented */
     if ((mask == VERB) && (parser_type >= inform5_grammar))
         mask = VERB_INFORM;
-    
+
     /* Scan down the dictionary from entry looking for a match */
 
     for (word_address = entry; word_address <= last_word; word_address += word_size) {
@@ -1673,11 +1685,11 @@ unsigned int parser_type;
             else if (parser_type <= inform_gv1) {
                 /* Infocom, Inform 5, GV1.  Verbs only for Inform */
                     /* Read the data for the word */
-        
+
                     data = (unsigned int) read_data_byte (&address);
-        
+
                     /* Skip to next byte under some circumstances */
-        
+
                     if (((mask == VERB) && (flags & DATA_FIRST) != VERB_FIRST) ||
                         ((mask == DESC) && (flags & DATA_FIRST) != ADJ_FIRST))
                         data = (unsigned int) read_data_byte (&address);

@@ -10,7 +10,7 @@ RANLIB = /usr/bin/ranlib
 CC = gcc
 
 # Enable compiler warnings. This is an absolute minimum.
-CFLAGS += -Wall -Wextra -std=gnu99 -fPIC
+CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
 
 # Define your optimization flags.
 #
@@ -297,7 +297,7 @@ $(CURSES_OBJECT): %.o: %.c
 
 $(INTERFACE_OBJECT): %.o: %.c
 	#$(CC) $(OPTS) -o $@ -c $<
-	$(CC) $(OPTS) $(INCL) -I./src/common -I./src/games -I./src/ztools -I./src/interface -o $@ -c $<
+	$(CC) $(CFLAGS) $(OPTS) $(INCL) -I./src/common -I./src/games -I./src/ztools -I./src/interface -o $@ -c $<
 
 $(ZTOOLS_OBJECT): %.o: %.c
 	$(CC) $(CFLAGS) $(OPTS) -o $@ -c $<

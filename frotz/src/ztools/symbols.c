@@ -23,7 +23,7 @@ enum symtypes {
 	sym_property
 };
 
-enum valtypes 
+enum valtypes
 {
 	val_unknown = 0,
 	val_long,
@@ -63,6 +63,12 @@ static int global_entries;
 static struct routine_entry_t *routines_table;
 static int routine_entries;
 
+#ifdef __STDC__
+int print_inform_attribute_name (unsigned long, int);
+#else
+int print_inform_attribute_name ();
+#endif
+
 
 #ifdef __STDC__
 static int get_type_from_name(char *tname)
@@ -72,10 +78,10 @@ char *tname;
 #endif
 {
 	int ch = tname[0];
-	
+
 	if (isupper(ch))
 		ch = tolower(ch);
-		
+
 	switch (ch) {
 		case 'a':
 			return sym_attribute;
@@ -113,17 +119,17 @@ char *fname;
 	int global = 0;
 	int attribute = 0;
 	int property = 0;
-	
+
 	symfile = fopen(fname, "r");
 	if (symfile == NULL)
 		return;
-		
-	
+
+
 	global_entries = -1;
 	attribute_entries = -1;
 	property_entries = -1;
 	routine_entries = 0;
-	
+
 	fgets(linbuf, LINBUFSIZ, symfile);
 	while (!feof(symfile)) {
 		s = strtok(linbuf, "\t\n\r ");
@@ -132,7 +138,7 @@ char *fname;
 			case sym_routine:
 				routine_entries++;
 				break;
-				
+
 			case sym_global:
 				s = strtok(NULL, "\t\n\r ");
 #ifdef HAS_STRTOUL
@@ -145,7 +151,7 @@ char *fname;
 				if ((s == NULL) && (tmp > global_entries))
 					global_entries = tmp;
 				break;
-			
+
 			case sym_local:
 				break;
 			case sym_attribute:
@@ -158,7 +164,7 @@ char *fname;
 				if (tmp > attribute_entries)
 					attribute_entries = tmp;
 				break;
-		
+
 			case sym_property:
 				s = strtok(NULL, "\t\n\r ");
 #ifdef HAS_STRTOUL
@@ -175,7 +181,7 @@ char *fname;
 	global_entries++;
 	attribute_entries++;
 	property_entries++;
-	
+
 	if (routine_entries > 0)
 		routines_table = (struct routine_entry_t *)calloc(sizeof(struct routine_entry_t), routine_entries);
 	if (global_entries > 0)
@@ -185,7 +191,7 @@ char *fname;
 	if (property_entries > 0)
 		property_names_table = (struct symtab_entry_t *)calloc(sizeof(struct symtab_entry_t), property_entries);
 	fseek(symfile, 0, 0);
-	
+
 	fgets(linbuf, LINBUFSIZ, symfile);
 	while (!feof(symfile)) {
 		s = strtok(linbuf, "\t\n\r ");
@@ -204,7 +210,7 @@ char *fname;
 				strcpy(routines_table[routine].name, symname);
 				routine++;
 				break;
-				
+
 			case sym_global:
 				s = strtok(NULL, "\t\n\r ");
 #ifdef HAS_STRTOUL
@@ -220,10 +226,10 @@ char *fname;
 					strcpy(global_names_table[tmp].name, symname);
 				}
 				break;
-			
+
 			case sym_local:
 				break;
-				
+
 			case sym_attribute:
 				s = strtok(NULL, "\t\n\r ");
 #ifdef HAS_STRTOUL
@@ -236,7 +242,7 @@ char *fname;
 				attribute_names_table[tmp].number = tmp;
 				strcpy(attribute_names_table[tmp].name, symname);
 				break;
-		
+
 			case sym_property:
 				s = strtok(NULL, "\t\n\r ");
 #ifdef HAS_STRTOUL

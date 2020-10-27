@@ -97,6 +97,16 @@ static void dump_data (unsigned long, unsigned long);
 static void dump_opcode (unsigned long, int, int, int *, int);
 static void dump_operand (unsigned long *, int, int, int *, int *);
 static void print_variable (int);
+void configure_inform_tables
+    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
+     unsigned long, unsigned long, unsigned long);
+void configure_object_tables
+    (unsigned int *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *);
+int print_attribute_name (unsigned long, int);
+int print_property_name (unsigned long, int);
+int print_local_name (unsigned long, int);
+int print_global_name (unsigned long, int);
 #else
 //static void process_story ();
 static void decode_program ();
@@ -126,6 +136,12 @@ static void dump_data ();
 static void dump_opcode ();
 static void dump_operand ();
 static void print_variable ();
+void configure_inform_tables ();
+void configure_object_tables ();
+int print_attribute_name ();
+int print_property_name ();
+int print_local_name ();
+int print_global_name ();
 #endif
 
 static unsigned long pctable[MAX_PCS];
@@ -621,7 +637,7 @@ static int decode_code ()
             opcode.class = ZERO_OPERAND;
         else
             opcode.class = VARIABLE_OPERAND;
-            
+
     status = decode_opcode ();
     } while (status == END_OF_INSTRUCTION);
 
@@ -963,7 +979,7 @@ int type;
     opcode.par[3] = par4;
     opcode.extra = extra;
     opcode.type = type;
- 
+
     if (opcode.type == ILLEGAL)
     return (BAD_OPCODE);
 
