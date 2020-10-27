@@ -18,12 +18,20 @@ static void print_object
     (int, int);
 static void print_object_desc
     (int);
+void configure_inform_tables
+    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
+     unsigned long, unsigned long, unsigned long);
+int print_attribute_name (unsigned long, int);
+int print_property_name (unsigned long, int);
 #else
 void configure_object_tables ();
 static unsigned int get_object_address ();
 static void print_property_list ();
 static void print_object ();
 static void print_object_desc ();
+void configure_inform_tables ();
+int print_attribute_name ();
+int print_property_name ();
 #endif
 
 /*

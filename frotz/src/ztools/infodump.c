@@ -206,6 +206,14 @@ extern const char *optarg;
  */
 
 #ifdef __STDC__
+void configure_inform_tables
+    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
+     unsigned long, unsigned long, unsigned long);
+#else
+void configure_inform_tables ();
+#endif
+
+#ifdef __STDC__
 static void show_help (const char *program)
 #else
 static void show_help (program)
@@ -431,12 +439,12 @@ static void show_map ()
     if (ext_table_size > 2) {
         unicode_table_base = get_word(ext_table_base + 6);
         if (unicode_table_base) {
-        unicode_table_end = unicode_table_base + get_byte(unicode_table_base)*2; 
+        unicode_table_end = unicode_table_base + get_byte(unicode_table_base)*2;
         set_area (area, unicode_table_base, unicode_table_end, "Unicode table");
         }
     }
     }
-    
+
     configure_abbreviations (&abbr_count, &abbr_table_base, &abbr_table_end,
                  &abbr_data_base, &abbr_data_end);
 
@@ -475,10 +483,10 @@ static void show_map ()
     set_area (area, action_table_base, preact_table_base - 1, "Action routine table");
     set_area (area, preact_table_base, preact_table_base + action_count * 2 - 1, "Pre-action routine table");
     }
-    
+
     configure_inform_tables(obj_data_end, &inform_version, &class_numbers_base, &class_numbers_end,
                     &property_names_base, &property_names_end, &attr_names_base, &attr_names_end);
-   
+
     if (inform_version >= INFORM_6) {
         set_area(area, class_numbers_base, class_numbers_end, "Class Prototype Object Numbers");
         set_area(area, property_names_base, property_names_end, "Property Names Table");

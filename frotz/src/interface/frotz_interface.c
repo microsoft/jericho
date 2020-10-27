@@ -57,6 +57,11 @@ extern void set_random_seed (int seed);
 extern void sum(FILE*, char*);
 extern void dumb_free();
 
+extern zword first_property (zword);
+extern zword next_property (zword prop_addr);
+extern void get_text(int, zword, char*);
+extern void free_setup();
+
 extern long getRngA();
 extern int getRngInterval();
 extern int getRngCounter();
