@@ -23,7 +23,7 @@
 #include "dumb_frotz.h"
 #include "dumb_blorb.h"
 
-extern f_setup_t f_setup;
+f_setup_t f_setup;
 
 static char *my_strdup(char *);
 static void print_version(void);
