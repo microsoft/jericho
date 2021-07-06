@@ -21,7 +21,7 @@
 
 #include "dumb_frotz.h"
 
-f_setup_t f_setup;
+extern f_setup_t f_setup;
 
 #define PIC_FILE_HEADER_FLAGS 1
 #define PIC_FILE_HEADER_NUM_IMAGES 4
