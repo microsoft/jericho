@@ -30,7 +30,7 @@
 #include "dumb_frotz.h"
 #include "dumb_blorb.h"
 
-f_setup_t f_setup;
+extern f_setup_t f_setup;
 
 FILE *blorb_fp;
 bb_result_t blorb_res;

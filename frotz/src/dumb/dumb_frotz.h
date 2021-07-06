@@ -20,7 +20,7 @@
 /* from ../common/setup.h */
 extern f_setup_t f_setup;
 
-bool do_more_prompts;
+extern bool do_more_prompts;
 
 /* From input.c.  */
 bool is_terminator (zchar);

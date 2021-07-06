@@ -23,7 +23,7 @@
 #include "dumb_frotz.h"
 #include "dumb_blorb.h"
 
-f_setup_t f_setup;
+extern f_setup_t f_setup;
 
 static char *my_strdup(char *);
 static void print_version(void);
@@ -90,6 +90,8 @@ static bool plain_ascii = FALSE;
 void set_random_seed(int seed) {
   user_random_seed = seed;
 }
+
+bool do_more_prompts;
 
 void os_process_arguments(int argc, char *argv[])
 {
