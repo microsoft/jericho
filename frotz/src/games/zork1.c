@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -80,14 +80,14 @@ int zork1_get_num_world_objs() {
   return 250;
 }
 
-// Ignores the theif (object 114)
+// Ignores the thief (object 114)
 int zork1_ignore_moved_obj(zword obj_num, zword dest_num) {
   if (obj_num == 114)
     return 1;
   return 0;
 }
 
-// Ignores theif and self (obj 4 attr 12)
+// Ignores thief and self (obj 4 attr 12)
 int zork1_ignore_attr_diff(zword obj_num, zword attr_idx) {
   if (obj_num == 114)
     return 1;

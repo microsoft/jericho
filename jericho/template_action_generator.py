@@ -23,7 +23,7 @@ class TemplateActionGenerator:
     '''
     Generates actions using the template-action-space.
 
-    :param rom_bindings: Game-specific bindings from :meth:`jericho.FrotzEnv.load_bindings`.
+    :param rom_bindings: Game-specific bindings from :meth:`jericho.FrotzEnv.bindings`.
     :type rom_bindings: Dictionary
 
     '''
@@ -46,7 +46,7 @@ class TemplateActionGenerator:
         '''
         out = []
         vb_usage_fn = lambda verb: verb_usage_count(verb, max_word_length)
-        p = re.compile('\S+(/\S+)+')
+        p = re.compile(r'\S+(/\S+)+')
         for template in templates:
             if not template:
                 continue
@@ -78,11 +78,9 @@ class TemplateActionGenerator:
         :Example:
 
         >>> import jericho
-        >>> from jericho.template_action_generator import TemplateActionGenerator
-        >>> bindings = jericho.load_bindings(rom_path)
-        >>> act_gen = TemplateActionGenerator(bindings)
+        >>> env = jericho.FrotzEnv(rom_path)
         >>> interactive_objs = ['phone', 'keys', 'wallet']
-        >>> act_gen.generate_actions(interactive_objs)
+        >>> env.act_gen.generate_actions(interactive_objs)
         ['wake', 'wake up', 'wash', ..., 'examine wallet', 'remove phone', 'taste keys']
 
         '''
@@ -116,12 +114,10 @@ class TemplateActionGenerator:
         :Example:
 
         >>> import jericho
-        >>> from jericho.template_action_generator import TemplateActionGenerator
-        >>> bindings = jericho.load_bindings(rom_path)
-        >>> act_gen = TemplateActionGenerator(bindings)
+        >>> env = jericho.FrotzEnv(rom_path)
         >>> interactive_objs = ['phone', 'keys', 'wallet']
         >>> interactive_obj_ids = [718, 325, 64]
-        >>> act_gen.generate_template_actions(interactive_objs, interactive_obj_ids)
+        >>> env.act_gen.generate_template_actions(interactive_objs, interactive_obj_ids)
         [
           TemplateAction(action='wake', template_id=0, obj_ids=[]),
           TemplateAction(action='wake up', template_id=1, obj_ids=[]),
