@@ -311,8 +311,8 @@ def _load_frotz_lib():
 
 def _load_bindings(md5hash):
     """
-    Loads information pertaining to the current game. Returns a dictionary
-    with the following keys:
+    Loads information pertaining to the game corresponding to the provided md5 hash.
+    Returns a dictionary with the following keys:
 
     - `name`: Name of the game. E.g. `zork1`
     - `rom`: Name of the file used to load the game. E.g. `zork1.z5`
@@ -321,27 +321,11 @@ def _load_bindings(md5hash):
     - `grammar`: List of action templates for the game.
     - `max_word_length`: Maximum number of characters per word recognized by the parser.
 
-    :param rom: Path or name of rom to load.
-    :type rom: string
+    :param md5hash: A game's md5 hash.
+    :type md5hash: string
 
     :returns: Dictionary containing game-specific bindings if it exists.
               Otherwise, an empty dictionary.
-
-    :Example:
-
-    >>> import jericho
-    >>> bindings = jericho._load_bindings('zork1')
-    {
-      'name': 'zork1',
-      'rom': 'zork1.z5',
-      'seed': 12,
-      'max_word_length': 6,
-      'minimal_actions': 'Ulysses/wait/pray/inventory/go down/...',
-      'grammar': 'again/g;answer/reply;back;barf/chomp/...',
-      'walkthrough': 'N/N/U/Get egg/D/S/E/Open window/...'
-    }
-
-    .. note:: Walkthroughs are defined for only a few games.
     """
     return defines.BINDINGS_DICT.get(md5hash, {})
 
@@ -365,6 +349,7 @@ class FrotzEnv():
     def __init__(self, story_file, seed=None):
         self._cache = {}
         self.frotz_lib = _load_frotz_lib()
+        self._bindings = None
         self.load(story_file, seed)
 
     def __del__(self):
@@ -399,12 +384,12 @@ class FrotzEnv():
                 warnings.warn(msg, UnsupportedGameWarning)
 
             md5hash = hashlib.md5(rom).hexdigest()
-            self.bindings = _load_bindings(md5hash)
+            self._bindings = _load_bindings(md5hash)
             self.act_gen = TemplateActionGenerator(self.bindings) if self.bindings else None
 
             self._cache[story_file] = (rom, self.bindings, self.act_gen)
 
-        rom, self.bindings, self.act_gen = self._cache[story_file]
+        rom, self._bindings, self.act_gen = self._cache[story_file]
 
         self.seed(seed)
         self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom))
@@ -464,6 +449,41 @@ class FrotzEnv():
     def close(self):
         ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
         self.frotz_lib.shutdown()
+
+    @property
+    def bindings(self):
+        """
+        Gets information pertaining to the currently loaded game.
+        Returns a dictionary with the following keys:
+
+        - `name`: Name of the game. E.g. `zork1`
+        - `rom`: Name of the file used to load the game. E.g. `zork1.z5`
+        - `walkthrough`: A walkthrough for the game.
+        - `seed`: Seed necessary to replicate the walkthrough.
+        - `grammar`: List of action templates for the game.
+        - `max_word_length`: Maximum number of characters per word recognized by the parser.
+
+        :returns: Dictionary containing game-specific bindings if it exists.
+                  Otherwise, an empty dictionary.
+
+        :Example:
+
+        >>> import jericho
+        >>> env = jericho.FrotzEnv('zork1')
+        >>> env.bindings
+        {
+        'name': 'zork1',
+        'rom': 'zork1.z5',
+        'seed': 12,
+        'max_word_length': 6,
+        'minimal_actions': 'Ulysses/wait/pray/inventory/go down/...',
+        'grammar': 'again/g;answer/reply;back;barf/chomp/...',
+        'walkthrough': 'N/N/U/Get egg/D/S/E/Open window/...'
+        }
+
+        .. note:: Walkthroughs are defined for only a few games.
+        """
+        return self._bindings
 
     def get_dictionary(self):
         ''' Returns a list of :class:`jericho.DictionaryWord` words recognized\
@@ -593,7 +613,7 @@ class FrotzEnv():
     def get_world_objects(self, clean=False):
         ''' Returns an array containing all the :class:`jericho.ZObject` in the game.
 
-        :param clean: If True, disconnects noisy objects like Zork1's theif from\
+        :param clean: If True, disconnects noisy objects like Zork1's thief from\
         the Object Tree. This is mainly useful if using world objects as an\
         indication of unique game state.
         :type clean: Boolean
