@@ -244,9 +244,9 @@ void load_story(char *s)
 
 void load_story_rom(char *s, void *buf, size_t size)
 {
-    load_story(s);
     f_setup.story_rom = buf;
     f_setup.story_rom_size = size;
+    load_story(s);
 }
 
 void os_init_screen(void)
@@ -295,25 +295,26 @@ FILE *os_load_story(void)
 {
     FILE *fp;
 
-    switch (dumb_blorb_init(f_setup.story_file)) {
-	case bb_err_NoBlorb:
-//	  printf("No blorb file found.\n\n");
-	  break;
-	case bb_err_Format:
-	  printf("Blorb file loaded, but unable to build map.\n\n");
-	  break;
-	case bb_err_NotFound:
-	  printf("Blorb file loaded, but lacks executable chunk.\n\n");
-	  break;
-	case bb_err_None:
-//	  printf("No blorb errors.\n\n");
-	  break;
-    }
-
     if (f_setup.story_rom) {
         fp = fmemopen(f_setup.story_rom, f_setup.story_rom_size, "rb");
     }
     else {
+
+        switch (dumb_blorb_init(f_setup.story_file)) {
+        case bb_err_NoBlorb:
+    //	  printf("No blorb file found.\n\n");
+        break;
+        case bb_err_Format:
+        printf("Blorb file loaded, but unable to build map.\n\n");
+        break;
+        case bb_err_NotFound:
+        printf("Blorb file loaded, but lacks executable chunk.\n\n");
+        break;
+        case bb_err_None:
+    //	  printf("No blorb errors.\n\n");
+        break;
+        }
+
         fp = fopen(f_setup.story_file, "rb");
     }
 
