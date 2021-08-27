@@ -510,12 +510,14 @@ class FrotzEnv():
             return []
         return self.bindings['walkthrough'].split('/')
 
-    def get_valid_actions(self, use_object_tree=True):
+    def get_valid_actions(self, use_object_tree=True, use_ctypes=False):
         """
         Attempts to generate a set of unique valid actions from the current game state.
 
         :param use_object_tree: Query the :doc:`object_tree` for names of surrounding objects.
         :type use_object_tree: boolean
+        :param use_ctypes: Uses the optimized ctypes implementation of valid action filtering.
+        :type use_ctyes: boolean
         :returns: A list of valid actions.
 
         """
@@ -525,52 +527,30 @@ class FrotzEnv():
         interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
         best_obj_names    = self._score_object_names(interactive_objs)
         candidate_actions = self.act_gen.generate_actions(best_obj_names)
-        diff2acts         = self._filter_candidate_actions(candidate_actions)
-        valid_actions     = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
-        return valid_actions
-
-    def get_valid_actions_c(self, use_object_tree=True):
-        """
-        Attempts to generate a set of unique valid actions from the current game state.
-
-        :param use_object_tree: Query the :doc:`object_tree` for names of surrounding objects.
-        :type use_object_tree: boolean
-        :returns: A list of valid actions.
-
-        """
-        if not self.is_fully_supported or not self.act_gen:
-            warnings.warn('Unable to find valid actions in an unsupported game.', UnsupportedGameWarning)
-            return []
-        interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
-        best_obj_names    = self._score_object_names(interactive_objs)
-        candidate_actions = self.act_gen.generate_actions(best_obj_names)
-
-        state = self.get_state()
-
-        candidate_str = (";".join(candidate_actions)).encode('utf-8')
-        valid_str = (' '*len(candidate_str)).encode('utf-8')
-        equiv_classes = np.zeros(len(candidate_actions), dtype=np.uint8)
-        valid_cnt = self.frotz_lib.filter_candidate_actions(
-            candidate_str, 
-            valid_str, 
-            as_ctypes(equiv_classes)
-        )
-        if self._emulator_halted():
-            self.reset()
-            self.set_state(state)
-
-        valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
-
-        diff2acts = {}
-        for equiv, act in zip(equiv_classes[:valid_cnt], valid_acts):
-            if equiv in diff2acts:
-                diff2acts[equiv].append(act)
-            else:
-                diff2acts[equiv] = [act]
-
+        if use_ctypes:
+            state = self.get_state()
+            candidate_str = (";".join(candidate_actions)).encode('utf-8')
+            valid_str = (' '*len(candidate_str)).encode('utf-8')
+            equiv_classes = np.zeros(len(candidate_actions), dtype=np.uint8)
+            valid_cnt = self.frotz_lib.filter_candidate_actions(
+                candidate_str, 
+                valid_str, 
+                as_ctypes(equiv_classes)
+            )
+            if self._emulator_halted():
+                self.reset()
+                self.set_state(state)
+            valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
+            diff2acts = {}
+            for equiv, act in zip(equiv_classes[:valid_cnt], valid_acts):
+                if equiv in diff2acts:
+                    diff2acts[equiv].append(act)
+                else:
+                    diff2acts[equiv] = [act]        
+        else:
+            diff2acts = self._filter_candidate_actions(candidate_actions)
         valid_actions = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
         return valid_actions
-
 
     def set_state(self, state):
         '''
