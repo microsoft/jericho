@@ -1777,34 +1777,37 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, unsig
     }
 
     if (get_score() != orig_score || game_over() > 0 || victory() > 0 || world_changed() > 0) {
-      // Copy the valid action into the output array
-      strcpy(&valid_actions[v_idx], act);
-      v_idx += strlen(act);
-      valid_actions[v_idx++] = ';';
-      
-      // Zero the world diff
-      memset(diff, 0, 128*sizeof(zword));
-      get_cleaned_world_diff(&diff[0], &diff[64]);
-      match_idx = -1;
-      // Find the index that matches this diff
-      for (i=0; i<diff_array_idx; ++i) {
-        // Check if diff matches array index i
-        if (memcmp(&diff_array[i*128], diff, 128*sizeof(zword)) == 0) {
-          match_idx = i;
-          break;
+      // Ignore actions with side-effect of taking items
+      if (strstr(world, "(Taken)") == NULL) {
+        // Copy the valid action into the output array
+        strcpy(&valid_actions[v_idx], act);
+        v_idx += strlen(act);
+        valid_actions[v_idx++] = ';';
+        
+        // Zero the world diff
+        memset(diff, 0, 128*sizeof(zword));
+        get_cleaned_world_diff(&diff[0], &diff[64]);
+        match_idx = -1;
+        // Find the index that matches this diff
+        for (i=0; i<diff_array_idx; ++i) {
+          // Check if diff matches array index i
+          if (memcmp(&diff_array[i*128], diff, 128*sizeof(zword)) == 0) {
+            match_idx = i;
+            break;
+          }
         }
-      }
-      if (match_idx < 0) {
-        memcpy(&diff_array[128*diff_array_idx], diff, 128*sizeof(zword));
-        match_idx = diff_array_idx;
-        diff_array_idx++;
-        if (diff_array_idx >= diff_arr_size) {
-          printf("Too many types of valid-actions detected. Exiting!");
-          break;
+        if (match_idx < 0) {
+          memcpy(&diff_array[128*diff_array_idx], diff, 128*sizeof(zword));
+          match_idx = diff_array_idx;
+          diff_array_idx++;
+          if (diff_array_idx >= diff_arr_size) {
+            printf("Too many types of valid-actions detected. Exiting!");
+            break;
+          }
         }
+        equiv_classes[valid_cnt] = (unsigned char) match_idx;
+        valid_cnt++;
       }
-      equiv_classes[valid_cnt] = (unsigned char) match_idx;
-      valid_cnt++;
     }
 
     // Restore the game state
