@@ -527,28 +527,7 @@ class FrotzEnv():
         interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
         best_obj_names    = self._score_object_names(interactive_objs)
         candidate_actions = self.act_gen.generate_actions(best_obj_names)
-        if use_ctypes:
-            state = self.get_state()
-            candidate_str = (";".join(candidate_actions)).encode('utf-8')
-            valid_str = (' '*len(candidate_str)).encode('utf-8')
-            equiv_classes = np.zeros(len(candidate_actions), dtype=np.uint8)
-            valid_cnt = self.frotz_lib.filter_candidate_actions(
-                candidate_str, 
-                valid_str, 
-                as_ctypes(equiv_classes)
-            )
-            if self._emulator_halted():
-                self.reset()
-                self.set_state(state)
-            valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
-            diff2acts = {}
-            for equiv, act in zip(equiv_classes[:valid_cnt], valid_acts):
-                if equiv in diff2acts:
-                    diff2acts[equiv].append(act)
-                else:
-                    diff2acts[equiv] = [act]        
-        else:
-            diff2acts = self._filter_candidate_actions(candidate_actions)
+        diff2acts         = self._filter_candidate_actions(candidate_actions, use_ctypes)
         valid_actions = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
         return valid_actions
 
@@ -910,7 +889,7 @@ class FrotzEnv():
         self.set_state(state)
         return desc2obj
 
-    def _filter_candidate_actions(self, candidate_actions):
+    def _filter_candidate_actions(self, candidate_actions, use_ctypes):
         """
         Given a list of candidate actions, returns a dictionary mapping world_diff
         to the list of candidate actions that cause this diff. Only actions that
@@ -918,6 +897,8 @@ class FrotzEnv():
 
         :param candidate_actions: Candidate actions to test for validity.
         :type candidate_actions: list
+        :param use_ctypes: Uses the optimized ctypes implementation of valid action filtering.
+        :type use_ctyes: boolean
         :returns: Dictionary of world_diff to list of actions.
 
         """
@@ -926,26 +907,46 @@ class FrotzEnv():
         diff2acts = {}
         orig_score = self.get_score()
         state = self.get_state()
-        for act in candidate_actions:
-            self.set_state(state)
-            if isinstance(act, defines.TemplateAction):
-                obs, rew, done, info = self.step(act.action)
-            else:
-                obs, rew, done, info = self.step(act)
+
+        if use_ctypes:
+            candidate_str = (";".join(candidate_actions)).encode('utf-8')
+            valid_str = (' '*(len(candidate_str)+1)).encode('utf-8')
+            equiv_classes = np.zeros(len(candidate_actions), dtype=np.uint8)
+            valid_cnt = self.frotz_lib.filter_candidate_actions(
+                candidate_str, 
+                valid_str, 
+                as_ctypes(equiv_classes)
+            )
             if self._emulator_halted():
                 self.reset()
-                continue
-            if info['score'] != orig_score or done or self._world_changed():
-                # Heuristic to ignore actions with side-effect of taking items
-                if '(Taken)' in obs:
-                    continue
-                diff = self._get_world_diff()
-                if diff in diff2acts:
-                    if act not in diff2acts[diff]:
-                        diff2acts[diff].append(act)
+                self.set_state(state)
+            valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
+            for equiv, act in zip(equiv_classes[:valid_cnt], valid_acts):
+                if equiv in diff2acts:
+                    diff2acts[equiv].append(act)
                 else:
-                    diff2acts[diff] = [act]
-        self.set_state(state)
+                    diff2acts[equiv] = [act]   
+        else:
+            for act in candidate_actions:
+                self.set_state(state)
+                if isinstance(act, defines.TemplateAction):
+                    obs, rew, done, info = self.step(act.action)
+                else:
+                    obs, rew, done, info = self.step(act)
+                if self._emulator_halted():
+                    self.reset()
+                    continue
+                if info['score'] != orig_score or done or self._world_changed():
+                    # Heuristic to ignore actions with side-effect of taking items
+                    if '(Taken)' in obs:
+                        continue
+                    diff = self._get_world_diff()
+                    if diff in diff2acts:
+                        if act not in diff2acts[diff]:
+                            diff2acts[diff].append(act)
+                    else:
+                        diff2acts[diff] = [act]
+            self.set_state(state)
         return diff2acts
 
     def _get_ram(self):
