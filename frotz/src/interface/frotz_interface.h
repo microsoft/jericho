@@ -46,7 +46,7 @@ extern int getRAMSize();
 
 extern void getRAM(unsigned char *ram);
 
-int filter_candidate_actions(char *candidate_actions, char *valid_actions, unsigned char *equiv_classes);
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array);
 
 extern char world[8192];
 
