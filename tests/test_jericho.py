@@ -94,3 +94,36 @@ def test_copy():
             for j, cmd in enumerate(walkthrough[i+1:], start=i+1):
                 obs, rew, done, info = fork.step(cmd)
                 assert (obs, rew, done, info) == expected[j]
+
+
+def test_saving_opcode_in_state():
+    # At some point in yomomma.z8, the player is asked to hit [enter] to continue.
+    # Restoring to that particular state without setting the opcode appropriately
+    # would result in the emulated halting.
+    COMMANDS = [
+        'south', 'southeast', 'sit', 'wait', 'yes', 'west', 'north',  # Actions needed to reach the corner case.
+        'get in stage',  # -> opcode == 246 (z_read_char)
+        '',  # Pressing [enter] -> opcode == 246 (z_read_char)
+        '[save]',
+        '',  # Pressing [enter] -> opcode == 228 (z_read_line)
+        '[restore]',  # If not resetted properly, opcode == 228 (z_read_line) instaead of 246 (z_read_char)
+        'examine something',  # Causes an illegal opcode
+        'look'  # Emulator has halted.
+    ]
+
+    rom = pjoin(DATA_PATH, "roms", "yomomma.z8")
+    if not os.path.exists(rom):
+        raise unittest.SkipTest("Missing data: {}".format(rom))
+
+    env = jericho.FrotzEnv(rom)
+    env.reset()
+
+    state = None
+    for cmd in COMMANDS:
+        if cmd == "[save]":
+            state = env.get_state()
+        elif cmd == "[restore]":
+            env.set_state(state)
+        else:
+            obs, rew, done, info = env.step(cmd)
+            assert not env._emulator_halted()
