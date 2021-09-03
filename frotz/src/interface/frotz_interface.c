@@ -426,6 +426,14 @@ void setFP(int v) {
   fp = stack + v;
 }
 
+int get_opcode() {
+  return next_opcode;
+}
+
+int set_opcode(int opcode) {
+  next_opcode = opcode;
+}
+
 int getFrameCount() {
   return frame_count;
 }
