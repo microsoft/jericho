@@ -1566,6 +1566,7 @@ void set_narrative_text(char* text) {
 }
 
 // Returns a world diff that ignores selected objects
+// objs and dest are a 64-length pre-zeroed arrays.
 void get_cleaned_world_diff(zword *objs, zword *dest) {
   int i;
   int j = 0;
@@ -1706,4 +1707,102 @@ void test() {
   for (i=0; i<attr_clr_cnt; ++i) {
     printf("Attr Clr %d: %d --> %d\n", i, attr_clr_objs[i], attr_clr_nb[i]);
   }
+}
+
+// Given a list of action candidates, find the ones that lead to valid world changes.
+// candidate_actions contains a string with all the candidate actions, seperated by ';'
+// valid_actions will be written with each of the identified valid actions seperated by ';'
+// diff_array will be written with the world_diff for each valid_action indicating
+// which of the valid actions are equivalent to each other in terms of their world diffs.
+// Returns the number of valid actions found.
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array) {
+  char *act = NULL;
+  char *act_newline = NULL;
+  char *text;
+  short orig_score;
+  int valid_cnt = 0;
+  int v_idx = 0;
+
+  // Variables used to store & reset game state
+  unsigned char ram_cpy[h_dynamic_size];
+  unsigned char stack_cpy[STACK_SIZE*sizeof(zword)];
+  int pc_cpy;
+  int sp_cpy;
+  int fp_cpy;
+  int next_opcode_cpy;
+  int frame_count_cpy;
+  long rngA_cpy;
+  int rngInterval_cpy;
+  int rngCounter_cpy;
+
+  // Save the game state
+  getRAM(ram_cpy);
+  getStack(stack_cpy);
+  pc_cpy = getPC();
+  sp_cpy = getSP();
+  fp_cpy = getFP();
+  next_opcode_cpy = get_opcode();
+  frame_count_cpy = getFrameCount();
+  rngA_cpy = getRngA();
+  rngInterval_cpy = getRngInterval();
+  rngCounter_cpy = getRngCounter();
+
+  orig_score = get_score();
+
+  act = strtok(candidate_actions, ";");
+  while (act != NULL)
+  {
+    // Add a newline and termination to act
+    act_newline = malloc(strlen(act) + 2);
+    strcpy(act_newline, act);
+    strcat(act_newline, "\n");
+
+    // Step: Code is copied due to inexplicable segfault when calling step() directly; Ugh!
+    move_diff_cnt = 0;
+    attr_diff_cnt = 0;
+    attr_clr_cnt = 0;
+    ram_diff_cnt = 0;
+    update_special_ram();
+    dumb_set_next_action(act_newline);
+    zstep();
+    run_free();
+    update_ram_diff();
+    text = dumb_get_screen();
+    text = clean_observation(text);
+    strcpy(world, text);
+    dumb_clear_screen();
+
+    if (emulator_halted > 0) {
+      printf("Emulator halted on action: %s\n", act);
+      return valid_cnt;
+    }
+
+    if (get_score() != orig_score || game_over() > 0 || victory() > 0 || world_changed() > 0) {
+      // Ignore actions with side-effect of taking items
+      if (strstr(text, "(Taken)") == NULL) {
+        // Copy the valid action into the output array
+        strcpy(&valid_actions[v_idx], act);
+        v_idx += strlen(act);
+        valid_actions[v_idx++] = ';';
+
+        // Write the world diff resulting from the last action.
+        get_cleaned_world_diff(&diff_array[128*valid_cnt], &diff_array[(128*valid_cnt) + 64]);
+        valid_cnt++;
+      }
+    }
+
+    // Restore the game state
+    setRng(rngA_cpy, rngInterval_cpy, rngCounter_cpy);
+    setRAM(ram_cpy);
+    setStack(stack_cpy);
+    setPC(pc_cpy);
+    setSP(sp_cpy);
+    setFP(fp_cpy);
+    set_opcode(next_opcode_cpy);
+    setFrameCount(frame_count_cpy);
+
+    act = strtok(NULL, ";");
+    free(act_newline);
+  }
+  return valid_cnt;
 }
