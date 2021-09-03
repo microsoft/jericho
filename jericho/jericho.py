@@ -318,6 +318,12 @@ def _load_frotz_lib():
     frotz_lib.setStack.restype = None
     frotz_lib.getStackSize.argtypes = []
     frotz_lib.getStackSize.restype = int
+
+    frotz_lib.get_opcode.argtypes = []
+    frotz_lib.get_opcode.restype = int
+    frotz_lib.set_opcode.argtypes = [c_int]
+    frotz_lib.set_opcode.restype = None
+
     frotz_lib.disassemble.argtypes = [c_char_p]
     frotz_lib.disassemble.restype = None
     frotz_lib.is_supported.argtypes = [c_char_p]
@@ -569,13 +575,14 @@ class FrotzEnv():
         >>> env.set_state(state) # Whew, let's try something else
 
         '''
-        ram, stack, pc, sp, fp, frame_count, rng, narrative = state
+        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative = state
         self.frotz_lib.setRng(*rng)
         self.frotz_lib.setRAM(as_ctypes(ram))
         self.frotz_lib.setStack(as_ctypes(stack))
         self.frotz_lib.setPC(pc)
         self.frotz_lib.setSP(sp)
         self.frotz_lib.setFP(fp)
+        self.frotz_lib.set_opcode(opcode)
         self.frotz_lib.setFrameCount(frame_count)
         self.frotz_lib.set_narrative_text(narrative)
 
@@ -601,10 +608,11 @@ class FrotzEnv():
         pc = self.frotz_lib.getPC()
         sp = self.frotz_lib.getSP()
         fp = self.frotz_lib.getFP()
+        opcode = self.frotz_lib.get_opcode()
         frame_count = self.frotz_lib.getFrameCount()
         rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
         narrative = self.frotz_lib.get_narrative_text()
-        state = ram, stack, pc, sp, fp, frame_count, rng, narrative
+        state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative
         return state
 
     def get_max_score(self):
