@@ -15,6 +15,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import os
+from typing import List
+
 from . import defines
 
 
@@ -205,3 +207,22 @@ def verb_usage_count(verb, max_word_length=None):
     if verb in clubfloyd_verb_counts:
         return clubfloyd_verb_counts[verb]
     return 0
+
+
+def chunk(items: List, n: int) -> List[List]:
+    """ Split a list of items into `n` chunks.
+
+    The first `len(items) % n` chunks will contain one more item.
+
+    Args:
+        items (List): list of items to be split.
+        n (int): number of chunks to return.
+
+    Returns:
+        List[List]: Chunks containing the items.
+
+    References:
+        https://stackoverflow.com/a/2135920
+    """
+    k, m = divmod(len(items), n)
+    return list(items[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
