@@ -49,9 +49,9 @@ def init_worker(story, seed):
 
 def worker(data):
     """ Worker that will be used to test candidate actions. """
-    state, candidate_actions = data
+    state, candidate_actions, use_ctypes = data
     worker.env.set_state(state)
-    return worker.env._filter_candidate_actions(candidate_actions, use_ctypes=True)
+    return worker.env._filter_candidate_actions(candidate_actions, use_ctypes=use_ctypes, use_parallel=False)
 
 
 class ZObject(Structure):
@@ -535,7 +535,7 @@ class FrotzEnv():
             return []
         return self.bindings['walkthrough'].split('/')
 
-    def get_valid_actions(self, use_object_tree=True, use_ctypes=False, use_parallel=False):
+    def get_valid_actions(self, use_object_tree=True, use_ctypes=True, use_parallel=True):
         """
         Attempts to generate a set of unique valid actions from the current game state.
 
@@ -947,7 +947,7 @@ class FrotzEnv():
             if not hasattr(self, 'pool'):
                 self.pool = mp.Pool(initializer=init_worker, initargs=(self.story_file.decode(), self._seed))
 
-            args = [(state, actions) for actions in chunk(candidate_actions, n=self.pool._processes)]
+            args = [(state, actions, use_ctypes) for actions in chunk(candidate_actions, n=self.pool._processes)]
             list_diff2acts = self.pool.map(worker, args)
             for d in list_diff2acts:
                 for k, v in d.items():
