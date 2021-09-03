@@ -1729,6 +1729,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
   int pc_cpy;
   int sp_cpy;
   int fp_cpy;
+  int next_opcode_cpy;
   int frame_count_cpy;
   long rngA_cpy;
   int rngInterval_cpy;
@@ -1740,6 +1741,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
   pc_cpy = getPC();
   sp_cpy = getSP();
   fp_cpy = getFP();
+  next_opcode_cpy = get_opcode();
   frame_count_cpy = getFrameCount();
   rngA_cpy = getRngA();
   rngInterval_cpy = getRngInterval();
@@ -1796,6 +1798,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
     setPC(pc_cpy);
     setSP(sp_cpy);
     setFP(fp_cpy);
+    set_opcode(next_opcode_cpy);
     setFrameCount(frame_count_cpy);
 
     act = strtok(NULL, ";");
