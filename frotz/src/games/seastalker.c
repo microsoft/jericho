@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ int seastalker_max_score() {
 }
 
 int seastalker_get_num_world_objs() {
-  return 249;
+  return 250;
 }
 
 int seastalker_ignore_moved_obj(zword obj_num, zword dest_num) {

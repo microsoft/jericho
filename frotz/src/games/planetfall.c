@@ -92,7 +92,7 @@ int planetfall_max_score() {
 }
 
 int planetfall_get_num_world_objs() {
-  return 252;
+  return 255;
 }
 
 int planetfall_ignore_moved_obj(zword obj_num, zword dest_num) {

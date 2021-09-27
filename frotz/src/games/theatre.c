@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -83,7 +83,7 @@ int theatre_max_score() {
 }
 
 int theatre_get_num_world_objs() {
-  return 255;
+  return 396;
 }
 
 int theatre_ignore_moved_obj(zword obj_num, zword dest_num) {

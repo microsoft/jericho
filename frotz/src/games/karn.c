@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -82,7 +82,7 @@ int karn_max_score() {
 }
 
 int karn_get_num_world_objs() {
-  return 255;
+  return 274;
 }
 
 int karn_ignore_moved_obj(zword obj_num, zword dest_num) {

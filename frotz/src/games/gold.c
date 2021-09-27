@@ -88,7 +88,7 @@ int gold_max_score() {
 }
 
 int gold_get_num_world_objs() {
-  return 255;
+  return 268;
 }
 
 int gold_ignore_moved_obj(zword obj_num, zword dest_num) {

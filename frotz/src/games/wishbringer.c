@@ -82,7 +82,7 @@ int wishbringer_max_score() {
 }
 
 int wishbringer_get_num_world_objs() {
-  return 247;
+  return 253;
 }
 
 int wishbringer_ignore_moved_obj(zword obj_num, zword dest_num) {
