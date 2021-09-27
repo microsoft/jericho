@@ -81,7 +81,7 @@ int infidel_max_score() {
 }
 
 int infidel_get_num_world_objs() {
-  return 246;
+  return 249;
 }
 
 int infidel_ignore_moved_obj(zword obj_num, zword dest_num) {

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -76,7 +76,7 @@ int night_max_score() {
 }
 
 int night_get_num_world_objs() {
-  return 113;
+  return 122;
 }
 
 int night_ignore_moved_obj(zword obj_num, zword dest_num) {

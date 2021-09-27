@@ -76,7 +76,7 @@ int cutthroat_max_score() {
 }
 
 int cutthroat_get_num_world_objs() {
-  return 220;
+  return 223;
 }
 
 int cutthroat_ignore_moved_obj(zword obj_num, zword dest_num) {

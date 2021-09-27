@@ -90,7 +90,7 @@ int curses_max_score() {
 }
 
 int curses_get_num_world_objs() {
-  return 255;
+  return 502;
 }
 
 int curses_ignore_moved_obj(zword obj_num, zword dest_num) {

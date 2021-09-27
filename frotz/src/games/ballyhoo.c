@@ -98,7 +98,7 @@ int ballyhoo_max_score() {
 }
 
 int ballyhoo_get_num_world_objs() {
-  return 235;
+  return 239;
 }
 
 int ballyhoo_ignore_moved_obj(zword obj_num, zword dest_num) {

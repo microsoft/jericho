@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -99,7 +99,7 @@ int tryst_max_score() {
 }
 
 int tryst_get_num_world_objs() {
-  return 255;
+  return 359;
 }
 
 int tryst_ignore_moved_obj(zword obj_num, zword dest_num) {

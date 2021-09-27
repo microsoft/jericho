@@ -93,7 +93,7 @@ int zork3_max_score() {
 }
 
 int zork3_get_num_world_objs() {
-  return 219;
+  return 222;
 }
 
 int zork3_ignore_moved_obj(zword obj_num, zword dest_num) {
