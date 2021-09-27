@@ -19,7 +19,7 @@ import re
 from .game_info import *
 
 #: List of illegal actions that manipulate game state.
-ILLEGAL_ACTIONS = 'license/licence/lisense/lisence/copyright/terms/eula/info/tutorial/changes/daemons/messages/actions/normal/win/lose/quotes/replay/recording/hint/menu/walkthru/walkthrou/manual/purloin/abstract/trace/about/clue/nouns/places/objects/long/short/notify/short/long/die/noscript/full/fullscore/credit/credits/help/super/save/versio/verbos/brief/restar/restor/again/$ve/verify/version/verbose/transcrip/tw-print/showme/showverb/showheap/superbrie/script/restore/restart/quit/q/random/responses/max_scor/fullscore/score/endofobje/comma,/./,/unscri/gonear'.split('/')
+ILLEGAL_ACTIONS = 'license/licence/lisense/lisence/copyright/terms/eula/info/tutorial/changes/daemons/messages/actions/normal/win/lose/quotes/replay/recording/hint/menu/walkthru/walkthrou/manual/purloin/abstract/trace/about/clue/nouns/places/objects/long/short/notify/short/long/die/noscript/full/fullscore/credit/credits/help/super/save/versio/verbos/brief/restar/restor/again/$ve/verify/version/verbose/transcrip/tw-print/showme/showverb/showheap/superb/superbrie/script/restore/restart/quit/q/random/responses/max_scor/fullscore/score/endofobje/comma,/./,/unscri/gonear'.split('/')
 
 #: List of basic actions applicable to almost any game.
 BASIC_ACTIONS = 'north/south/west/east/northwest/southwest/northeast/southeast/up/down/enter/exit/take all'.split('/')
@@ -44,7 +44,8 @@ unrecognized = [
     r".*That sentence isn't one I recognize.*",
     r".*What do you want to examine?.*",
     r".*You can't see any such thing.*",
-    r".*That's not something you need to refer to in the course of this game.*"
+    r".*That's not something you need to refer to in the course of this game.*",
+    r".*You can't use multiple objects with that verb.*"
 ]
 
 #: List of regular expressions meant to capture game responses that indicate the
