@@ -68,6 +68,7 @@ extern int getRngCounter();
 extern void setRng(long, int, int);
 
 zbyte next_opcode;
+int last_PC = -1;
 int desired_seed = 0;
 int ROM_IDX = 0;
 char world[8192] = "";
@@ -1542,6 +1543,7 @@ char* step(char *next_action) {
   attr_clr_cnt = 0;
   ram_diff_cnt = 0;
   update_special_ram();
+  last_PC = getPC();
 
   dumb_set_next_action(next_action);
 
@@ -1628,7 +1630,8 @@ int world_changed() {
   if (ram_diff_cnt > 0) {
     return 1;
   }
-  return 0;
+
+  return last_PC != getPC();
 }
 
 void get_object(zobject *obj, zword obj_num) {
