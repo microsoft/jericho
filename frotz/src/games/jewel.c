@@ -26,9 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *jewel_intro[] = { "bypass\n", "yes\n" };
 
+const zword jewel_special_ram_addrs[1] = {
+  1796, // Chop ice
+};
+
 zword* jewel_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return jewel_special_ram_addrs;
 }
 
 char** jewel_intro_actions(int *n) {

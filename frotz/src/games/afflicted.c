@@ -26,9 +26,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 int score = 0;
 
+const zword afflicted_special_ram_addrs[3] = {
+  25038, // Nikolai's sanitation rating. Alternative: 24989, 24997, 25039
+  1880, // Angela wakes up
+  // 25461, // Noting things.
+  24996 // Sofia is dead.
+};
+
 zword* afflicted_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return afflicted_special_ram_addrs;
 }
 
 char** afflicted_intro_actions(int *n) {
@@ -101,16 +108,24 @@ int afflicted_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int afflicted_ignore_attr_diff(zword obj_num, zword attr_idx) {
-  if (attr_idx == 30 || attr_idx == 11 || attr_idx == 34 || attr_idx == 21)
+  // if (attr_idx == 30 || attr_idx == 11 || attr_idx == 34 || attr_idx == 21)
+  if (attr_idx == 30 || attr_idx == 29)
     return 1;
   return 0;
 }
 
 int afflicted_ignore_attr_clr(zword obj_num, zword attr_idx) {
-  if (attr_idx == 30)
+  if (attr_idx == 30 || attr_idx == 29)
     return 1;
   return 0;
 }
 
 void afflicted_clean_world_objs(zobject* objs) {
+  // Zero out attribute 30 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 11111001
+  char mask3 = 0b11111001;  // Attr 29 and 30.
+  for (int i=1; i<=afflicted_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= mask3;
+  }
 }

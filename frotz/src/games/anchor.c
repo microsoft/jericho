@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -27,10 +27,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 const char *anchor_intro[] = { "\n", "\n", "\n" };
 
 const zword anchor_special_ram_addrs[4] = {
-  21922, // Combination lock
+  // 21922, // Combination lock
   40660, // Bathe
-  38470, // Transitions between days
-  37992, // Sleep
+  // 38470, // Transitions between days
+  // 37992, // Sleep
+  8810, // Talking to Micheal
+  // 18081, // Asking Bum about brother
+  // 24928, // Turn c, w, h and e.
+  18839, // Being chased by a monster around the Old Stone Well.
+  // 31625, // Breaking door leading to Hallway.
+  // 17267, // Ritual sequence in town square
+  27970, // Opening the hatch and waiting for the sound.
 };
 
 zword* anchor_ram_addrs(int *n) {
@@ -53,7 +60,8 @@ char* anchor_clean_observation(char* obs) {
 }
 
 int anchor_victory() {
-  char *death_text = "****  You have won  ****";
+  //char *death_text = "****  You have won  ****";
+  char *death_text = "*** You have won... for now ***";
   if (strstr(world, death_text)) {
     return 1;
   }
@@ -106,4 +114,13 @@ int anchor_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void anchor_clean_world_objs(zobject* objs) {
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 01111111 11111111 10111111
+  // char mask1 = 0b01111111;  // Attr 8
+  char mask3 = 0b10111111;  // Attr 25.
+  for (int i=1; i<=anchor_get_num_world_objs(); ++i) {
+      // objs[i].attr[1] &= mask1;
+      objs[i].attr[3] &= mask3;
+  }
 }

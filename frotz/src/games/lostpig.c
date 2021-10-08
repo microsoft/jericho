@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -54,7 +54,10 @@ char* lostpig_clean_observation(char* obs) {
 }
 
 int lostpig_victory() {
-  char *victory_text = "***  Grunk bring pig back to farm  ***";
+  // Winning messages change depending on the score.
+  // ***  Grunk bring pig back to farm ***  // 6 out of 7 points.
+  // ***  Grunk bring pig back to farm and make new friend ***  // 7 out of 7 points.
+  char *victory_text = "***  Grunk bring pig back to farm ";  // Works for both 6 and 7 points.
   if (strstr(world, victory_text)) {
     return 1;
   }

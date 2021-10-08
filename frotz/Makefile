@@ -11,7 +11,8 @@ RANLIB = /usr/bin/ranlib
 CC ?= gcc
 
 # Enable compiler warnings. This is an absolute minimum.
-CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
+#CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
+CFLAGS += -w
 
 # Define your optimization flags.
 #

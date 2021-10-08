@@ -24,12 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Adventureland: http://ifdb.tads.org/viewgame?id=dy4ok8sdlut6ddj7
 
-const zword adventureland_special_ram_addrs[1] = {
-  1231 // Activated take/drink water
+const zword adventureland_special_ram_addrs[0] = {
+  // 1231 // Activated take/drink water
 };
 
 zword* adventureland_ram_addrs(int *n) {
-    *n = 1;
+    *n = 0;
     return adventureland_special_ram_addrs;
 }
 
@@ -88,23 +88,23 @@ int adventureland_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int adventureland_ignore_attr_diff(zword obj_num, zword attr_idx) {
-  if (attr_idx == 2 || attr_idx == 25)
-    return 1;
+  // if (attr_idx == 2 || attr_idx == 25)
+  //   return 1;
   return 0;
 }
 
 int adventureland_ignore_attr_clr(zword obj_num, zword attr_idx) {
-  if (attr_idx == 2 || attr_idx == 25)
-    return 1;
+  // if (attr_idx == 2 || attr_idx == 25)
+  //   return 1;
   return 0;
 }
 
 void adventureland_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 6) & ~(1 << 7);
-    // Clear attr 24 & 25
-    for (i=1; i<=adventureland_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 10111111
+  // char mask3 = 0b10111111;  // Attr 25.
+  // for (int i=1; i<=adventureland_get_num_world_objs(); ++i) {
+  //     objs[i].attr[3] &= mask3;
+  // }
 }

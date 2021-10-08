@@ -23,10 +23,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "frotz_interface.h"
 
 // Cutthroats: http://ifdb.tads.org/viewgame?id=4ao65o1u0xuvj8jf
+const zword cutthroat_special_ram_addrs[7] = {
+  8785, // Lock state of bedroom door.
+  8669, 9021, // Answering Johnny's questions.
+  10635,  // Waiting for McGinty to leave.
+  8845, 8847,  // Tell longitude and latitude to Johnny.
+  8987, // Track most of the game progression. Needed for "Fill tank with air".
+};
 
 zword* cutthroat_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 7;
+    return cutthroat_special_ram_addrs;
 }
 
 char** cutthroat_intro_actions(int *n) {
@@ -92,16 +99,22 @@ int cutthroat_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void cutthroat_clean_world_objs(zobject* objs) {
-    char mask;
-    int i;
-    zobject* weasel_obj;
-    zobject* weasel_loc;
+    zobject *weasel_obj, *weasel_loc;
+    zobject *player_obj, *player_loc;
+
+    player_obj = &objs[184];
+    player_loc = &objs[player_obj->parent];
     weasel_obj = &objs[9];
     weasel_loc = &objs[weasel_obj->parent];
-    if (weasel_loc->child == 9) {
-        weasel_loc->child = weasel_obj->sibling;
+
+    // Filter out Weasel when not in sight.
+    if (player_loc->num != weasel_loc->num) {
+      if (weasel_loc->child == 9) {
+          weasel_loc->child = weasel_obj->sibling;
+      }
+
+      weasel_obj->parent = 0;
+      weasel_obj->sibling = 0;
+      weasel_obj->child = 0;
     }
-    weasel_obj->parent = 0;
-    weasel_obj->sibling = 0;
-    weasel_obj->child = 0;
 }

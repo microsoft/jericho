@@ -45,7 +45,9 @@ unrecognized = [
     r".*What do you want to examine?.*",
     r".*You can't see any such thing.*",
     r".*That's not something you need to refer to in the course of this game.*",
-    r".*You can't use multiple objects with that verb.*"
+    r".*You can't use multiple objects with that verb.*",
+    r".*I only understood you as far as wanting to .*",
+    r".*Which do you mean, .*",
 ]
 
 #: List of regular expressions meant to capture game responses that indicate the
