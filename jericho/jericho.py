@@ -34,6 +34,9 @@ from .template_action_generator import TemplateActionGenerator
 from jericho.util import chunk
 
 
+JERICHO_NB_PROPERTIES = 23  # As defined in frotz_interface.h
+JERICHO_PROPERTY_LENGTH = 64  # As defined in frotz_interface.h
+
 JERICHO_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
 FROTZ_LIB_PATH = os.path.join(JERICHO_PATH, 'libfrotz.so')
 
@@ -87,7 +90,9 @@ class ZObject(Structure):
                 ("sibling",    c_int),
                 ("child",      c_int),
                 ("_attr",      c_byte*4),
-                ("properties", c_ubyte*16)]
+                ("_prop_ids", c_ubyte*JERICHO_NB_PROPERTIES),
+                ("_prop_lengths", c_ubyte*JERICHO_NB_PROPERTIES),
+                ("_prop_data", (c_ubyte*JERICHO_PROPERTY_LENGTH)*JERICHO_NB_PROPERTIES)]
 
     def __init__(self):
         self.num = -1
@@ -95,7 +100,9 @@ class ZObject(Structure):
     def __str__(self):
         return "Obj{}: {} Parent{} Sibling{} Child{} Attributes {} Properties {}"\
             .format(self.num, self.name, self.parent, self.sibling, self.child,
-                    np.nonzero(self.attr)[0].tolist(), [p for p in self.properties if p != 0])
+                    np.nonzero(self.attr)[0].tolist(),
+                    {k: " ".join(f"{v:02x}" for v in p) for k, p in self.properties.items()}
+                    )
 
     def __repr__(self):
         return str(self)
@@ -111,7 +118,9 @@ class ZObject(Structure):
                 self._attr[1] == other._attr[1] and \
                 self._attr[2] == other._attr[2] and \
                 self._attr[3] == other._attr[3] and \
-                self.properties[:] == other.properties[:]
+                self._prop_ids[:] == other._prop_ids[:] and \
+                self._prop_lengths[:] == other._prop_lengths[:] and \
+                np.array_equal(self._prop_data, other._prop_data)
         return False
 
     def __hash__(self):
@@ -124,6 +133,11 @@ class ZObject(Structure):
     @property
     def attr(self):
         return np.unpackbits(np.array(self._attr, dtype=np.uint8))
+
+    @property
+    def properties(self):
+        return {i: d[:l] for i, d, l in zip(self._prop_ids, self._prop_data, self._prop_lengths) if i != 0}
+
 
 
 class DictionaryWord(Structure):
@@ -250,6 +264,10 @@ def _load_frotz_lib():
     frotz_lib.restore_str.restype = int
     frotz_lib.world_changed.argtypes = []
     frotz_lib.world_changed.restype = int
+
+    frotz_lib.get_world_state_hash.argtypes = []
+    frotz_lib.get_world_state_hash.restype = int
+
     frotz_lib.get_cleaned_world_diff.argtypes = [c_void_p, c_void_p]
     frotz_lib.get_cleaned_world_diff.restype = None
     frotz_lib.game_over.argtypes = []
@@ -276,6 +294,11 @@ def _load_frotz_lib():
     frotz_lib.get_narrative_text.restype = c_char_p
     frotz_lib.set_narrative_text.argtypes = [c_char_p]
     frotz_lib.set_narrative_text.restype = None
+
+    frotz_lib.get_state_changed.argtypes = []
+    frotz_lib.get_state_changed.restype = int
+    frotz_lib.set_state_changed.argtypes = [c_int]
+    frotz_lib.set_state_changed.restype = None
 
     frotz_lib.getPC.argtypes = []
     frotz_lib.getPC.restype = int
@@ -334,6 +357,10 @@ def _load_frotz_lib():
     frotz_lib.get_dictionary.restype = None
     frotz_lib.ztools_cleanup.argtypes = []
     frotz_lib.ztools_cleanup.restype = None
+
+    frotz_lib.update_objs_tracker.argtypes = []
+    frotz_lib.update_objs_tracker.restype = None
+
     return frotz_lib
 
 
@@ -472,7 +499,7 @@ class FrotzEnv():
         score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self.game_over() or self.victory()),\
-            {'moves':self.get_moves(), 'score':score}
+            {'moves':self.get_moves(), 'score':score, 'victory': self.victory()}
 
     def close(self):
         ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
@@ -575,7 +602,7 @@ class FrotzEnv():
         >>> env.set_state(state) # Whew, let's try something else
 
         '''
-        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative = state
+        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, state_changed = state
         self.frotz_lib.setRng(*rng)
         self.frotz_lib.setRAM(as_ctypes(ram))
         self.frotz_lib.setStack(as_ctypes(stack))
@@ -585,6 +612,8 @@ class FrotzEnv():
         self.frotz_lib.set_opcode(opcode)
         self.frotz_lib.setFrameCount(frame_count)
         self.frotz_lib.set_narrative_text(narrative)
+        self.frotz_lib.set_state_changed(state_changed)
+        self.frotz_lib.update_objs_tracker()
 
     def get_state(self):
         '''
@@ -612,7 +641,8 @@ class FrotzEnv():
         frame_count = self.frotz_lib.getFrameCount()
         rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
         narrative = self.frotz_lib.get_narrative_text()
-        state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative
+        state_changed = self.frotz_lib.get_state_changed()
+        state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, state_changed
         return state
 
     def get_max_score(self):
@@ -713,10 +743,26 @@ class FrotzEnv():
         '79c750fff4368efef349b02ff50ffc23'
 
         """
+        md5_hash = np.zeros(64, dtype=np.uint8)
+        self.frotz_lib.get_world_state_hash(as_ctypes(md5_hash))
+        md5_hash = (b"").join(md5_hash.view(c_char)).decode('cp1252')
+        return md5_hash
+
+    def get_world_state_hash_old(self):
+
         import hashlib
         world_objs_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
         special_ram_addrs = self._get_special_ram()
-        world_state_str = world_objs_str + str(special_ram_addrs)
+
+        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative = self.get_state()
+        # Return address of current routine call. (See frotz/src/common/process.c:569)
+        stack = stack.view("uint16")
+        ret_pc = stack[fp+2] | (stack[fp+2+1] << 9)
+
+        # print(sum(stack), pc, sp, fp, ret_pc, frame_count, opcode)
+        # print(pc, str(special_ram_addrs) + str(ret_pc))
+
+        world_state_str = world_objs_str + str(special_ram_addrs) + str(ret_pc)
         m = hashlib.md5()
         m.update(world_state_str.encode('utf-8'))
         return m.hexdigest()
@@ -773,13 +819,13 @@ class FrotzEnv():
         changed, 3) tuple of world objects whose attributes have been cleared, and
         4) tuple of special ram locations whose values have changed.
         '''
-        objs = np.zeros(64, dtype=np.uint16)
-        dest = np.zeros(64, dtype=np.uint16)
+        objs = np.zeros(64+64, dtype=np.uint16)
+        dest = np.zeros(64+64, dtype=np.uint16)
         self.frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
         # First 16 spots allocated for objects that have moved
         moved_objs = []
         for i in range(16):
-            if objs[i] == 0 or dest[i] == 0:
+            if objs[i] == 0 and dest[i] == 0:
                 break
             moved_objs.append((objs[i], dest[i]))
         # Second 16 spots allocated for objects that have had attrs set
@@ -795,12 +841,18 @@ class FrotzEnv():
                 break
             cleared_attrs.append((objs[i], dest[i]))
         # Fourth 16 spots allocated to ram locations & values that have changed
+        prop_diffs = []
+        for i in range(48, 48+64):
+            if objs[i] == 0:
+                break
+            prop_diffs.append((objs[i], dest[i]))
+        # Fourth 16 spots allocated to ram locations & values that have changed
         ram_diffs = []
-        for i in range(48, 64):
+        for i in range(48+64, 48+64+16):
             if objs[i] == 0:
                 break
             ram_diffs.append((objs[i], dest[i]))
-        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(ram_diffs))
+        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(prop_diffs), tuple(ram_diffs))
 
     def _score_object_names(self, interactive_objs):
         """ Attempts to choose a sensible name for an object, typically a noun. """
@@ -902,18 +954,21 @@ class FrotzEnv():
         desc2obj = {}
         # Filter out objs that aren't examinable
         name2desc = {}
+
         for obj in objs:
             if obj[0] in name2desc:
                 ex = name2desc[obj[0]]
             else:
                 self.set_state(state)
                 ex = utl.clean(self.step('examine ' + obj[0])[0])
+
                 name2desc[obj[0]] = ex
             if utl.recognized(ex):
                 if ex in desc2obj:
                     desc2obj[ex].append(obj)
                 else:
                     desc2obj[ex] = [obj]
+
         # Add 'all' as a wildcard object
         desc2obj['all'] = [('all', 'NOUN', 'LOC')]
         self.set_state(state)

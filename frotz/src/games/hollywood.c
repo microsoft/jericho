@@ -24,12 +24,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hollywood Hijinx: http://ifdb.tads.org/viewgame?id=jnfkbgdgopwfqist
 
-const zword hollywood_special_ram_addrs[5] = {
-  8207, // Atomic Chihuahua
-  8241, // Atomic Chihuahua
-  8341, // Atomic Chihuahua
+const zword hollywood_special_ram_addrs[9] = {
+  8207, 8241, 8341, // Atomic Chihuahua
   8323, // Breathing fire
-  8381, // Safe dial
+  8381, // Safe dial (Hallway)
+  8277, // Push piano
+  8269, // Hedge Maze
+  8221, // Safe dial (Bomb Shelter)
+  8363, // throw club at herman
 };
 
 const char *hollywood_intro[] = { "turn statue west\n",
@@ -37,7 +39,7 @@ const char *hollywood_intro[] = { "turn statue west\n",
                                   "turn statue north\n" };
 
 zword* hollywood_ram_addrs(int *n) {
-    *n = 5;
+    *n = 9;
     return hollywood_special_ram_addrs;
 }
 

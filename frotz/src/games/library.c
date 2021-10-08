@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -26,9 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *library_intro[] = { "\n" };
 
+const zword library_special_ram_addrs[1] = {
+  3594, // xyzzy (bonus point)
+};
+
 zword* library_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return library_special_ram_addrs;
 }
 
 char** library_intro_actions(int *n) {

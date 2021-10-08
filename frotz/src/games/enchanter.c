@@ -24,9 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Enchanter: http://ifdb.tads.org/viewgame?id=vu4xhul3abknifcr
 
+const zword enchanter_special_ram_addrs[3] = {
+  9082, // Move block.
+  8906, // Drawing lines on the map.
+  8984, // Erasing lines on the map.
+};
+
 zword* enchanter_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return enchanter_special_ram_addrs;
 }
 
 char** enchanter_intro_actions(int *n) {
@@ -92,11 +98,11 @@ int enchanter_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void enchanter_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~1;
-    // Clear attr 15
-    for (i=1; i<=enchanter_get_num_world_objs(); ++i) {
-        objs[i].attr[1] &= mask;
-    }
+    // int i;
+    // char mask;
+    // mask = ~1;
+    // // Clear attr 15
+    // for (i=1; i<=enchanter_get_num_world_objs(); ++i) {
+    //     objs[i].attr[1] &= mask;
+    // }
 }

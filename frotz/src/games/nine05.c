@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -99,4 +99,14 @@ int nine05_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void nine05_clean_world_objs(zobject* objs) {
+  int i;
+  char mask;
+
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 10111111
+  mask = 0b10111111;  // Attr 25.
+  for (i=1; i<=nine05_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= 0b10111111;
+  }
 }

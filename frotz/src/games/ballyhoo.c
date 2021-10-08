@@ -24,11 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Ballyhoo: http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg
 
-const zword ballyhoo_special_ram_addrs[19] = {
-  8835, // Lion
+const zword ballyhoo_special_ram_addrs[23] = {
+  8853, // Listen to the conversation with Munrab.
+  8623, // Crossing the tightrope
+  9113, // turnstile
+  8835, // Lion stand
   8723, // Give case to harry
   9067, // buy candy
   8791, // stand
+  8893, // walking in the crowd
   9053, // get out of line
   8539, // tina
   8911, // radio
@@ -40,14 +44,14 @@ const zword ballyhoo_special_ram_addrs[19] = {
   2735, // veil
   1691, // dress
   8905, // mahler
-  8623, // tightrope
   8543, // tightrope
   8545, // wpdl
-  9113, // turnstile
+  8845, // read the spreadsheet
+  8525, // say hello Eddit to Chuckles.
 };
 
 zword* ballyhoo_ram_addrs(int *n) {
-    *n = 19;
+    *n = 23;
     return ballyhoo_special_ram_addrs;
 }
 
@@ -106,20 +110,34 @@ int ballyhoo_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int ballyhoo_ignore_attr_diff(zword obj_num, zword attr_idx) {
-  if (obj_num == 211 && attr_idx == 13)
-    return 1;
+  // if (obj_num == 211 && attr_idx == 13)
+  // if (obj_num == 211)
+    // return 1;
   if (attr_idx == 30)
     return 1;
   return 0;
 }
 
 int ballyhoo_ignore_attr_clr(zword obj_num, zword attr_idx) {
-  if (obj_num == 211 && attr_idx == 13)
-    return 1;
-  if (attr_idx == 20)
+  // if (obj_num == 211)
+    // return 1;
+  if (attr_idx == 20)  // TODO: Should it be attr 30 like in ballyhoo_ignore_attr_diff ?
     return 1;
   return 0;
 }
 
 void ballyhoo_clean_world_objs(zobject* objs) {
+  // Clear out object "it"
+  // objs[211].parent = 0;
+
+  // Zero out attribute 13 of object 211 ("it")
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111011 11111111 11111101
+  // char mask1 = 0b11111011;  // Attr 13
+  char mask3 = 0b11111101;  // Attr 30
+  // objs[211].attr[1] &= mask1;
+
+  for (int i=1; i<=ballyhoo_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= mask3;
+  }
 }

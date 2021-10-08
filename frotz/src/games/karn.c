@@ -24,14 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Return to Karn: http://ifdb.tads.org/viewgame?id=bx8118ggp6j7nslo
 
-const zword karn_special_ram_addrs[3] = {
+const zword karn_special_ram_addrs[4] = {
   14066, // Tardis flying/grounded
   13050, // Color sequence
   1213, // k9 following player
+  2194, // Pull lever and Push button
 };
 
 zword* karn_ram_addrs(int *n) {
-    *n = 3;
+    *n = 4;
     return karn_special_ram_addrs;
 }
 

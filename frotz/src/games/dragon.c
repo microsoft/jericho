@@ -24,14 +24,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Dragon Adventure: http://ifdb.tads.org/viewgame?id=sjiyffz8n5patu8l
 
-const zword dragon_special_ram_addrs[3] = {
+const zword dragon_special_ram_addrs[4] = {
   16090, // Set to 1 when you buy the box
   16101, // Set to 1 when you play the flute
-  16102 // Set to 1 when you blow the horn
+  16102, // Set to 1 when you blow the horn
+  13426, // Read the booklet.
 };
 
 zword* dragon_ram_addrs(int *n) {
-    *n = 3;
+    *n = 4;
     return dragon_special_ram_addrs;
 }
 

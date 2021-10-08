@@ -14,7 +14,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+import io
 import os
+import sys
+import time
+import threading
+
 from typing import List
 
 from . import defines
@@ -226,3 +231,90 @@ def chunk(items: List, n: int) -> List[List]:
     """
     k, m = divmod(len(items), n)
     return list(items[i*k+min(i, m):(i+1)*k+min(i+1, m)] for i in range(n))
+
+
+class CaptureStdout:
+    """
+    Capture the standard output stream from Python and shared libraries.
+
+    References
+    ----------
+    https://stackoverflow.com/a/29834357
+    """
+    escape_char = b"\b"
+
+    def __init__(self, threaded=True):
+        self.threaded = threaded
+        self._stdout_fd = os.dup(1)  # Keep a copy of the handle.
+        self._stdout_io = sys.stdout  # Keep a reference to the text buffer.
+
+        self.text_c = ""
+        self.text_py = ""
+
+        # Create a pipe so the stream can be captured:
+        self.pipe_out, self.pipe_in = os.pipe()
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.stop()
+
+    def start(self):
+        """
+        Start capturing the stream data.
+        """
+
+        self.text_c = ""
+        sys.stdout = io.StringIO()
+
+        # Replace the original stream with our write pipe:
+        os.dup2(self.pipe_in, 1)
+        if self.threaded:
+            # Start thread that will read the stream:
+            self.workerThread = threading.Thread(target=self.readOutput)
+            self.workerThread.start()
+            # Make sure that the thread is running and os.read() has executed:
+            time.sleep(0.01)
+
+    def stop(self):
+        """
+        Stop capturing the stream data and save the text in `capturedtext`.
+        """
+        # Print the escape character to make the readOutput method stop:
+        os.write(self.pipe_in, self.escape_char)
+
+        if self.threaded:
+            # wait until the thread finishes so we are sure that
+            # we have until the last character:
+            self.workerThread.join()
+        else:
+            self.readOutput()
+
+        # Close the pipe
+        os.close(self.pipe_in)
+        os.close(self.pipe_out)
+        os.dup2(self._stdout_fd, 1)
+
+        sys.stdout.seek(0)
+        self.text_py = sys.stdout.read()
+
+        sys.stdout = self._stdout_io
+
+    def readOutput(self):
+        """
+        Read the stream data (one byte at a time)
+        and save the text in `capturedtext`.
+        """
+        while True:
+            char = os.read(self.pipe_out, 1)
+            if not char or self.escape_char in char:
+                break
+
+            try:
+                self.text_c += char.decode(errors='replace')
+            except UnicodeDecodeError:
+                pass
+                #self.text_c += str(char)
+                #self.text_c += f"*** UnicodeDecodeError {str(char)} at c{len(self.text_c)}!"
