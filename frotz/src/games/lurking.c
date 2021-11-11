@@ -25,8 +25,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Lurking Horror: http://ifdb.tads.org/viewgame?id=jhbd0kja1t57uop
 
-const zword lurking_special_ram_addrs[6] = {
+const zword lurking_special_ram_addrs[11] = {
+  883, // Cut line with axe
+  756, // knock on door
+  859, // Read page, click on more
+  813, // Throw axe at cord
+  1047, // Lower ladder (alt. 1163, 1333)
   11251, // Microwave timer
+  11235, // press up/down button
   961, // Microwave setting
   1145, // Cleaning up junk
   4889, // Drinking coke
@@ -40,7 +46,7 @@ const char *lurking_intro[] = { "sit on chair\n",
                                 "password uhlersoth\n" };
 
 zword* lurking_ram_addrs(int *n) {
-    *n = 6;
+    *n = 11;
     return lurking_special_ram_addrs;
 }
 

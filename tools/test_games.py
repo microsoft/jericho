@@ -373,8 +373,24 @@ SKIP_CHECK_STATE = {
         109: "take paper",  # Not needed to complete the game.
         110: "take paper with pole",  # Not needed to complete the game.
     },
-
-
+    "ludicorp.z5": {
+        7: "smell car",  # Not needed to complete the game.
+        50: "open door",  # (it is locked) Not needed to complete the game.
+        140: "shoot window",  # (glass is bulletproof) Not needed to complete the game.
+        239: "play arcade",  # (you died) Not needed to complete the game.
+        241: "play pool",  # (no ball nor cues) Not needed to complete the game.
+        255: "w",  # (outer airlock door blocks your way) Not needed to complete the game.
+    },
+    "lurking.z3": {
+        "noop": ["z"]
+    },
+    "moonlit.z5": {},
+    "murdac.z5": {},
+    "night.z5": {
+        37: "get printer",  # Not needed to complete the game.
+        38: "ask gnome about printer",  # Not needed to complete the game.
+        "noop": ["z"]
+    },
 }
 
 
@@ -533,7 +549,7 @@ for filename in sorted(args.filenames):
 
             if not env._world_changed():
             # if last_hash == env.get_world_state_hash():
-                if cmd.split(" ")[0] not in {"look", "x", "search", "examine", "i", "inventory"}:
+                if cmd.split(" ")[0] not in {"look", "l", "x", "search", "examine", "i", "inventory"}:
 
                     print(colored(f'{i}. [{cmd}]: world hash hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
 
