@@ -391,6 +391,13 @@ SKIP_CHECK_STATE = {
         38: "ask gnome about printer",  # Not needed to complete the game.
         "noop": ["z"]
     },
+    "omniquest.z5": {},
+    "partyfoul.z8": {
+        "z": [53, 54],  # Ending sequence.
+    },
+    "pentari.z5": {
+
+    }
 }
 
 
