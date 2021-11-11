@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,12 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Party Foul - http://ifdb.tads.org/viewgame?id=cqwq699i9qiqdju
 
+const zword partyfoul_special_ram_addrs[3] = {
+  17509,  // Spread peanut butter on frank (alt. 17755, 19428, 21423, 47829)
+  1923, // plug the toaster
+  28036, // Waiting for your husband to be prepared to leave the party (alt. 28037, 32186)
+};
+
 const char *partyfoul_intro[] = { "\n",
                                   "no\n" };
 
 zword* partyfoul_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return partyfoul_special_ram_addrs;
 }
 
 char** partyfoul_intro_actions(int *n) {
@@ -43,7 +49,7 @@ char* partyfoul_clean_observation(char* obs) {
   if (pch != NULL) {
     *(pch-2) = '\0';
   }
-  return obs+1;
+  return obs + strspn(obs, "\n ");  // Skip leading newlines and whitespaces.
 }
 
 int partyfoul_victory() {

@@ -345,6 +345,9 @@ def _load_frotz_lib():
     frotz_lib.getStackSize.argtypes = []
     frotz_lib.getStackSize.restype = int
 
+    frotz_lib.getRetPC.argtypes = []
+    frotz_lib.getRetPC.restype = int
+
     frotz_lib.get_opcode.argtypes = []
     frotz_lib.get_opcode.restype = int
     frotz_lib.set_opcode.argtypes = [c_int]
