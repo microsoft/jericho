@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Monsters of Murdac: http://ifdb.tads.org/viewgame?id=q36lh5np0q9nak28
 
-const zword murdac_special_ram_addrs[9] = {
+const zword murdac_special_ram_addrs[10] = {
   3909,  // Blow shawm; Also 525
   3587,  // Tracks state of door. Also 3626
   4659,  // Tracks throwing plank, rod.
@@ -34,10 +34,11 @@ const zword murdac_special_ram_addrs[9] = {
   3042,  // Tracks lion health
   2548,  // Fill bowl, look
   3365,  // Prick dummy, exodus
+  6387,  // Running away from the poltergeist.
 };
 
 zword* murdac_ram_addrs(int *n) {
-    *n = 9;
+    *n = 10;
     return murdac_special_ram_addrs;
 }
 

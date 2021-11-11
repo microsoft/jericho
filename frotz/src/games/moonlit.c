@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -103,11 +103,11 @@ int moonlit_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void moonlit_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7) & ~1;
-    // Clear attr 24 & 31
-    for (i=1; i<=moonlit_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+    // int i;
+    // char mask;
+    // mask = ~(1 << 7) & ~1;
+    // // Clear attr 24 & 31
+    // for (i=1; i<=moonlit_get_num_world_objs(); ++i) {
+    //     objs[i].attr[3] &= mask;
+    // }
 }
