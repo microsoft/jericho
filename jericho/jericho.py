@@ -825,37 +825,38 @@ class FrotzEnv():
         objs = np.zeros(64+64, dtype=np.uint16)
         dest = np.zeros(64+64, dtype=np.uint16)
         self.frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
-        # First 16 spots allocated for objects that have moved
-        moved_objs = []
-        for i in range(16):
-            if objs[i] == 0 and dest[i] == 0:
-                break
-            moved_objs.append((objs[i], dest[i]))
-        # Second 16 spots allocated for objects that have had attrs set
-        set_attrs = []
-        for i in range(16, 32):
-            if objs[i] == 0 or dest[i] == 0:
-                break
-            set_attrs.append((objs[i], dest[i]))
-        # Third 16 spots allocated for objects that have had attrs cleared
-        cleared_attrs = []
-        for i in range(32, 48):
-            if objs[i] == 0 or dest[i] == 0:
-                break
-            cleared_attrs.append((objs[i], dest[i]))
-        # Fourth 16 spots allocated to ram locations & values that have changed
-        prop_diffs = []
-        for i in range(48, 48+64):
-            if objs[i] == 0:
-                break
-            prop_diffs.append((objs[i], dest[i]))
-        # Fourth 16 spots allocated to ram locations & values that have changed
-        ram_diffs = []
-        for i in range(48+64, 48+64+16):
-            if objs[i] == 0:
-                break
-            ram_diffs.append((objs[i], dest[i]))
-        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(prop_diffs), tuple(ram_diffs))
+        return tuple(np.concatenate((objs, dest)))
+        # # First 16 spots allocated for objects that have moved
+        # moved_objs = []
+        # for i in range(16):
+        #     if objs[i] == 0 and dest[i] == 0:
+        #         break
+        #     moved_objs.append((objs[i], dest[i]))
+        # # Second 16 spots allocated for objects that have had attrs set
+        # set_attrs = []
+        # for i in range(16, 32):
+        #     if objs[i] == 0 or dest[i] == 0:
+        #         break
+        #     set_attrs.append((objs[i], dest[i]))
+        # # Third 16 spots allocated for objects that have had attrs cleared
+        # cleared_attrs = []
+        # for i in range(32, 48):
+        #     if objs[i] == 0 or dest[i] == 0:
+        #         break
+        #     cleared_attrs.append((objs[i], dest[i]))
+        # # Fourth 16 spots allocated to ram locations & values that have changed
+        # prop_diffs = []
+        # for i in range(48, 48+64):
+        #     if objs[i] == 0:
+        #         break
+        #     prop_diffs.append((objs[i], dest[i]))
+        # # Fourth 16 spots allocated to ram locations & values that have changed
+        # ram_diffs = []
+        # for i in range(48+64, 48+64+16):
+        #     if objs[i] == 0:
+        #         break
+        #     ram_diffs.append((objs[i], dest[i]))
+        # return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(prop_diffs), tuple(ram_diffs))
 
     def _score_object_names(self, interactive_objs):
         """ Attempts to choose a sensible name for an object, typically a noun. """
@@ -1015,7 +1016,7 @@ class FrotzEnv():
             candidate_str = (";".join(candidate_actions)).encode('utf-8')
             valid_str = (' '*(len(candidate_str)+1)).encode('utf-8')
 
-            DIFF_SIZE = 128
+            DIFF_SIZE = 256 # 128 uint16s for objs and 128 unit16s for dest. See frotz_interface:get_cleaned_world_diff().
             diff_array = np.zeros(len(candidate_actions) * DIFF_SIZE, dtype=np.uint16)
             valid_cnt = self.frotz_lib.filter_candidate_actions(
                 candidate_str,

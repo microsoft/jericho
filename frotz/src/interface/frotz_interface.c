@@ -1642,7 +1642,8 @@ void set_state_changed(bool value) {
 }
 
 // Returns a world diff that ignores selected objects
-// objs and dest are a 64-length pre-zeroed arrays.
+// objs and dest are expected to be 128-length pre-zeroed 
+// arrays with dtype zword/uint16.
 void get_cleaned_world_diff(zword *objs, zword *dest) {
   int i;
   int j = 0;
@@ -2118,7 +2119,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
         valid_actions[v_idx++] = ';';
 
         // Write the world diff resulting from the last action.
-        get_cleaned_world_diff(&diff_array[128*valid_cnt], &diff_array[(128*valid_cnt) + 64]);  // TODO: replace 128
+        get_cleaned_world_diff(&diff_array[256*valid_cnt], &diff_array[(256*valid_cnt) + 128]);  // TODO: replace 128
         valid_cnt++;
       }
     }

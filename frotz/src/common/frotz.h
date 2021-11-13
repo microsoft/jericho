@@ -571,7 +571,7 @@ extern int attr_clr_cnt;
 extern zword attr_clr_objs[ATTR_CLR_CNT];
 extern zword attr_clr_nb[ATTR_CLR_CNT];
 
-// Keep track of the last n=32 changes to obj properties
+// Keep track of the last n=64 changes to obj properties
 extern int prop_put_cnt;
 extern zword prop_put_objs[PROP_PUT_CNT];
 extern zword prop_put_nb[PROP_PUT_CNT];
