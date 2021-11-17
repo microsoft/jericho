@@ -395,8 +395,9 @@ SKIP_CHECK_STATE = {
     "partyfoul.z8": {
         "z": [53, 54],  # Ending sequence.
     },
-    "pentari.z5": {
-
+    "pentari.z5": {},
+    "planetfall.z3": {
+        216: "eat brown goo",  # Not needed to complete the game.
     }
 }
 
@@ -456,7 +457,10 @@ for filename in sorted(args.filenames):
         print(colored("SKIP\tMissing walkthrough", 'yellow'))
         continue
 
-    env.reset()
+    obs, _ = env.reset()
+
+    if args.very_verbose:
+        print(obs)
 
     # history = []
     # history.append((0, 'reset', env.get_state()))

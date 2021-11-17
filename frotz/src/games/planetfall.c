@@ -24,24 +24,32 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Planetfall: http://ifdb.tads.org/viewgame?id=xe6kb3cuqwie2q38
 
-const zword planetfall_special_ram_addrs[13] = {
-  10741, // Blue button
-  10234, // Enable elevator
-  10218, // Pour fluid in hole
-  10408, // Hunger
-  10711, // Red button
-  10420, // Pull lever
-  10404, // Sickness
-  10444, // Teleportation Card
-  10642, // Miniaturization card
-  10058, // Dial
+const zword planetfall_special_ram_addrs[26] = {
   10052, // Laser
+  10058, // Dial
   10060, // Bye laser
+  10218, // Pour fluid in hole
+  10234, 10702, 10690, // Sliding card through slot
+  10254, // Turn on floyd
+  10404, // Sickness
+  10408, // Hunger
+  10430, 10432, // Pull lever and wait.
+  10444, // Teleportation Card
+  10454, // Timer before the pod lands.
+  10456, // Timer before mothership explodes.
+  10608, // Call the Cryo-Elevator
   10612, // Emergency button
+  10642, // Miniaturization card
+  10668, // Let Floyd go inside the laboratory
+  10710, // Red button and wait
+  10728, 10698, // Elevator button + waiting
+  10732, // Enable elevator.
+  10740, // Blue button and waiting for door to open
+  10788, // Timer before explosion.
 };
 
 zword* planetfall_ram_addrs(int *n) {
-    *n = 13;
+    *n = 26;
     return planetfall_special_ram_addrs;
 }
 

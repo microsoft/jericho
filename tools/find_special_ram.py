@@ -187,7 +187,7 @@ for filename in sorted(args.filenames):
 
         changes = set(np.nonzero(Z != last_Z)[0])
 
-        history.append((cmd, env.get_state()))
+        history.append((cmd, env.get_state(), Z))
         changes_history.append(changes)
 
         # ans = ""
@@ -228,13 +228,13 @@ for filename in sorted(args.filenames):
             for idx in changes:
                 if idx in counter:
                     counter[idx] += 1
-                    matches[idx].append((i, history[i+1][0]))
+                    matches[idx].append((i, history[i+1][0], history[i+1][2][idx]))
 
         for idx, count in sorted(counter.items(), key=lambda e: e[::-1]):
-            if matches[idx][0][0] == 0:
-                continue
+            # if matches[idx][0][0] == 0:
+                # continue
 
-            print(f"{idx:6d}: {count:3d} : " + ", ".join(f"{i}.{cmd}" for i, cmd in matches[idx][:10]))
+            print(f"{idx:6d}: {count:3d} : " + ", ".join(f"{i}.{cmd}({value})" for i, cmd, value in matches[idx][:20]))
 
     #if len(changes_history) > :
     print(f"Ram changes unique to command: {args.index}. > {history[args.index+1][0]}")
