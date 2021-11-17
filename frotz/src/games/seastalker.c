@@ -26,13 +26,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *seastalker_intro[] = { "John\n", "Wayne\n", "yes\n" };
 
-const zword seastalker_special_ram_addrs[1] = {
-  9740, // Tracks scimitar location
+const zword seastalker_special_ram_addrs[5] = {
+  9736, 9740, 9742, // Tracks scimitar location
+  9490, // Fill tank
+  9668, // Change throttle
 };
 
 zword* seastalker_ram_addrs(int *n) {
-    *n = 1;
-    return seastalker_ram_addrs;
+    *n = 5;
+    return seastalker_special_ram_addrs;
 }
 
 char** seastalker_intro_actions(int *n) {

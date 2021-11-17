@@ -410,8 +410,19 @@ SKIP_CHECK_STATE = {
     },
     "reverb.z5": {
         1: "read note",  # Not needed.
-        "z": [50, 51], # Not needed.
+        "z": [50, 51],  # Not needed.
     },
+    "seastalker.z3": {
+        4: "ask bly about problem",  # Not needed.
+        5: "ask bly about monster",  # Not needed.
+        11: "ask computestor about videophone",  # Not needed.
+        18: "ask kemp about circuit breaker",  # Not needed.
+        27: "push test button",  # Not needed.
+        28: "read sign",  # Not needed.
+        105: "e",  # Can't go.
+        128: "s",  # Can't go.
+        151: "s",  # Too crowed. Have to wait.
+    }
 
 }
 
