@@ -436,7 +436,7 @@ void setFP(int v) {
 }
 
 int getRetPC() {
-  return *(fp+2) | ((*fp+2+1) << 9);
+  return *(fp+2) | (*(fp+2+1) << 9);
 }
 
 int get_opcode() {
@@ -1421,11 +1421,17 @@ int is_supported(char *story_file) {
 void take_intro_actions() {
   int num_actions = 0;
   char **intro_actions = NULL;
-  int i;
   intro_actions = get_intro_actions(&num_actions);
   if (num_actions <= 0 || intro_actions == NULL)
     return;
-  for (i=0; i<num_actions; ++i) {
+
+  char* text;
+  for (int i=0; i<num_actions; ++i) {
+    text = dumb_get_screen();
+    text = clean_observation(text);
+    strcat(world, text);
+    dumb_clear_screen();
+
     dumb_set_next_action(intro_actions[i]);
     zstep();
     run_free();
@@ -1526,6 +1532,8 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   zstep();
   run_free();
   load_rom_bindings(story_file);
+
+  world[0] = '\0';  // Clear buffer.
   take_intro_actions();
   init_special_ram();
 
@@ -1562,7 +1570,8 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
 
   text = dumb_get_screen();
   text = clean_observation(text);
-  strcpy(world, text);
+  // strcpy(world, text);
+  strcat(world, text);
   dumb_clear_screen();
   return world;
 }
