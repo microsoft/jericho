@@ -59,12 +59,13 @@ char** planetfall_intro_actions(int *n) {
 }
 
 char* planetfall_clean_observation(char* obs) {
-  char* pch;
-  pch = strchr(obs, '\n');
-  if (pch != NULL) {
-    return pch+1;
-  }
-  return obs;
+  // char* pch;
+
+  // pch =
+  // if (pch != NULL) {
+  //   return pch+1;
+  // }
+  return obs + strspn(obs, "> \n");  // Skip leading prompt, whitespaces, and newlines.
 }
 
 int planetfall_victory() {

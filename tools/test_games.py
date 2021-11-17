@@ -398,7 +398,17 @@ SKIP_CHECK_STATE = {
     "pentari.z5": {},
     "planetfall.z3": {
         216: "eat brown goo",  # Not needed to complete the game.
-    }
+    },
+    "plundered.z3": {
+        # 11: "z",  # Dialog. [Press RETURN or ENTER to continue.]
+        61: "cut line with dagger",  # Not needed.
+        106: "read label",  # Not needed.
+        116: "give garter to papa",  # Not needed.
+        129: "n",  # Not needed.
+        131: "z",  # Not needed.
+        151: "z",  # Not needed.
+    },
+
 }
 
 
@@ -414,7 +424,8 @@ def test_walkthrough(env, walkthrough):
         msg = "FAIL\tDone but score {}/{}".format(info["score"], env.get_max_score())
         print(colored(msg, 'yellow'))
     else:
-        print(colored("PASS", 'green'))
+        msg = "PASS\tScore {}/{}".format(info["score"], env.get_max_score())
+        print(colored(msg, 'green'))
 
 
 def parse_args():
@@ -534,6 +545,8 @@ for filename in sorted(args.filenames):
         last_env_objs_cleaned = env.get_world_objects(clean=True)
 
         obs, rew, done, info = env.step(cmd)
+        # calls = env.get_calls_stack()
+        # print(" -> ".join(map(hex, calls)))
 
         env_objs = env.get_world_objects(clean=False)
         env_objs_cleaned = env.get_world_objects(clean=True)
