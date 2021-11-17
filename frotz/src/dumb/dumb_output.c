@@ -522,6 +522,7 @@ void dumb_init_output(void)
 {
     if (h_version == V3) {
 	h_config |= CONFIG_SPLITSCREEN;
+	h_config |= CONFIG_NOSTATUSLINE;
 	h_flags &= ~OLD_SOUND_FLAG;
     }
 
