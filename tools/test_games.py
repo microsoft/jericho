@@ -408,6 +408,10 @@ SKIP_CHECK_STATE = {
         131: "z",  # Not needed.
         151: "z",  # Not needed.
     },
+    "reverb.z5": {
+        1: "read note",  # Not needed.
+        "z": [50, 51], # Not needed.
+    },
 
 }
 
