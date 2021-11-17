@@ -665,6 +665,25 @@ class FrotzEnv():
         state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, state_changed
         return state
 
+    def get_calls_stack(self):
+        "TODO: this might be more precise than RetPC"
+        stack = np.zeros(self.frotz_lib.getStackSize(), dtype=np.uint8)
+        self.frotz_lib.getStack(as_ctypes(stack))
+        stack = stack.view("uint16")
+
+        frame_count = self.frotz_lib.getFrameCount()
+        fp = self.frotz_lib.getFP()
+
+        calls = []
+        for _ in range(frame_count, 0, -1):
+            sp = fp; sp += 1
+            fp = 0 + 1 + stack[sp]; sp += 1
+            pc = stack[sp]; sp += 1
+            pc = (stack[sp] << 9) | pc; sp += 1
+            calls.append(pc)
+
+        return calls[::-1]
+
     def get_max_score(self):
         ''' Returns the integer maximum possible score for the game. '''
         return self.frotz_lib.get_max_score()
