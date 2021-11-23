@@ -37,6 +37,10 @@ extern void dumb_set_next_action (char *a);
 extern void dumb_show_screen (int a);
 extern char* dumb_get_screen(void);
 extern void dumb_clear_screen(void);
+extern char* dumb_get_lower_screen(void);
+extern void dumb_clear_lower_screen(void);
+extern char* dumb_get_upper_screen(void);
+extern void dumb_clear_upper_screen(void);
 extern void z_save (void);
 extern void load_story(char *s);
 extern void load_story_rom(char *s, void* rom, size_t rom_size);
@@ -72,7 +76,9 @@ zbyte next_opcode;
 int last_ret_pc = -1;
 int desired_seed = 0;
 int ROM_IDX = 0;
-char world[8192] = "";
+
+char world[256 + 8192] = "";  // Upper + lower screens.
+
 int emulator_halted = 0;
 char halted_message[] = "Emulator halted due to runtime error.\n";
 // Track the addresses and values of special per-game ram locations.
@@ -1427,10 +1433,8 @@ void take_intro_actions() {
 
   char* text;
   for (int i=0; i<num_actions; ++i) {
-    text = dumb_get_screen();
-    text = clean_observation(text);
-    strcat(world, text);
-    dumb_clear_screen();
+    strcat(world, dumb_get_lower_screen());
+    dumb_clear_lower_screen();
 
     dumb_set_next_action(intro_actions[i]);
     zstep();
@@ -1533,7 +1537,7 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   run_free();
   load_rom_bindings(story_file);
 
-  world[0] = '\0';  // Clear buffer.
+  world[0] = '\0';  // Clear lower screen buffer.
   take_intro_actions();
   init_special_ram();
 
@@ -1568,11 +1572,14 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   // get_world_state_hash(last_state_hash);
   // get_world_state_hash(current_state_hash);
 
-  text = dumb_get_screen();
-  text = clean_observation(text);
-  // strcpy(world, text);
-  strcat(world, text);
-  dumb_clear_screen();
+  // Concatenate upper and lower screens.
+  strcat(world, dumb_get_lower_screen());
+  strcat(world, dumb_get_upper_screen());
+  strcpy(world, clean_observation(world));
+
+  dumb_clear_lower_screen();
+  dumb_clear_upper_screen();
+
   return world;
 }
 
@@ -1627,10 +1634,13 @@ char* step(char *next_action) {
   state_has_changed = memcmp(old_objs, new_objs, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
   // printf("%s =(%d)= %s <== %s", current_state_hash, state_has_changed, last_state_hash, next_action);
 
-  text = dumb_get_screen();
-  text = clean_observation(text);
-  strcpy(world, text);
-  dumb_clear_screen();
+  // Retrieve and concatenate upper and lower screens.
+  strcpy(world, dumb_get_lower_screen());
+  strcat(world, dumb_get_upper_screen());
+  strcpy(world, clean_observation(world));
+  dumb_clear_lower_screen();
+  dumb_clear_upper_screen();
+
   return world;
 }
 

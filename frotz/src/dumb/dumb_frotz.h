@@ -44,6 +44,7 @@ void dumb_set_picture_cell(int row, int col, char c);
 void dumb_row_to_str(char *s);
 void dumb_clear_output(void);
 char* dumb_get_screen(void);
+char* dumb_get_lower_screen(void);
 void dumb_clear_screen(void);
 
 /* dumb-pic.c */

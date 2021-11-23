@@ -50,9 +50,13 @@ static cell make_cell(int style, char c) {return (style << 8) | (0xff & c);}
 static char cell_char(cell c) {return c & 0xff;}
 static int cell_style(cell c) {return c >> 8;}
 
+#define UPPER_SCREEN_BUFF_SIZE 256
 #define SCREEN_BUFF_SIZE 8192
-static char screen_buffer[SCREEN_BUFF_SIZE];
+static char screen_buffer[SCREEN_BUFF_SIZE];  // aka window 0 (lower screen)
+static char upper_screen_buffer[UPPER_SCREEN_BUFF_SIZE];  // aka window 1 (upper screen)
+
 char* screen_buffer_ptr = screen_buffer;
+char* upper_screen_buffer_ptr = upper_screen_buffer;
 
 /* A cell's style is REVERSE_STYLE, normal (0), or PICTURE_STYLE.
  * PICTURE_STYLE means the character is part of an ascii image outline
@@ -114,7 +118,12 @@ int os_string_width (const zchar *s)
 
 void os_set_cursor(int row, int col)
 {
-    cursor_row = row - 1; cursor_col = col - 1;
+	//printf("\n--> win:%d\trow:%d\tcol:%d MAX_COLS:%d<--\n", cwin, row, col, h_screen_cols);
+	if (cwin == 1 && row == 1) {
+		upper_screen_buffer_ptr = upper_screen_buffer + (col-1);
+	}
+
+    cursor_row = row - 1; cursor_col = col - 1;  // 0-index
     if (cursor_row >= h_screen_rows)
 	cursor_row = h_screen_rows - 1;
 }
@@ -148,9 +157,16 @@ void os_set_text_style(int x)
 /* put a character in the cell at the cursor and advance the cursor.  */
 static void dumb_display_char(char c)
 {
-  if ((screen_buffer_ptr - screen_buffer) < (SCREEN_BUFF_SIZE - 1)) {
-    *screen_buffer_ptr++ = c;
-  }
+	if (cwin == 1 && cursor_row == 0) {
+		if ((upper_screen_buffer_ptr - upper_screen_buffer) < (UPPER_SCREEN_BUFF_SIZE - 1)) {
+			*upper_screen_buffer_ptr++ = c;
+		}
+	}
+	else {
+		if ((screen_buffer_ptr - screen_buffer) < (SCREEN_BUFF_SIZE - 1)) {
+			*screen_buffer_ptr++ = c;
+		}
+	}
 }
 
 void dumb_display_user_input(char *s)
@@ -210,7 +226,7 @@ void os_display_string (const zchar *s)
     }
 }
 
-void os_erase_area (int top, int left, int bottom, int right, int UNUSED (win))
+void os_erase_area (int top, int left, int bottom, int right, int win)
 {
     int row, col;
     top--; left--; bottom--; right--;
@@ -222,9 +238,16 @@ void os_erase_area (int top, int left, int bottom, int right, int UNUSED (win))
 
 void os_scroll_area (int top, int left, int bottom, int right, int units)
 {
-  if ((screen_buffer_ptr - screen_buffer) < (SCREEN_BUFF_SIZE - 1)) {
-    *screen_buffer_ptr++ = '\n';
-  }
+	if (cwin == 1) {
+		if ((upper_screen_buffer_ptr - upper_screen_buffer) < (UPPER_SCREEN_BUFF_SIZE - 1)) {
+			*upper_screen_buffer_ptr++ = '\n';
+		}
+	}
+	else {
+		if ((screen_buffer_ptr - screen_buffer) < (SCREEN_BUFF_SIZE - 1)) {
+			*screen_buffer_ptr++ = '\n';
+		}
+	}
 }
 
 int os_font_data(int font, int *height, int *width)
@@ -555,6 +578,25 @@ char* dumb_get_screen(void) {
 
 void dumb_clear_screen(void) {
   screen_buffer_ptr = screen_buffer;
+}
+
+
+char* dumb_get_lower_screen(void) {
+  *screen_buffer_ptr = '\0';
+  return screen_buffer;
+}
+
+void dumb_clear_lower_screen(void) {
+  screen_buffer_ptr = screen_buffer;
+}
+
+char* dumb_get_upper_screen(void) {
+  upper_screen_buffer[UPPER_SCREEN_BUFF_SIZE-1] = '\0';
+  return upper_screen_buffer;
+}
+
+void dumb_clear_upper_screen(void) {
+  upper_screen_buffer_ptr = upper_screen_buffer;
 }
 
 void dumb_free(void) {
