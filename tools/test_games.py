@@ -435,6 +435,18 @@ SKIP_CHECK_STATE = {
         318: "ask for akbar",  # Denkeeper is asking for the password.
     },
     "snacktime.z8": {},
+    "sorcerer.z3": {
+        "wait": [138, 139],  # Needed for timing the actions.
+        12: "read journal",  # Can be replaced with 'wait'.
+        26: "read dusty scroll",  # meef spell: cause plants to wilt
+        32: "read moldy scroll",  # aimfiz spell: transport caster to someone else's location
+        42: "read shiny scroll",  # gaspar spell: provide for your own resurrection
+        53: "read soiled scroll",  # fweep spell: turn caster into a bat
+        111: "read parchment scroll",  # swanzo spell: exorcise an inhabiting presence
+        169: "read ordinary scroll",  # yonk spell: augment the power of certain spells
+        193: "read glittering scroll",  # malyon spell: bring life to inanimate objects
+        225: "read shimmering scroll",  # golmac spell: travel temporally
+    },
 }
 
 
@@ -621,6 +633,8 @@ for filename in sorted(args.filenames):
                     test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
                     print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
                     test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
+                    print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
+                    test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
                     breakpoint()
             # else:
             #     world_diff = env._get_world_diff()
