@@ -186,8 +186,8 @@ def display_unique_changes(idx, history, changes_history):
                 matches[idx].append((i, history[i+1]["cmd"], history[i+1]["zmp"][idx]))
 
     for idx, count in sorted(counter.items(), key=lambda e: e[::-1]):
-        if matches[idx][0][0] == 0:
-            continue
+        # if matches[idx][0][0] == 0:
+        #     continue
 
         print(f"{idx:6d}: {count:3d} : " + ", ".join(f"{i}.{cmd}({value})" for i, cmd, value in matches[idx][:20]))
 
@@ -206,7 +206,7 @@ def main():
         return
 
     walkthrough = env.get_walkthrough()
-    history = collect_zmp(env, walkthrough, verbose=False)
+    history = collect_zmp(env, walkthrough, verbose=True)
     changes_history = compute_zmp_changes(history)
 
     print(f"Ram changes unique to command: {args.index}. > {history[args.index+1]['cmd']}")
