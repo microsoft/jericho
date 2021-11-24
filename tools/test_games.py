@@ -433,7 +433,8 @@ SKIP_CHECK_STATE = {
         232: "read plaque",  # Not actually needed.
         238: "n",  # Guard stops you and ask not to bribe them.
         318: "ask for akbar",  # Denkeeper is asking for the password.
-    }
+    },
+    "snacktime.z8": {},
 }
 
 
