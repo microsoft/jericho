@@ -447,6 +447,20 @@ SKIP_CHECK_STATE = {
         193: "read glittering scroll",  # malyon spell: bring life to inanimate objects
         225: "read shimmering scroll",  # golmac spell: travel temporally
     },
+    "spellbrkr.z3": {
+        "z": [1, 2, 16, 42, 43, 44, 107, 108, 109, 110, 111, 112, 142, 233, 234, 235, 236, 300, 301, 302],  # Needed for timing the actions.
+        23: "read stained scroll",  # caskly spell: cause perfection
+        34: "read flimsy scroll",  # girgol spell: stop time
+        39: "read dirty scroll",  # throck spell: cause plants to grow.
+        80: "read dusty scroll",  # espnis spell: sleep.
+        99: "read damp scroll",  # liskon spell: shrink a living thing.
+        157: "read white scroll",  # tinsot spell: freeze.
+        162: "point at blue carpet",
+        197: "read moldy book",  # snavig spell: shape change
+        330: "ask belboz about cube",
+        331: "ask belboz about figure",
+        368: "read vellum scroll",  # empty
+    }
 }
 
 
