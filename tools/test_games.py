@@ -421,9 +421,19 @@ SKIP_CHECK_STATE = {
         28: "read sign",  # Not needed.
         105: "e",  # Can't go.
         128: "s",  # Can't go.
-        151: "s",  # Too crowed. Have to wait.
+        151: "s",  # Too crowded. Have to wait.
+    },
+    "sherlock.z5": {
+        "wait": [75],  # Needed for timing the actions.
+        9: "read paper",
+        34: "ask holmes about ash",  # Can be replaced with 'wait 1 minute'.
+        159: "open book",  # The librarian launches off into another speech.
+        162: "read book",  # Not actually needed.
+        179: "read sign",  # Not actually needed.
+        232: "read plaque",  # Not actually needed.
+        238: "n",  # Guard stops you and ask not to bribe them.
+        318: "ask for akbar",  # Denkeeper is asking for the password.
     }
-
 }
 
 
@@ -608,6 +618,8 @@ for filename in sorted(args.filenames):
                     test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
                     print(f"Testing walkthrough replacing '{cmd}' with '0'...")
                     test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
+                    print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
+                    test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
                     breakpoint()
             # else:
             #     world_diff = env._get_world_diff()

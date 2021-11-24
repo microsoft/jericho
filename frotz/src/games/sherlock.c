@@ -26,9 +26,26 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *sherlock_intro[] = { "\n" };
 
+const zword sherlock_special_ram_addrs[12] = {
+  4500,  // Light matches.
+  4752,  // light pipe with match
+  15839, // Light newspaper with pipe, light torch with newspaper.
+  779, // Haggling with salesman
+  883, // Track bell reachability (swinging)
+  1051, // First blows of the whistle to call a cab.
+  5676, // Wearing the cotton balls.
+  4948, // Wearing the stethoscope.
+  1151, // Listen to the girl's heartbeat and give her the pill.
+  1083, // tell pigeon to get ruby
+  785, 1039, // Turning the dial of bank's vault door.
+  // 16088, // Track seconds (alt. 16084)
+  // 16089, // Track minutes (alt. 16085)
+  // 16090, // Track hours
+};
+
 zword* sherlock_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 12;
+    return sherlock_special_ram_addrs;
 }
 
 char** sherlock_intro_actions(int *n) {
@@ -37,6 +54,25 @@ char** sherlock_intro_actions(int *n) {
 }
 
 char* sherlock_clean_observation(char* obs) {
+  char* pch;
+  pch = strrchr(obs, '\n');
+  if (pch != NULL) {
+    // Extract time from status line. E.g.
+    // " Vestibule   [...]   Saturday   5:01:00 a.m.      Score:    0"
+    //                       ^                            ^
+    //                       88                           117
+    memcpy(pch,
+           pch + 88,  // Beginning of Time.
+           117-88);   // Beginning of Score - Beginning of Time.
+    pch += (117-88);  // Add termination character after the Time.
+    *(pch) = '\0';
+  }
+
+  pch = strchr(obs, '>');
+  if (pch != NULL) {
+    return pch + 1;
+  }
+
   return obs;
 }
 
