@@ -460,7 +460,13 @@ SKIP_CHECK_STATE = {
         330: "ask belboz about cube",
         331: "ask belboz about figure",
         368: "read vellum scroll",  # empty
+    },
+    "temple.z5": {
+        32: "ask charles about temple",
+        77: "ask charles about chest",
+        84: "listen",
     }
+
 }
 
 
