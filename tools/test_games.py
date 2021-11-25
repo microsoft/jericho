@@ -465,6 +465,14 @@ SKIP_CHECK_STATE = {
         32: "ask charles about temple",
         77: "ask charles about chest",
         84: "listen",
+    },
+    "theatre.z5": {
+        "z": [15],
+        "wait": [15, 249],
+        190: "read newspaper",
+        271: "show earth crystal to trent",
+        272: "show star crystal to trent",
+        274: "ask trent about elizabeth",
     }
 
 }
