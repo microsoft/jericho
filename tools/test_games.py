@@ -485,8 +485,37 @@ SKIP_CHECK_STATE = {
         233: "put honey in cauldron",
         376: "point at coconut",  # Needed to time the actions.
         573: "wait",
-    }
-
+    },
+    "tryst205.z5": {
+        5: "ask george about bag",
+        6: "ask george about beetlebaum",
+        7: "ask george about frank",
+        13: "open bag",  # The zipper is too rusted to move.
+        47: "read label",
+        70: "shake safe",  # There is something rattling around in there.
+        71: "open safe",  # Concentrate as you may, but you can't come up with the combination.
+        90: "s",  # The mosquitos and gnats start to eat you alive, forcing you to leave while you still can.
+        96: "read sign",  # The mosquitos and gnats start to eat you alive, forcing you to leave while you still can.
+        111: "s",  # You can't, since the jail door is in the way.
+        129: "read green",
+        136: "clean table with cloth",  # You move the dust around with the dry cloth, but not much else.
+        138: "read crumpled",
+        141: "set second wheel to 2",  # Second wheel already set to 2.
+        188: "read writing",
+        192: "n",  # You can't, since the livery door is in the way.
+        193: "open door",  # It seems to be locked.
+        228: "read note",
+        244: "read sign",
+        245: "read book",
+        253: "ask george about dehlila",
+        254: "ask george about gumball",
+        255: "ask george about town",
+        387: "read lettering",
+        404: "read sign",
+        444: "read sign",
+        448: "read plaque",
+        496: "wait",  # Waiting to be not invisible anymore.
+    },
 }
 
 
