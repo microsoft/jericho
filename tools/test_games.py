@@ -519,6 +519,9 @@ SKIP_CHECK_STATE = {
     "weapon.z5": {
         9: "touch information",  # ... better not activate it unless you've got some way to stop her.
         56: "pull rods",  # .. you can not do anything else while holding them together...
+    },
+    "wishbringer.z3": {
+        38: "wait",  # Waiting for the curtain to open.
     }
 }
 
