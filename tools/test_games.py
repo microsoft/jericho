@@ -516,6 +516,10 @@ SKIP_CHECK_STATE = {
         448: "read plaque",
         496: "wait",  # Waiting to be not invisible anymore.
     },
+    "weapon.z5": {
+        9: "touch information",  # ... better not activate it unless you've got some way to stop her.
+        56: "pull rods",  # .. you can not do anything else while holding them together...
+    }
 }
 
 
