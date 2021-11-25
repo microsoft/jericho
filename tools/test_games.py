@@ -239,13 +239,13 @@ SKIP_CHECK_STATE = {
     },
     "cutthroat.z3": {
         1: "wind watch",  # Could be replaced by wait.
-        "wait": [12, 132, 133, 150, 190, 191, 216, 217, 218],  # Needed for timing the actions.
+        "wait": [12, 132, 133, 150, 190, 191, 216, 217, 218],  # Needed to time the actions.
         "noop": [
             "read envelope",  # Not needed to complete the game.
         ]
     },
     "deephome.z5": {
-        "wait": [13, 183],  # Needed for timing the actions.
+        "wait": [13, 183],  # Needed to time the actions.
         "noop": [
             "read letter",  # Not needed to complete the game.
             "read warning note",  # Not needed to complete the game.
@@ -269,7 +269,7 @@ SKIP_CHECK_STATE = {
     "enchanter.z3": {
         16: "read scroll",  # Not actually needed for learning the spell.
         202: "read map",  # Not actually needed for completing the game.
-        "wait": [84],  # Needed for timing the actions.
+        "wait": [84],  # Needed to time the actions.
         "noop": [
             "read shredded scroll",  # Not needed to complete the game.
             "read crumpled scroll",  # Not needed to complete the game.
@@ -300,7 +300,7 @@ SKIP_CHECK_STATE = {
     "hhgg.z3": {
         56: "push switch",  # Not needed to complete the game.
         "noop": [
-            "z", "wait", # Needed for timing the actions.
+            "z", "wait", # Needed to time the actions.
         ]
     },
     "hollywood.z3": {
@@ -424,7 +424,7 @@ SKIP_CHECK_STATE = {
         151: "s",  # Too crowded. Have to wait.
     },
     "sherlock.z5": {
-        "wait": [75],  # Needed for timing the actions.
+        "wait": [75],  # Needed to time the actions.
         9: "read paper",
         34: "ask holmes about ash",  # Can be replaced with 'wait 1 minute'.
         159: "open book",  # The librarian launches off into another speech.
@@ -436,7 +436,7 @@ SKIP_CHECK_STATE = {
     },
     "snacktime.z8": {},
     "sorcerer.z3": {
-        "wait": [138, 139],  # Needed for timing the actions.
+        "wait": [138, 139],  # Needed to time the actions.
         12: "read journal",  # Can be replaced with 'wait'.
         26: "read dusty scroll",  # meef spell: cause plants to wilt
         32: "read moldy scroll",  # aimfiz spell: transport caster to someone else's location
@@ -448,7 +448,7 @@ SKIP_CHECK_STATE = {
         225: "read shimmering scroll",  # golmac spell: travel temporally
     },
     "spellbrkr.z3": {
-        "z": [1, 2, 16, 42, 43, 44, 107, 108, 109, 110, 111, 112, 142, 233, 234, 235, 236, 300, 301, 302],  # Needed for timing the actions.
+        "z": [1, 2, 16, 42, 43, 44, 107, 108, 109, 110, 111, 112, 142, 233, 234, 235, 236, 300, 301, 302],  # Needed to time the actions.
         23: "read stained scroll",  # caskly spell: cause perfection
         34: "read flimsy scroll",  # girgol spell: stop time
         39: "read dirty scroll",  # throck spell: cause plants to grow.
@@ -473,6 +473,18 @@ SKIP_CHECK_STATE = {
         271: "show earth crystal to trent",
         272: "show star crystal to trent",
         274: "ask trent about elizabeth",
+    },
+    "trinity.z4": {
+        28: "read paper",
+        56: "read card",
+        83: "reach in sculpture",
+        154: "read crypt",
+        155: "open crypt",
+        180: "talk to boy",
+        184: "knock on door",
+        233: "put honey in cauldron",
+        376: "point at coconut",  # Needed to time the actions.
+        573: "wait",
     }
 
 }

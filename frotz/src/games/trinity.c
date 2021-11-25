@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -26,9 +26,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *trinity_intro[] = { "\n" };
 
+const zword trinity_special_ram_addrs[5] = {
+  34327, // Push lever.
+  37319, // Listen to the magpie.
+  3218, // Wear boots (alt. 4926)
+  1090, // Wear shroud
+  33931, // Enter dory and give silver coin to oarsman.
+};
+
 zword* trinity_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 5;
+    return trinity_special_ram_addrs;
 }
 
 char** trinity_intro_actions(int *n) {
@@ -91,11 +99,11 @@ int trinity_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void trinity_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~1;
-    // Clear attr 23
-    for (i=1; i<=trinity_get_num_world_objs(); ++i) {
-        objs[i].attr[2] &= mask;
-    }
+    // int i;
+    // char mask;
+    // mask = ~1;
+    // // Clear attr 23
+    // for (i=1; i<=trinity_get_num_world_objs(); ++i) {
+    //     objs[i].attr[2] &= mask;
+    // }
 }
