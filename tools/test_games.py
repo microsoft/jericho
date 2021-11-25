@@ -546,6 +546,19 @@ SKIP_CHECK_STATE = {
     },
     "zork2.z5": {
         "wait": [167, 168, 169, 238, 239]  # Needed to time the actions.
+    },
+    "zork3.z5": {
+        "wait": [
+            # Needed for the indicator to cycle through I, II, III, and IV.
+            29, 30, 31, 35,
+            60, 61,  # Not needed.
+            64, 65, 66,  # Waiting to hear a voice.
+            *range(72, 80+1),  # Waiting for an old boat to pass alongside the shore.
+            *range(85, 99+1),
+            139, 140, 141, 142, 143,  # Waiting for guard to march away
+        ],
+        135: "read plaque",
+        262: "read book",
     }
 
 }

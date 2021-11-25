@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork III: http://ifdb.tads.org/viewgame?id=vrsot1zgy1wfcdru
 
-const zword zork3_special_ram_addrs[14] = {
+const zword zork3_special_ram_addrs[16] = {
   8081, // Old man awake
   7995, // Diving for amulet
   7973, // Wearing grue repellent
@@ -39,10 +39,14 @@ const zword zork3_special_ram_addrs[14] = {
   8380, // DM waiting
   8089, // Unlock door
   7956, // Find hiding spot
+  // 8145, // Press south wall to make it slide.
+  8165, // Room in a Puzzle
+  8111, // Press button in the Button Room.
+  // 8501, // Indicator cycling through I, II, III, and IV (In the Scenic Vista)
 };
 
 zword* zork3_ram_addrs(int *n) {
-    *n = 14;
+    *n = 16;
     return zork3_special_ram_addrs;
 }
 
