@@ -24,14 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork I: http://ifdb.tads.org/viewgame?id=0dbnusxunq7fw5ro
 
-const zword zork1_special_ram_addrs[3] = {
+const zword zork1_special_ram_addrs[5] = {
   2842, // Activated after 'read prayer' to dispel spirits; Alternative: 9108
   8856, // Activated by 'dig sand'
-  5657  // Tracks thief health
+  5657, // Tracks thief health
+  8898, // Press yellow buttom at the dam
+  8896, // Turn bolt with wrench at the dam
 };
 
 zword* zork1_ram_addrs(int *n) {
-    *n = 3;
+    *n = 5;
     return zork1_special_ram_addrs;
 }
 

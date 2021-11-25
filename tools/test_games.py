@@ -539,6 +539,11 @@ SKIP_CHECK_STATE = {
         49: "ask male about daddy",
         50: "ask female about male",
         51: "ask female about bar",
+    },
+    "zork1.z5": {
+        56: "read book",
+        214: "read label",  # FROBOZZ MAGIC BOAT COMPANY
+
     }
 
 }
