@@ -529,6 +529,16 @@ SKIP_CHECK_STATE = {
         60: "n",  # When you feel you're ready to challenge Gus again you can CLIMB ON STAGE.
         68: "n",  # When you feel you're ready to challenge Gus again you can CLIMB ON STAGE.
         88: "put coin in jukebox",  # Not needed.
+    },
+    "zenon.z5": {
+        44: "n",  # cannot pass without proper paperwork!
+        45: "ask male about female",
+        46: "ask male about work",
+        47: "ask male about officer",
+        48: "ask male about invitation",
+        49: "ask male about daddy",
+        50: "ask female about male",
+        51: "ask female about bar",
     }
 
 }
