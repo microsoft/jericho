@@ -543,7 +543,9 @@ SKIP_CHECK_STATE = {
     "zork1.z5": {
         56: "read book",
         214: "read label",  # FROBOZZ MAGIC BOAT COMPANY
-
+    },
+    "zork2.z5": {
+        "wait": [167, 168, 169, 238, 239]  # Needed to time the actions.
     }
 
 }

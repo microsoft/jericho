@@ -24,12 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork II: http://ifdb.tads.org/viewgame?id=yzzm4puxyjakk8c4
 
-const zword zork2_special_ram_addrs[1] = {
-  9346, // Say float
+const zword zork2_special_ram_addrs[5] = {
+  9354, // Point at menhir and say "float"
+  9024, // Unlock door to the Dreary Room
+  8970, // Unlock door to the Wizard's Workshop
+  8996, // Lure dragon to the Ice Room (hit dragon and move)
+  9414, // Wait in the Gazebo with the princess to lure Shyly the unicorn.
 };
 
 zword* zork2_ram_addrs(int *n) {
-    *n = 1;
+    *n = 5;
     return zork2_special_ram_addrs;
 }
 
