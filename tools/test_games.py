@@ -522,7 +522,15 @@ SKIP_CHECK_STATE = {
     },
     "wishbringer.z3": {
         38: "wait",  # Waiting for the curtain to open.
+    },
+    "yomomma.z8": {
+        "talk to sleaze": [24, 25, 26, 27],
+        54: "put coin in jukebox",  # Not needed.
+        60: "n",  # When you feel you're ready to challenge Gus again you can CLIMB ON STAGE.
+        68: "n",  # When you feel you're ready to challenge Gus again you can CLIMB ON STAGE.
+        88: "put coin in jukebox",  # Not needed.
     }
+
 }
 
 
