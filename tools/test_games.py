@@ -461,6 +461,50 @@ SKIP_CHECK_STATE = {
         331: "ask belboz about figure",
         368: "read vellum scroll",  # empty
     },
+    "spirit.z5": {
+        "noop": ["z"],
+        5: "read note",
+        15: "read prayer",
+        31: "read diary",
+        35: "read page",
+        38: "read journal",
+        44: "read faded",
+        55: "read scriptures",
+        56: "consult scriptures about planes",
+        63: "read paper",
+        156: "read notice",
+        184: "read ledger",
+        185: "read subway",
+        188: "ask governor about key",
+        204: "read news in newspaper",
+        206: "read features in newspaper",
+        210: "z",  # Waiting for the train.
+        251: "read cracked",
+        270: "ask delbin about ale",
+        271: "ask morgan about dragon",
+        298: "z",  # Waiting for the doors to close.
+        300: "z",  # Waiting for the train to stop.
+        316: "read history book",
+        350: "w",  # Some strange invisible force stops you
+        359: "read journal",
+        361: "read research paper",
+        "z": [
+            *range(373, 378+1),  # In the train.
+            *range(380, 385+1),  # In the train.
+        ],
+        397: "read journal",
+        408: "read sign",
+        432: "read map",
+        506: "ask skier about scroll",
+        531: "gnusto bekdab",  # First attempt fails.
+        579: "read memo",
+        624: "read sign",
+        651: "ask delbin about minirva",
+        756: "read sign",
+        1065: "read ripped",
+        1109: "read scrawled",
+        1120: "read blackened",
+    },
     "temple.z5": {
         32: "ask charles about temple",
         77: "ask charles about chest",
@@ -559,8 +603,8 @@ SKIP_CHECK_STATE = {
         ],
         135: "read plaque",
         262: "read book",
-    }
-
+    },
+    "ztuu.z5": {}
 }
 
 
@@ -572,12 +616,15 @@ def test_walkthrough(env, walkthrough):
     if not env.victory():
         msg = "FAIL\tScore {}/{}".format(info["score"], env.get_max_score())
         print(colored(msg, 'red'))
+        return False
     elif info["score"] != env.get_max_score():
         msg = "FAIL\tDone but score {}/{}".format(info["score"], env.get_max_score())
         print(colored(msg, 'yellow'))
+        return False
     else:
         msg = "PASS\tScore {}/{}".format(info["score"], env.get_max_score())
         print(colored(msg, 'green'))
+        return True
 
 
 def parse_args():
@@ -740,16 +787,24 @@ for filename in sorted(args.filenames):
                             print(colored(f"{o1}\n{o2}", "red"))
 
                     print(f"Testing walkthrough without '{cmd}'...")
-                    test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
+                    alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
                     print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
-                    test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with '0'...")
-                    test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
-                    test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
+                    alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
+                    # print(f"Testing walkthrough replacing '{cmd}' with '0'...")
+                    # test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
+                    # print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
+                    # test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
                     print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
-                    test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+                    alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+
+                    # if alt1 or alt2 or alt3:
+                    #     print(f"$$$ {i}: \"{cmd}\"")
+                    # else:
+                    #     breakpoint()
+                    #     pass
+
                     breakpoint()
+
             # else:
             #     world_diff = env._get_world_diff()
             #     if len(world_diff[-1]) > 1:
