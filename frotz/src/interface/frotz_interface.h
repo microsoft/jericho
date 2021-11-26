@@ -39,7 +39,7 @@ extern char* setup(char *story_file, int seed, void* rom, size_t rom_size);
 
 extern void shutdown();
 
-extern char* step(char *next_action);
+extern char* jericho_step(char *next_action);
 
 extern int save(char *filename);
 
@@ -51,7 +51,8 @@ extern int getRAMSize();
 
 extern void getRAM(unsigned char *ram);
 
-int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array);
+// int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array);
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes);
 
 extern char world[256 + 8192];
 

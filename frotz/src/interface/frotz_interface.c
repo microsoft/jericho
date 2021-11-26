@@ -92,8 +92,6 @@ zobject* new_objs = NULL;
 int ram_diff_cnt;
 zword ram_diff_addr[16];
 zword ram_diff_value[16];
-//char last_state_hash[64];
-//char current_state_hash[64];
 bool state_has_changed = FALSE;
 
 
@@ -187,7 +185,7 @@ enum SUPPORTED {
 
 // Set ROM_IDX according to the story_file.
 void load_rom_bindings(char *story_file) {
-  char md5_hash[64];
+  char md5_hash[32];
   char *start;
 
   FILE * f = fopen (story_file, "r");
@@ -332,6 +330,14 @@ void shutdown() {
   if (special_ram_values != NULL) {
     free(special_ram_values);
     special_ram_values = NULL;
+  }
+  if (new_objs != NULL) {
+    free(new_objs);
+    new_objs = NULL;
+  }
+  if (old_objs != NULL) {
+    free(old_objs);
+    old_objs = NULL;
   }
 }
 
@@ -1568,10 +1574,6 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
     run_free();
   }
 
-  // Initialize last and current state hashes.
-  // get_world_state_hash(last_state_hash);
-  // get_world_state_hash(current_state_hash);
-
   // Concatenate upper and lower screens.
   strcat(world, dumb_get_lower_screen());
   strcat(world, dumb_get_upper_screen());
@@ -1583,23 +1585,15 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   return world;
 }
 
-char* step(char *next_action) {
-  char* text;
-  char last_state_hash[64];
-  char current_state_hash[64];
-
+char* jericho_step(char *next_action) {
   if (emulator_halted > 0)
     return halted_message;
-
-  // get_world_state_hash(last_state_hash);
 
   // Swap old_objs and new_objs.
   zobject* tmp;
   tmp = old_objs;
   old_objs = new_objs;
   new_objs = tmp;
-
-  // printf("%x, %x\n", old_objs, new_objs);
 
   // Clear the object, attr, and ram diffs
   move_diff_cnt = 0;
@@ -1617,20 +1611,7 @@ char* step(char *next_action) {
 
   // Check for changes to special ram
   update_ram_diff();
-  //get_world_state_hash(current_state_hash);
-
   update_objs_tracker();
-  // // memset(new_objs, 0, (get_num_world_objs() + 1) * sizeof(zobject));
-  // get_world_objects(new_objs, TRUE);
-
-  // // For a more robust state hash, do not include siblings and children
-  // // since their ordering in memory may change.
-  // for (int i=1; i<=get_num_world_objs(); ++i) {
-  //   new_objs[i].sibling = 0;
-  //   new_objs[i].child = 0;
-  // }
-
-  //state_has_changed = strcmp(current_state_hash, last_state_hash) != 0;
   state_has_changed = memcmp(old_objs, new_objs, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
   // printf("%s =(%d)= %s <== %s", current_state_hash, state_has_changed, last_state_hash, next_action);
 
@@ -1715,33 +1696,7 @@ char* get_current_state() {
 // Returns 1 if the last action changed the state of the world.
 int world_changed() {
   int objs_has_changed = state_has_changed;
-  //return state_has_changed;
 
-  // int i;
-  // for (i=0; i<move_diff_cnt; ++i) {
-  //   if (ignore_moved_obj(move_diff_objs[i], move_diff_dest[i])) {
-  //     continue;
-  //   }
-  //   return 1;
-  // }
-  // for (i=0; i<attr_diff_cnt; ++i) {
-  //   if (ignore_attr_diff(attr_diff_objs[i], attr_diff_nb[i])) {
-  //     continue;
-  //   }
-  //   return 1;
-  // }
-  // for (i=0; i<attr_clr_cnt; ++i) {
-  //   if (ignore_attr_clr(attr_clr_objs[i], attr_clr_nb[i])) {
-  //     continue;
-  //   }
-  //   return 1;
-  // }
-  // for (i=0; i<prop_put_cnt; ++i) {
-  //   // if (ignore_prop_put(prop_put_objs[i], prop_put_nb[i])) {
-  //   //   continue;
-  //   // }
-  //   return 1;
-  // }
   if (game_over() > 0 || victory() > 0) {
     return 1;
   }
@@ -1765,10 +1720,6 @@ void get_object(zobject *obj, zword obj_num) {
   zword obj_name_addr = object_name(obj_num);
   zbyte length;
   LOW_BYTE(obj_name_addr, length);
-
-  // if (length <= 0 || length > 64) {
-  //  return;
-  // }
 
   (*obj).num = obj_num;
 
@@ -1985,7 +1936,6 @@ void get_world_state_hash(char* md5_hash) {
 
   int n_objs = get_num_world_objs() + 1; // Add extra spot for zero'th object
   size_t objs_size = n_objs * sizeof(zobject);
-  zobject* objs = calloc(n_objs, sizeof(zobject));
 
   size_t ram_size = get_special_ram_size() * sizeof(unsigned char);
   unsigned char* ram = malloc(ram_size);
@@ -1993,36 +1943,11 @@ void get_world_state_hash(char* md5_hash) {
 
   int retPC = getRetPC();
 
-  get_world_objects(objs, TRUE);
-
-  // For a more robust state hash, do not include siblings and children
-  // since their ordering in memory may change.
-  for (int i=1; i<=get_num_world_objs(); ++i) {
-    objs[i].sibling = 0;
-    objs[i].child = 0;
-  }
-
-  // Debug print.
-  // printf("\n--Start-\n");
-  // for (int k=0; k != n_objs; ++k) {
-  //   print_object2(&objs[k]);
-  // }
-  // printf("\n--End-\n");
-
-  // char temp_md5_hash[64];
-  // FILE* tmp_fp = fmemopen(objs, objs_size, "rb");
-  // sum(tmp_fp, temp_md5_hash);
-  // fclose(tmp_fp);
-  // printf("temp_md5_hash: %s", temp_md5_hash);
-
   size_t state_size = objs_size + ram_size + sizeof(int);
   char* state = malloc(state_size);
-  memcpy(state, objs, objs_size);
+  memcpy(state, new_objs, objs_size);
   memcpy(&state[objs_size], ram, ram_size);
   memcpy(&state[objs_size+ram_size], &retPC, sizeof(int));
-
-  // int chk = checksum(state, state_size);
-  // sprintf(md5_hash, "%2X", chk);
 
   FILE* fp = fmemopen(state, state_size, "rb");
   sum(fp, md5_hash);
@@ -2030,9 +1955,7 @@ void get_world_state_hash(char* md5_hash) {
 
   // printf("md5 (objs): %s\n", md5_hash);
 
-  free(objs);
   free(state);
-  return 0;
 }
 
 // Teleports an object (and all children) to the desired destination
@@ -2063,9 +1986,10 @@ void test() {
 // candidate_actions contains a string with all the candidate actions, seperated by ';'
 // valid_actions will be written with each of the identified valid actions seperated by ';'
 // diff_array will be written with the world_diff for each valid_action indicating
-// which of the valid actions are equivalent to each other in terms of their world diffs.
+// which of the valid actions are equivalent to each other in terms of their state hashes.
 // Returns the number of valid actions found.
-int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array) {
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes) {
+
   char *act = NULL;
   char *act_newline = NULL;
   char *text;
@@ -2106,22 +2030,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
     act_newline = malloc(strlen(act) + 2);
     strcpy(act_newline, act);
     strcat(act_newline, "\n");
-
-    // Step: Code is copied due to inexplicable segfault when calling step() directly; Ugh!
-    move_diff_cnt = 0;
-    attr_diff_cnt = 0;
-    attr_clr_cnt = 0;
-    prop_put_cnt = 0;
-    ram_diff_cnt = 0;
-    update_special_ram();
-    dumb_set_next_action(act_newline);
-    zstep();
-    run_free();
-    update_ram_diff();
-    text = dumb_get_screen();
-    text = clean_observation(text);
-    strcpy(world, text);
-    dumb_clear_screen();
+    text = jericho_step(act_newline);
 
     if (emulator_halted > 0) {
       printf("Emulator halted on action: %s\n", act);
@@ -2137,7 +2046,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
         valid_actions[v_idx++] = ';';
 
         // Write the world diff resulting from the last action.
-        get_cleaned_world_diff(&diff_array[128*valid_cnt], &diff_array[(128*valid_cnt) + 64]);  // TODO: replace 128
+        get_world_state_hash(&hashes[32*valid_cnt]);
         valid_cnt++;
       }
     }
@@ -2151,6 +2060,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
     setFP(fp_cpy);
     set_opcode(next_opcode_cpy);
     setFrameCount(frame_count_cpy);
+    update_objs_tracker();
 
     act = strtok(NULL, ";");
     free(act_newline);

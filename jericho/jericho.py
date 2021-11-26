@@ -241,8 +241,8 @@ def _load_frotz_lib():
     frotz_lib.setup.restype = c_char_p
     frotz_lib.shutdown.argtypes = []
     frotz_lib.shutdown.restype = None
-    frotz_lib.step.argtypes = [c_char_p]
-    frotz_lib.step.restype = c_char_p
+    frotz_lib.jericho_step.argtypes = [c_char_p]
+    frotz_lib.jericho_step.restype = c_char_p
     frotz_lib.save.argtypes = [c_char_p]
     frotz_lib.save.restype = int
     frotz_lib.restore.argtypes = [c_char_p]
@@ -515,7 +515,7 @@ class FrotzEnv():
             warnings.warn(msg, TruncatedInputActionWarning)
 
         old_score = self.frotz_lib.get_score()
-        next_state = self.frotz_lib.step(action_bytes + b'\n').decode('cp1252')
+        next_state = self.frotz_lib.jericho_step(action_bytes + b'\n').decode('cp1252')
         score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self.game_over() or self.victory()),\
@@ -782,7 +782,7 @@ class FrotzEnv():
         '79c750fff4368efef349b02ff50ffc23'
 
         """
-        md5_hash = np.zeros(64, dtype=np.uint8)
+        md5_hash = np.zeros(32, dtype=np.uint8)
         self.frotz_lib.get_world_state_hash(as_ctypes(md5_hash))
         md5_hash = (b"").join(md5_hash.view(c_char)).decode('cp1252')
         return md5_hash
@@ -1051,20 +1051,18 @@ class FrotzEnv():
             candidate_str = (";".join(candidate_actions)).encode('utf-8')
             valid_str = (' '*(len(candidate_str)+1)).encode('utf-8')
 
-            DIFF_SIZE = 128
-            diff_array = np.zeros(len(candidate_actions) * DIFF_SIZE, dtype=np.uint16)
+            hashes = np.zeros(len(candidate_actions), dtype='S32')
             valid_cnt = self.frotz_lib.filter_candidate_actions(
                 candidate_str,
                 valid_str,
-                as_ctypes(diff_array)
+                as_ctypes(hashes.view(np.uint8))
             )
             if self._emulator_halted():
                 self.reset()
 
             valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
             for i in range(valid_cnt):
-                diff = tuple(diff_array[i*DIFF_SIZE:(i+1)*DIFF_SIZE])
-                diff2acts[diff].append(valid_acts[i])
+                diff2acts[hashes[i]].append(valid_acts[i])
 
         else:
             orig_score = self.get_score()
