@@ -74,7 +74,7 @@ int dragon_get_moves() {
 }
 
 short dragon_get_score() {
-  return (char) zmp[13451]; // 13475, 13477
+  return (((short) zmp[13450]) << 8) | zmp[13451]; // 13475, 13477
 }
 
 int dragon_max_score() {
