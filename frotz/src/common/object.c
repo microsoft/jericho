@@ -34,19 +34,6 @@
 #define O4_PROPERTY_OFFSET 12
 #define O4_SIZE 14
 
-int move_diff_cnt;
-zword move_diff_objs[MOVE_DIFF_CNT];
-zword move_diff_dest[MOVE_DIFF_CNT];
-int attr_diff_cnt;
-zword attr_diff_objs[ATTR_SET_CNT];
-zword attr_diff_nb[ATTR_SET_CNT];
-int attr_clr_cnt;
-zword attr_clr_objs[ATTR_CLR_CNT];
-zword attr_clr_nb[ATTR_CLR_CNT];
-int prop_put_cnt;
-zword prop_put_objs[PROP_PUT_CNT];
-zword prop_put_nb[PROP_PUT_CNT];
-
 /*
  * object_address
  *
@@ -453,14 +440,6 @@ void z_clear_attr (void)
 
     if (zargs[1] > ((h_version <= V3) ? 31 : 47))
 	runtime_error (ERR_ILL_ATTR);
-
-    /* If we are monitoring attribute assignment display a short note */
-
-    if (attr_clr_cnt < ATTR_CLR_CNT) {
-      attr_clr_objs[attr_clr_cnt] = zargs[0];
-      attr_clr_nb[attr_clr_cnt] = zargs[1];
-      attr_clr_cnt++;
-    }
 
     if (f_setup.attribute_assignment) {
 	stream_mssg_on ();
@@ -1066,14 +1045,6 @@ void z_insert_obj (void)
     zword obj1_addr;
     zword obj2_addr;
 
-    /* If we are monitoring object movements display a short note */
-
-    if (move_diff_cnt < MOVE_DIFF_CNT) {
-      move_diff_objs[move_diff_cnt] = obj1;
-      move_diff_dest[move_diff_cnt] = obj2;
-      move_diff_cnt++;
-    }
-
     if (f_setup.object_movement) {
 	stream_mssg_on ();
 	print_string ("@move_obj ");
@@ -1186,12 +1157,6 @@ void z_put_prop (void)
 	SET_WORD (prop_addr, v)
     }
 
-    if (prop_put_cnt < PROP_PUT_CNT) {
-      prop_put_objs[prop_put_cnt] = zargs[0];
-      prop_put_nb[prop_put_cnt] = zargs[1];
-      prop_put_cnt++;
-    }
-
 }/* z_put_prop */
 
 
@@ -1203,13 +1168,6 @@ void z_put_prop (void)
  */
 void z_remove_obj (void)
 {
-
-    /* If we are monitoring object movements display a short note */
-    if (move_diff_cnt < 16) {
-      move_diff_objs[move_diff_cnt] = zargs[0];
-      move_diff_dest[move_diff_cnt] = (zword) 0;
-      move_diff_cnt++;
-    }
 
     if (f_setup.object_movement) {
 	stream_mssg_on ();
@@ -1243,14 +1201,6 @@ void z_set_attr (void)
 
     if (zargs[1] > ((h_version <= V3) ? 31 : 47))
 	runtime_error (ERR_ILL_ATTR);
-
-    /* If we are monitoring attribute assignment display a short note */
-
-    if (attr_diff_cnt < ATTR_SET_CNT) {
-      attr_diff_objs[attr_diff_cnt] = zargs[0];
-      attr_diff_nb[attr_diff_cnt] = zargs[1];
-      attr_diff_cnt++;
-    }
 
     if (f_setup.attribute_assignment) {
 	stream_mssg_on ();

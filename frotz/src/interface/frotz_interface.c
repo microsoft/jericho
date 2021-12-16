@@ -59,7 +59,7 @@ extern void insert_tree(zword obj1, zword obj2);
 extern void insert_obj(zword obj1, zword obj2);
 extern void seed_random (int value);
 extern void set_random_seed (int seed);
-// extern void sum(FILE*, char*);
+extern void sum(FILE*, char*);
 extern void dumb_free();
 
 extern zword first_property (zword);
@@ -81,18 +81,17 @@ char world[256 + 8192] = "";  // Upper + lower screens.
 
 int emulator_halted = 0;
 char halted_message[] = "Emulator halted due to runtime error.\n";
-// Track the addresses and values of special per-game ram locations.
-int num_special_addrs = 0;
-zword *special_ram_addrs = NULL;
-zbyte *special_ram_values = NULL;
 
-zobject* old_objs = NULL;
-zobject* new_objs = NULL;
+// Track the objects.
+zobject* prev_objs_state = NULL;
+zobject* curr_objs_state = NULL;
 
-int ram_diff_cnt;
-zword ram_diff_addr[16];
-zword ram_diff_value[16];
-bool state_has_changed = FALSE;
+// Track the value of special per-game ram locations.
+zbyte* prev_special_ram = NULL;
+zbyte* curr_special_ram = NULL;
+
+bool objects_state_changed = FALSE;
+bool special_ram_changed = FALSE;
 
 
 // Runs a single opcode on the Z-Machine
@@ -327,18 +326,11 @@ void shutdown() {
   reset_memory();
   dumb_free();
   free_setup();
-  if (special_ram_values != NULL) {
-    free(special_ram_values);
-    special_ram_values = NULL;
-  }
-  if (new_objs != NULL) {
-    free(new_objs);
-    new_objs = NULL;
-  }
-  if (old_objs != NULL) {
-    free(old_objs);
-    old_objs = NULL;
-  }
+
+  free(prev_objs_state); prev_objs_state = NULL;
+  free(curr_objs_state); curr_objs_state = NULL;
+  free(prev_special_ram); prev_special_ram = NULL;
+  free(curr_special_ram); curr_special_ram = NULL;
 }
 
 // Save the state of the game into a string buffer
@@ -1408,18 +1400,6 @@ int halted() {
   return emulator_halted;
 }
 
-int ignore_moved_obj(zword obj_num, zword dest_num) {
-  return (*ignore_moved_obj_fns[ROM_IDX])(obj_num, dest_num);
-}
-
-int ignore_attr_diff(zword obj_num, zword dest_num) {
-  return (*ignore_attr_diff_fns[ROM_IDX])(obj_num, dest_num);
-}
-
-int ignore_attr_clr(zword obj_num, zword dest_num) {
-  return (*ignore_attr_clr_fns[ROM_IDX])(obj_num, dest_num);
-}
-
 void clean_world_objs(zobject* objs) {
   return (*clean_world_objs_fns[ROM_IDX])(objs);
 }
@@ -1450,70 +1430,67 @@ void take_intro_actions() {
 
 // Returns the number of special ram addresses
 int get_special_ram_size() {
+  int num_special_addrs;
+  get_ram_addrs(&num_special_addrs);
   return num_special_addrs;
 }
 
 // Returns the current values of the special ram addresses
-void get_special_ram(unsigned char *ram) {
-  int i;
-  for (i=0; i<num_special_addrs; ++i) {
+void get_special_ram(zword *ram) {
+  int num_special_addrs;
+  zword* special_ram_addrs = get_ram_addrs(&num_special_addrs);
+  for (int i=0; i<num_special_addrs; ++i) {
     ram[i] = zmp[special_ram_addrs[i]];
   }
 }
 
-// Create memory used to hold the special ram values
-void init_special_ram() {
-  special_ram_addrs = get_ram_addrs(&num_special_addrs);
-  if (special_ram_values != NULL) {
-    free(special_ram_values);
-  }
-  if (num_special_addrs > 0) {
-    special_ram_values = (zbyte*) malloc(num_special_addrs * sizeof(zbyte));
-  }
-
-  // Init objs.
-  if (old_objs != NULL) free(old_objs);
-  if (new_objs != NULL) free(new_objs);
-
-  old_objs = calloc(get_num_world_objs() + 1, sizeof(zobject));
-  new_objs = calloc(get_num_world_objs() + 1, sizeof(zobject));
+// Create memory used to hold the special ram values.
+void init_special_ram_tracker() {
+  free(prev_special_ram); prev_special_ram = NULL;
+  free(curr_special_ram); curr_special_ram = NULL;
+  prev_special_ram = malloc(get_special_ram_size() * sizeof(zbyte));
+  curr_special_ram = malloc(get_special_ram_size() * sizeof(zbyte));
 }
+
+// Create memory used to hold the objects' state.
+void init_objects_tracker() {
+  free(prev_objs_state); prev_objs_state = NULL;
+  free(curr_objs_state); curr_objs_state = NULL;
+  prev_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
+  curr_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
+}
+
+// // Records changes to the special ram addresses and updates their values.
+// void update_ram_diff() {
+//   int i;
+//   zbyte curr_ram_value;
+//   zword addr;
+//   for (i=0; i<num_special_addrs; ++i) {
+//     addr = special_ram_addrs[i];
+//     curr_ram_value = zmp[addr];
+//     if (curr_ram_value != special_ram_values[i]) {
+//       // Record the difference in global ram_diff_addr / ram_diff_value
+//       ram_diff_addr[ram_diff_cnt] = addr;
+//       ram_diff_value[ram_diff_cnt] = (zword) curr_ram_value;
+//       ram_diff_cnt++;
+//     }
+//   }
+// }
 
 // Updates the special ram values to reflect the current memory
-void update_special_ram() {
-  int i;
-  for (i=0; i<num_special_addrs; ++i) {
-    special_ram_values[i] = zmp[special_ram_addrs[i]];
-  }
-}
-
-// Records changes to the special ram addresses and updates their values.
-void update_ram_diff() {
-  int i;
-  zbyte curr_ram_value;
-  zword addr;
-  for (i=0; i<num_special_addrs; ++i) {
-    addr = special_ram_addrs[i];
-    curr_ram_value = zmp[addr];
-    if (curr_ram_value != special_ram_values[i]) {
-      // Record the difference in global ram_diff_addr / ram_diff_value
-      ram_diff_addr[ram_diff_cnt] = addr;
-      ram_diff_value[ram_diff_cnt] = (zword) curr_ram_value;
-      ram_diff_cnt++;
-    }
-  }
+void update_special_ram_tracker() {
+  get_special_ram(curr_special_ram);
 }
 
 // Updates the objects list, used for tracking state changes, to reflect the current memory
 void update_objs_tracker() {
-
-  get_world_objects(new_objs, TRUE);
+  get_world_objects(curr_objs_state, TRUE);
 
   // For a more robust state hash, do not include siblings and children
   // since their ordering in memory may change.
   for (int i=1; i<=get_num_world_objs(); ++i) {
-    new_objs[i].sibling = 0;
-    new_objs[i].child = 0;
+    curr_objs_state[i].sibling = 0;
+    curr_objs_state[i].child = 0;
   }
 }
 
@@ -1545,7 +1522,8 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
 
   world[0] = '\0';  // Clear lower screen buffer.
   take_intro_actions();
-  init_special_ram();
+  init_special_ram_tracker();
+  init_objects_tracker();
 
   // Extra procedures for TextWorld
   if (ROM_IDX == TEXTWORLD_) {
@@ -1589,19 +1567,21 @@ char* jericho_step(char *next_action) {
   if (emulator_halted > 0)
     return halted_message;
 
-  // Swap old_objs and new_objs.
-  zobject* tmp;
-  tmp = old_objs;
-  old_objs = new_objs;
-  new_objs = tmp;
+  // Swap prev_objs_state and curr_objs_state.
+  zobject* tmp_objs_state;
+  tmp_objs_state = prev_objs_state;
+  prev_objs_state = curr_objs_state;
+  curr_objs_state = tmp_objs_state;
+
+  // Swap prev_special_ram and curr_special_ram.
+  zword* tmp_special_ram;
+  tmp_special_ram = prev_special_ram;
+  prev_special_ram = curr_special_ram;
+  curr_special_ram = tmp_special_ram;
 
   // Clear the object, attr, and ram diffs
-  move_diff_cnt = 0;
-  attr_diff_cnt = 0;
-  attr_clr_cnt = 0;
-  prop_put_cnt = 0;
-  ram_diff_cnt = 0;
-  update_special_ram();
+  // ram_diff_cnt = 0;
+  //update_special_ram();
   last_ret_pc = getRetPC();
 
   dumb_set_next_action(next_action);
@@ -1610,10 +1590,12 @@ char* jericho_step(char *next_action) {
   run_free();
 
   // Check for changes to special ram
-  update_ram_diff();
+  //update_ram_diff();
   update_objs_tracker();
-  state_has_changed = memcmp(old_objs, new_objs, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
-  // printf("%s =(%d)= %s <== %s", current_state_hash, state_has_changed, last_state_hash, next_action);
+  update_special_ram_tracker();
+
+  objects_state_changed = memcmp(prev_objs_state, curr_objs_state, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
+  special_ram_changed = memcmp(prev_special_ram, curr_special_ram, get_special_ram_size() * sizeof(zword)) != 0;
 
   // Retrieve and concatenate upper and lower screens.
   strcpy(world, dumb_get_lower_screen());
@@ -1633,60 +1615,20 @@ void set_narrative_text(char* text) {
   strcpy(world, text);
 }
 
-bool get_state_changed() {
-  return state_has_changed;
+bool get_objects_state_changed() {
+  return objects_state_changed;
 }
 
-void set_state_changed(bool value) {
-  state_has_changed = value;
+void set_objects_state_changed(bool value) {
+  objects_state_changed = value;
 }
 
-// Returns a world diff that ignores selected objects
-// objs and dest are a 64-length pre-zeroed arrays.
-void get_cleaned_world_diff(zword *objs, zword *dest) {
-  int i;
-  int j = 0;
-  for (i=0; i<move_diff_cnt; ++i) {
-    if (ignore_moved_obj(move_diff_objs[i], move_diff_dest[i])) {
-      continue;
-    }
-    objs[j] = move_diff_objs[i];
-    dest[j] = move_diff_dest[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<attr_diff_cnt; ++i) {
-    if (ignore_attr_diff(attr_diff_objs[i], attr_diff_nb[i])) {
-      continue;
-    }
-    objs[MOVE_DIFF_CNT+j] = attr_diff_objs[i];
-    dest[MOVE_DIFF_CNT+j] = attr_diff_nb[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<attr_clr_cnt; ++i) {
-    if (ignore_attr_clr(attr_clr_objs[i], attr_clr_nb[i])) {
-      continue;
-    }
-    objs[MOVE_DIFF_CNT+ATTR_SET_CNT+j] = attr_clr_objs[i];
-    dest[MOVE_DIFF_CNT+ATTR_SET_CNT+j] = attr_clr_nb[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<prop_put_cnt; ++i) {
-    //if (ignore_prop_put(prop_put_objs[i], prop_put_nb[i])) {
-    //  continue;
-    //}
-    objs[MOVE_DIFF_CNT+ATTR_SET_CNT+ATTR_CLR_CNT+j] = prop_put_objs[i];
-    dest[MOVE_DIFF_CNT+ATTR_SET_CNT+ATTR_CLR_CNT+j] = prop_put_nb[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<ram_diff_cnt; ++i) {
-    objs[MOVE_DIFF_CNT+ATTR_SET_CNT+ATTR_CLR_CNT+PROP_PUT_CNT+j] = ram_diff_addr[i];
-    dest[MOVE_DIFF_CNT+ATTR_SET_CNT+ATTR_CLR_CNT+PROP_PUT_CNT+j] = ram_diff_value[i];
-    j++;
-  }
+bool get_special_ram_changed() {
+  return special_ram_changed;
+}
+
+void set_special_ram_changed(bool value) {
+  special_ram_changed = value;
 }
 
 char* get_current_state() {
@@ -1695,17 +1637,15 @@ char* get_current_state() {
 
 // Returns 1 if the last action changed the state of the world.
 int world_changed() {
-  int objs_has_changed = state_has_changed;
-
   if (game_over() > 0 || victory() > 0) {
     return 1;
   }
 
-  if (ram_diff_cnt > 0) {
-    return 1;
-  }
+  // if (ram_diff_cnt > 0) {
+  //   return 1;
+  // }
 
-  return objs_has_changed || last_ret_pc != getRetPC();
+  return objects_state_changed || special_ram_changed || last_ret_pc != getRetPC();
 }
 
 
@@ -1734,7 +1674,6 @@ void get_object(zobject *obj, zword obj_num) {
     memcpy(&(*obj).name, buf, 64);  // Crop the name to the first 64 characters.
     free(buf);
   }
-
 
   (*obj).parent = get_parent(obj_num);
   (*obj).sibling = get_sibling(obj_num);
@@ -1831,7 +1770,10 @@ void get_world_objects(zobject *objs, int clean) {
   (byte & 0x02 ? '1' : '0'), \
   (byte & 0x01 ? '1' : '0')
 
-void print_object2(zobject* obj) {
+// Print all information related to a given object.
+// Useful for debugging.
+void print_zobject(zobject* obj) {
+  //
   printf("Obj%d: %s Parent%d Sibling%d Child%d", obj->num, obj->name, obj->parent, obj->sibling, obj->child);
 
   printf(" Attributes [");
@@ -1846,114 +1788,27 @@ void print_object2(zobject* obj) {
   }
 
   printf("]\n");
-
-
-  //printf("Obj%d: %s Parent%d Sibling%d Child%d Attributes %s Properties %s\n", obj->num, obj->name, obj->parent, obj->sibling, obj->child, obj->attr, obj->properties);
-  // ""\
-  //           .format(self.num, self.name, self.parent, self.sibling, self.child,
-  //                   np.nonzero(self.attr)[0].tolist(), [p for p in self.properties if p != 0])
-
-  // typedef struct {
-  //   unsigned int num;
-  //   char name[64];
-  //   int parent;
-  //   int sibling;
-  //   int child;
-  //   char attr[4];
-  //   unsigned char properties[16];
-  // }
   }
-
-
-int checksum(char* str, int len) {
-  int i;
-  int chk = 0x12345678;
-
-  for (i = 0; i != len; i++) {
-    chk += ((int)(str[i]) * (i + 1));
-  }
-
-  return chk;
-}
 
 void get_world_state_hash(char* md5_hash) {
-  // zobject* obj = calloc(1, sizeof(zobject));
-
-  // byte digest[16];
-  // byte *buf = calloc(1152, 1);
-  // // byte digest[16];
-  // // int i, n;
-  // MD5state *s = nil;
-
-  // for (int i=1; i<=get_num_world_objs(); ++i) {
-  //   get_object(obj, (zword) i);
-  //   // TODO: call clean_obj function.
-  //   obj->sibling = 0;
-  //   obj->child = 0;
-
-  //   //memcpy(buf, obj, sizeof(zobject));
-  //   s = md5(buf, 1152, 0, s);
-  // }
-  // return 0;
-
-  // s = md5(buf, 0, digest, s);
-
-  // for(int j=0;j<16;j++) {
-  //   sprintf(&md5_hash[2*j], "%.2X", digest[j]);
-  // }
-  //printf("md5 (obj ): %s\n", md5_hash);
-
-    // for(i=0;i<16;i++) {
-    //   sprintf(&md5_hash[2*i], "%.2X", digest[i]);
-    // }
-
-    // // Compute MD5 hash.
-    // s = nil;
-    // n = 0;
-
-    // //buf = calloc(256,64);
-    // for (size_t i; i <= sizeof(zobject); i += 128*64) {
-    //   //i = fread(buf+n, 1, 128*64-n, fd);
-    //   if(i <= 0)
-    //     break;
-    //   n += i;
-    //   if(n & 0x3f)
-    //     continue;
-    //   s = md5(buf, n, 0, s);
-    //   n = 0;
-    // }
-    // md5(buf, n, digest, s);
-    //   for(i=0;i<16;i++) {
-    //     sprintf(&hash[2*i], "%.2X", digest[i]);
-    //   }
-    // free(buf);
-
-  // free(buf);
-  // free(obj);
-  // return 0;
-
-  ////
-
   int n_objs = get_num_world_objs() + 1; // Add extra spot for zero'th object
   size_t objs_size = n_objs * sizeof(zobject);
-
   size_t ram_size = get_special_ram_size() * sizeof(unsigned char);
-  unsigned char* ram = malloc(ram_size);
-  get_special_ram(ram);
 
   int retPC = getRetPC();
 
   size_t state_size = objs_size + ram_size + sizeof(int);
   char* state = malloc(state_size);
-  memcpy(state, new_objs, objs_size);
-  memcpy(&state[objs_size], ram, ram_size);
+
+  memcpy(state, curr_objs_state, objs_size);
+  memcpy(&state[objs_size], curr_special_ram, ram_size);
   memcpy(&state[objs_size+ram_size], &retPC, sizeof(int));
 
   FILE* fp = fmemopen(state, state_size, "rb");
   sum(fp, md5_hash);
   fclose(fp);
 
-  // printf("md5 (objs): %s\n", md5_hash);
+  // printf("md5 (objs): %s\n", md5_hash);  // For debugging.
 
   free(state);
 }
@@ -1969,23 +1824,10 @@ void teleport_tree(zword obj, zword dest) {
   insert_tree(obj, dest);
 }
 
-void test() {
-  int i;
-  for (i=0; i<move_diff_cnt; ++i) {
-    printf("Move Diff %d: %d --> %d\n", i, move_diff_objs[i], move_diff_dest[i]);
-  }
-  for (i=0; i<attr_diff_cnt; ++i) {
-    printf("Attr Diff %d: %d --> %d\n", i, attr_diff_objs[i], attr_diff_nb[i]);
-  }
-  for (i=0; i<attr_clr_cnt; ++i) {
-    printf("Attr Clr %d: %d --> %d\n", i, attr_clr_objs[i], attr_clr_nb[i]);
-  }
-}
-
 // Given a list of action candidates, find the ones that lead to valid world changes.
-// candidate_actions contains a string with all the candidate actions, seperated by ';'
-// valid_actions will be written with each of the identified valid actions seperated by ';'
-// diff_array will be written with the world_diff for each valid_action indicating
+// 'candidate_actions' contains a string with all the candidate actions, seperated by ';'
+// 'valid_actions' will be written with each of the identified valid actions seperated by ';'
+// 'hashes' will be written with the resulting state hashe for each valid action indicating
 // which of the valid actions are equivalent to each other in terms of their state hashes.
 // Returns the number of valid actions found.
 int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes) {
@@ -1993,35 +1835,28 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, char 
   char *act = NULL;
   char *act_newline = NULL;
   char *text;
-  short orig_score;
   int valid_cnt = 0;
   int v_idx = 0;
 
   // Variables used to store & reset game state
   unsigned char ram_cpy[h_dynamic_size];
   unsigned char stack_cpy[STACK_SIZE*sizeof(zword)];
-  int pc_cpy;
-  int sp_cpy;
-  int fp_cpy;
-  int next_opcode_cpy;
-  int frame_count_cpy;
-  long rngA_cpy;
-  int rngInterval_cpy;
-  int rngCounter_cpy;
 
   // Save the game state
   getRAM(ram_cpy);
   getStack(stack_cpy);
-  pc_cpy = getPC();
-  sp_cpy = getSP();
-  fp_cpy = getFP();
-  next_opcode_cpy = get_opcode();
-  frame_count_cpy = getFrameCount();
-  rngA_cpy = getRngA();
-  rngInterval_cpy = getRngInterval();
-  rngCounter_cpy = getRngCounter();
+  int pc_cpy = getPC();
+  int sp_cpy = getSP();
+  int fp_cpy = getFP();
+  int next_opcode_cpy = get_opcode();
+  int frame_count_cpy = getFrameCount();
+  long rngA_cpy = getRngA();
+  int rngInterval_cpy = getRngInterval();
+  int rngCounter_cpy = getRngCounter();
+  bool objects_state_changed_cpy = get_objects_state_changed();
+  bool special_ram_changed_cpy = get_special_ram_changed();
 
-  orig_score = get_score();
+  short orig_score = get_score();
 
   act = strtok(candidate_actions, ";");
   while (act != NULL)
@@ -2061,9 +1896,13 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, char 
     set_opcode(next_opcode_cpy);
     setFrameCount(frame_count_cpy);
     update_objs_tracker();
+    update_special_ram_tracker();
+    set_objects_state_changed(objects_state_changed_cpy);
+    set_special_ram_changed(special_ram_changed_cpy);
 
     act = strtok(NULL, ";");
     free(act_newline);
   }
+
   return valid_cnt;
 }

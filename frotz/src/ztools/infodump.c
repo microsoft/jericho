@@ -256,17 +256,6 @@ void print_verbs (const char *name)
     load_cache ();
     fix_dictionary ();
     show_verbs (0);
-    show_objects (0);
-    show_header();
-    close_story ();
-}
-
-void print_action_table (const char *name)
-{
-    open_story (name);
-    configure (V1, V8);
-    load_cache ();
-    fix_dictionary ();
     close_story ();
 }
 

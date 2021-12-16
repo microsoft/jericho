@@ -704,21 +704,11 @@ for filename in sorted(args.filenames):
                         skip = True
                         break
 
-                # world_diff = env_._get_world_diff()
-                # moved_objs, set_attrs, cleared_attrs, changed_props, _ = world_diff
-                # skip = False
-                # for obj in moved_objs + set_attrs + cleared_attrs + changed_props:
-                #     if obj[0] in SKIP_PRECHECK_STATE.get(rom, {}).get("ignore_objects", []):
-                #         skip = True
-                #         break
-
                 if skip:
                     break
 
                 if env_._world_changed():
                 # if last_hash != env_.get_world_state_hash():
-                    # env_objs = env.get_world_objects(clean=True)
-                    # env_objs_ = env_.get_world_objects(clean=True)
                     objs1 = env.get_world_objects(clean=False)
                     objs2 = env_.get_world_objects(clean=False)
 
@@ -804,28 +794,6 @@ for filename in sorted(args.filenames):
                     #     pass
 
                     breakpoint()
-
-            # else:
-            #     world_diff = env._get_world_diff()
-            #     if len(world_diff[-1]) > 1:
-            #         print(colored("Multiple special RAM addressed have been triggered!", 'yellow'))
-            #         print(f"RAM: {world_diff[-1]}")
-            #         breakpoint()
-
-            # else:
-            #     changed_objs = [(o1, o2) for o1, o2 in zip(env_objs_cleaned, last_env_objs_cleaned) if o1 != o2]
-
-            #     world_diff = env._get_world_diff()
-            #     if len(changed_objs) > 0 and len(world_diff[-1]) > 0:
-            #         print(colored("Special RAM address triggered as well as object modifications!", 'yellow'))
-            #         print(colored("Is the special RAM address really needed, then?", 'yellow'))
-            #         print(f"RAM: {world_diff[-1]}")
-            #         for o1, o2 in changed_objs:
-            #             print(o2)  # New
-            #             print(o1)  # Old
-
-            #         breakpoint()
-
 
     if not env.victory():
         print(colored("FAIL", 'red'))

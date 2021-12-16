@@ -271,8 +271,6 @@ def _load_frotz_lib():
     frotz_lib.get_world_state_hash.argtypes = []
     frotz_lib.get_world_state_hash.restype = int
 
-    frotz_lib.get_cleaned_world_diff.argtypes = [c_void_p, c_void_p]
-    frotz_lib.get_cleaned_world_diff.restype = None
     frotz_lib.game_over.argtypes = []
     frotz_lib.game_over.restype = int
     frotz_lib.victory.argtypes = []
@@ -298,10 +296,15 @@ def _load_frotz_lib():
     frotz_lib.set_narrative_text.argtypes = [c_char_p]
     frotz_lib.set_narrative_text.restype = None
 
-    frotz_lib.get_state_changed.argtypes = []
-    frotz_lib.get_state_changed.restype = int
-    frotz_lib.set_state_changed.argtypes = [c_int]
-    frotz_lib.set_state_changed.restype = None
+    frotz_lib.get_objects_state_changed.argtypes = []
+    frotz_lib.get_objects_state_changed.restype = int
+    frotz_lib.set_objects_state_changed.argtypes = [c_int]
+    frotz_lib.set_objects_state_changed.restype = None
+
+    frotz_lib.get_special_ram_changed.argtypes = []
+    frotz_lib.get_special_ram_changed.restype = int
+    frotz_lib.set_special_ram_changed.argtypes = [c_int]
+    frotz_lib.set_special_ram_changed.restype = None
 
     frotz_lib.getPC.argtypes = []
     frotz_lib.getPC.restype = int
@@ -366,6 +369,9 @@ def _load_frotz_lib():
 
     frotz_lib.update_objs_tracker.argtypes = []
     frotz_lib.update_objs_tracker.restype = None
+
+    frotz_lib.update_special_ram_tracker.argtypes = []
+    frotz_lib.update_special_ram_tracker.restype = None
 
     return frotz_lib
 
@@ -519,7 +525,7 @@ class FrotzEnv():
         score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self.game_over() or self.victory()),\
-            {'moves':self.get_moves(), 'score':score, 'victory': self.victory()}
+            {'moves':self.get_moves(), 'score':score}
 
     def close(self):
         ''' Cleans up the FrotzEnv, freeing any allocated memory. '''
@@ -602,8 +608,8 @@ class FrotzEnv():
         interactive_objs  = self._identify_interactive_objects(use_object_tree=use_object_tree)
         best_obj_names    = self._score_object_names(interactive_objs)
         candidate_actions = self.act_gen.generate_actions(best_obj_names)
-        diff2acts         = self._filter_candidate_actions(candidate_actions, use_ctypes, use_parallel)
-        valid_actions = [max(v, key=utl.verb_usage_count) for v in diff2acts.values()]
+        hash2acts         = self._filter_candidate_actions(candidate_actions, use_ctypes, use_parallel)
+        valid_actions = [max(v, key=utl.verb_usage_count) for v in hash2acts.values()]
         return valid_actions
 
     def set_state(self, state):
@@ -622,7 +628,7 @@ class FrotzEnv():
         >>> env.set_state(state) # Whew, let's try something else
 
         '''
-        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, state_changed = state
+        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, objs_state_changed, special_ram_changed = state
         self.frotz_lib.setRng(*rng)
         self.frotz_lib.setRAM(as_ctypes(ram))
         self.frotz_lib.setStack(as_ctypes(stack))
@@ -632,8 +638,10 @@ class FrotzEnv():
         self.frotz_lib.set_opcode(opcode)
         self.frotz_lib.setFrameCount(frame_count)
         self.frotz_lib.set_narrative_text(narrative)
-        self.frotz_lib.set_state_changed(state_changed)
+        self.frotz_lib.set_objects_state_changed(objs_state_changed)
+        self.frotz_lib.set_special_ram_changed(special_ram_changed)
         self.frotz_lib.update_objs_tracker()
+        self.frotz_lib.update_special_ram_tracker()
 
     def get_state(self):
         '''
@@ -661,8 +669,9 @@ class FrotzEnv():
         frame_count = self.frotz_lib.getFrameCount()
         rng = self.frotz_lib.getRngA(), self.frotz_lib.getRngInterval(), self.frotz_lib.getRngCounter()
         narrative = self.frotz_lib.get_narrative_text()
-        state_changed = self.frotz_lib.get_state_changed()
-        state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, state_changed
+        objs_state_changed = self.frotz_lib.get_objects_state_changed()
+        special_ram_changed = self.frotz_lib.get_special_ram_changed()
+        state = ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative, objs_state_changed, special_ram_changed
         return state
 
     def get_calls_stack(self):
@@ -787,25 +796,6 @@ class FrotzEnv():
         md5_hash = (b"").join(md5_hash.view(c_char)).decode('cp1252')
         return md5_hash
 
-    def get_world_state_hash_old(self):
-
-        import hashlib
-        world_objs_str = ', '.join([str(o) for o in self.get_world_objects(clean=True)])
-        special_ram_addrs = self._get_special_ram()
-
-        ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative = self.get_state()
-        # Return address of current routine call. (See frotz/src/common/process.c:569)
-        stack = stack.view("uint16")
-        ret_pc = stack[fp+2] | (stack[fp+2+1] << 9)
-
-        # print(sum(stack), pc, sp, fp, ret_pc, frame_count, opcode)
-        # print(pc, str(special_ram_addrs) + str(ret_pc))
-
-        world_state_str = world_objs_str + str(special_ram_addrs) + str(ret_pc)
-        m = hashlib.md5()
-        m.update(world_state_str.encode('utf-8'))
-        return m.hexdigest()
-
     def get_moves(self):
         ''' Returns the integer number of moves taken by the player in the current episode. '''
         return self.frotz_lib.get_moves()
@@ -847,51 +837,6 @@ class FrotzEnv():
         False
         '''
         return self.frotz_lib.world_changed() > 0
-
-    def _get_world_diff(self):
-        '''
-        Returns the difference in the world object tree, set attributes, and\
-        cleared attributes for the last timestep.
-
-        :returns: A Tuple of tuples containing 1) tuple of world objects that \
-        have moved in the Object Tree, 2) tuple of objects whose attributes have\
-        changed, 3) tuple of world objects whose attributes have been cleared, and
-        4) tuple of special ram locations whose values have changed.
-        '''
-        objs = np.zeros(64+64, dtype=np.uint16)
-        dest = np.zeros(64+64, dtype=np.uint16)
-        self.frotz_lib.get_cleaned_world_diff(as_ctypes(objs), as_ctypes(dest))
-        # First 16 spots allocated for objects that have moved
-        moved_objs = []
-        for i in range(16):
-            if objs[i] == 0 and dest[i] == 0:
-                break
-            moved_objs.append((objs[i], dest[i]))
-        # Second 16 spots allocated for objects that have had attrs set
-        set_attrs = []
-        for i in range(16, 32):
-            if objs[i] == 0 or dest[i] == 0:
-                break
-            set_attrs.append((objs[i], dest[i]))
-        # Third 16 spots allocated for objects that have had attrs cleared
-        cleared_attrs = []
-        for i in range(32, 48):
-            if objs[i] == 0 or dest[i] == 0:
-                break
-            cleared_attrs.append((objs[i], dest[i]))
-        # Fourth 16 spots allocated to ram locations & values that have changed
-        prop_diffs = []
-        for i in range(48, 48+64):
-            if objs[i] == 0:
-                break
-            prop_diffs.append((objs[i], dest[i]))
-        # Fourth 16 spots allocated to ram locations & values that have changed
-        ram_diffs = []
-        for i in range(48+64, 48+64+16):
-            if objs[i] == 0:
-                break
-            ram_diffs.append((objs[i], dest[i]))
-        return (tuple(moved_objs), tuple(set_attrs), tuple(cleared_attrs), tuple(prop_diffs), tuple(ram_diffs))
 
     def _score_object_names(self, interactive_objs):
         """ Attempts to choose a sensible name for an object, typically a noun. """
@@ -993,21 +938,18 @@ class FrotzEnv():
         desc2obj = {}
         # Filter out objs that aren't examinable
         name2desc = {}
-
         for obj in objs:
             if obj[0] in name2desc:
                 ex = name2desc[obj[0]]
             else:
                 self.set_state(state)
                 ex = utl.clean(self.step('examine ' + obj[0])[0])
-
                 name2desc[obj[0]] = ex
             if utl.recognized(ex):
                 if ex in desc2obj:
                     desc2obj[ex].append(obj)
                 else:
                     desc2obj[ex] = [obj]
-
         # Add 'all' as a wildcard object
         desc2obj['all'] = [('all', 'NOUN', 'LOC')]
         self.set_state(state)
@@ -1015,9 +957,9 @@ class FrotzEnv():
 
     def _filter_candidate_actions(self, candidate_actions, use_ctypes=False, use_parallel=False):
         """
-        Given a list of candidate actions, returns a dictionary mapping world_diff
-        to the list of candidate actions that cause this diff. Only actions that
-        cause a valid world diff are returned.
+        Given a list of candidate actions, returns a dictionary mapping state hashes
+        to the list of candidate actions that cause this state change. Only actions that
+        cause a valid world change are returned.
 
         :param candidate_actions: Candidate actions to test for validity.
         :type candidate_actions: list
@@ -1025,7 +967,7 @@ class FrotzEnv():
         :type use_ctypes: boolean
         :param use_parallel: Uses the parallized implementation of valid action filtering.
         :type use_parallel: boolean
-        :returns: Dictionary of world_diff to list of actions.
+        :returns: Dictionary of state hash to list of actions.
 
         """
         if self.game_over() or self.victory() or self._emulator_halted():
@@ -1034,7 +976,7 @@ class FrotzEnv():
         candidate_actions = [act.action if isinstance(act, defines.TemplateAction) else act for act in candidate_actions]
 
         state = self.get_state()
-        diff2acts = defaultdict(list)
+        hash2acts = defaultdict(list)
 
         if use_parallel:
             state = self.get_state()
@@ -1042,10 +984,10 @@ class FrotzEnv():
                 self.pool = mp.Pool(initializer=init_worker, initargs=(self.story_file.decode(), self._seed))
 
             args = [(state, actions, use_ctypes) for actions in chunk(candidate_actions, n=self.pool._processes)]
-            list_diff2acts = self.pool.map(worker, args)
-            for d in list_diff2acts:
+            list_hash2acts = self.pool.map(worker, args)
+            for d in list_hash2acts:
                 for k, v in d.items():
-                    diff2acts[k].extend(v)
+                    hash2acts[k].extend(v)
 
         elif use_ctypes:
             candidate_str = (";".join(candidate_actions)).encode('utf-8')
@@ -1062,7 +1004,7 @@ class FrotzEnv():
 
             valid_acts = valid_str.decode('cp1252').strip().split(';')[:-1]
             for i in range(valid_cnt):
-                diff2acts[hashes[i]].append(valid_acts[i])
+                hash2acts[hashes[i].decode('cp1252')].append(valid_acts[i])
 
         else:
             orig_score = self.get_score()
@@ -1079,11 +1021,11 @@ class FrotzEnv():
                     if '(Taken)' in obs:
                         continue
 
-                    diff = self._get_world_diff()
-                    diff2acts[diff].append(act)
+                    hash = self.get_world_state_hash()
+                    hash2acts[hash].append(act)
 
         self.set_state(state)
-        return diff2acts
+        return hash2acts
 
     def _get_ram(self):
         """

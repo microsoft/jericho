@@ -51,10 +51,9 @@ extern int getRAMSize();
 
 extern void getRAM(unsigned char *ram);
 
-// int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array);
 int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes);
 
-extern char world[256 + 8192];
+extern char world[256 + 8192];  // Upper + lower screens.
 
 extern int tw_max_score;
 

@@ -550,32 +550,6 @@ extern char *option_zcode_path;	/* dg */
 
 extern long reserve_mem;
 
-
-#define MOVE_DIFF_CNT 16
-#define ATTR_SET_CNT 16
-#define ATTR_CLR_CNT 16
-#define PROP_PUT_CNT 64
-
-// Keep track of the last n=16 changes to object tree
-extern int move_diff_cnt;
-extern zword move_diff_objs[MOVE_DIFF_CNT];
-extern zword move_diff_dest[MOVE_DIFF_CNT];
-
-// Keep track of the last n=16 changes to obj attributes
-extern int attr_diff_cnt;
-extern zword attr_diff_objs[ATTR_SET_CNT];
-extern zword attr_diff_nb[ATTR_SET_CNT];
-
-// Keep track of the last n=16 clears of obj attributes
-extern int attr_clr_cnt;
-extern zword attr_clr_objs[ATTR_CLR_CNT];
-extern zword attr_clr_nb[ATTR_CLR_CNT];
-
-// Keep track of the last n=32 changes to obj properties
-extern int prop_put_cnt;
-extern zword prop_put_objs[PROP_PUT_CNT];
-extern zword prop_put_nb[PROP_PUT_CNT];
-
 // Keep track of up to n=16 changes to special ram locations defined by the game
 extern int ram_diff_cnt;
 extern zword ram_diff_addr[16];
@@ -703,7 +677,7 @@ void 	z_window_style (void);
 
 void	init_err (void);
 void	runtime_error (int);
-
+ 
 /* Error codes */
 #define ERR_TEXT_BUF_OVF 1	/* Text buffer overflow */
 #define ERR_STORE_RANGE 2	/* Store out of dynamic memory */
@@ -741,7 +715,7 @@ void	runtime_error (int);
 #define ERR_REMOVE_OBJECT_0 31	/* @remove_object called with object 0 */
 #define ERR_GET_NEXT_PROP_0 32	/* @get_next_prop called with object 0 */
 #define ERR_NUM_ERRORS (32)
-
+ 
 /* There are four error reporting modes: never report errors;
   report only the first time a given error type occurs; report
   every time an error occurs; or treat all errors as fatal
