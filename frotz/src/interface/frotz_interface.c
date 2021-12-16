@@ -1436,7 +1436,7 @@ int get_special_ram_size() {
 }
 
 // Returns the current values of the special ram addresses
-void get_special_ram(zword *ram) {
+void get_special_ram(zbyte *ram) {
   int num_special_addrs;
   zword* special_ram_addrs = get_ram_addrs(&num_special_addrs);
   for (int i=0; i<num_special_addrs; ++i) {
@@ -1446,10 +1446,10 @@ void get_special_ram(zword *ram) {
 
 // Create memory used to hold the special ram values.
 void init_special_ram_tracker() {
-  free(prev_special_ram); prev_special_ram = NULL;
-  free(curr_special_ram); curr_special_ram = NULL;
-  prev_special_ram = malloc(get_special_ram_size() * sizeof(zbyte));
-  curr_special_ram = malloc(get_special_ram_size() * sizeof(zbyte));
+  if (prev_special_ram) { free(prev_special_ram); }
+  if (curr_special_ram) { free(curr_special_ram); }
+  prev_special_ram = calloc(get_special_ram_size(), sizeof(zbyte));
+  curr_special_ram = calloc(get_special_ram_size(), sizeof(zbyte));
 }
 
 // Create memory used to hold the objects' state.
@@ -1459,23 +1459,6 @@ void init_objects_tracker() {
   prev_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
   curr_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
 }
-
-// // Records changes to the special ram addresses and updates their values.
-// void update_ram_diff() {
-//   int i;
-//   zbyte curr_ram_value;
-//   zword addr;
-//   for (i=0; i<num_special_addrs; ++i) {
-//     addr = special_ram_addrs[i];
-//     curr_ram_value = zmp[addr];
-//     if (curr_ram_value != special_ram_values[i]) {
-//       // Record the difference in global ram_diff_addr / ram_diff_value
-//       ram_diff_addr[ram_diff_cnt] = addr;
-//       ram_diff_value[ram_diff_cnt] = (zword) curr_ram_value;
-//       ram_diff_cnt++;
-//     }
-//   }
-// }
 
 // Updates the special ram values to reflect the current memory
 void update_special_ram_tracker() {
@@ -1580,8 +1563,6 @@ char* jericho_step(char *next_action) {
   curr_special_ram = tmp_special_ram;
 
   // Clear the object, attr, and ram diffs
-  // ram_diff_cnt = 0;
-  //update_special_ram();
   last_ret_pc = getRetPC();
 
   dumb_set_next_action(next_action);
@@ -1590,7 +1571,6 @@ char* jericho_step(char *next_action) {
   run_free();
 
   // Check for changes to special ram
-  //update_ram_diff();
   update_objs_tracker();
   update_special_ram_tracker();
 
@@ -1640,10 +1620,6 @@ int world_changed() {
   if (game_over() > 0 || victory() > 0) {
     return 1;
   }
-
-  // if (ram_diff_cnt > 0) {
-  //   return 1;
-  // }
 
   return objects_state_changed || special_ram_changed || last_ret_pc != getRetPC();
 }

@@ -672,9 +672,6 @@ for filename in sorted(args.filenames):
     if args.very_verbose:
         print(obs)
 
-    # history = []
-    # history.append((0, 'reset', env.get_state()))
-
     walkthrough = env.get_walkthrough()
     for i, cmd in tqdm(list(enumerate(walkthrough))):
         cmd = cmd.lower()
@@ -708,7 +705,6 @@ for filename in sorted(args.filenames):
                     break
 
                 if env_._world_changed():
-                # if last_hash != env_.get_world_state_hash():
                     objs1 = env.get_world_objects(clean=False)
                     objs2 = env_.get_world_objects(clean=False)
 
@@ -720,10 +716,6 @@ for filename in sorted(args.filenames):
 
                     breakpoint()
                     break
-
-                # if env_._world_changed():
-                #     print(colored(f'{i}. [{cmd_}]: world state has changed.\n"""\n{obs_}\n"""', 'red'))
-                #     breakpoint()
 
         if args.interactive:
             tmp = input(f"{i}. [{cmd}] >")
@@ -740,9 +732,6 @@ for filename in sorted(args.filenames):
         env_objs = env.get_world_objects(clean=False)
         env_objs_cleaned = env.get_world_objects(clean=True)
 
-        # state = env.get_state()
-        # history.append((i, cmd, state))
-
         if args.very_verbose:
             print(f"{i}. >", cmd)
             print(obs)
@@ -756,12 +745,7 @@ for filename in sorted(args.filenames):
                        and cmd not in SKIP_CHECK_STATE.get(rom, {}).get('noop', {}))
 
         if check_state:
-            # if not env._world_changed():
-            #     print(colored(f'{i}. [{cmd}]: world state hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
-            #     breakpoint()
-
             if not env._world_changed():
-            # if last_hash == env.get_world_state_hash():
                 if cmd.split(" ")[0] not in {"look", "l", "x", "search", "examine", "i", "inventory"}:
 
                     print(colored(f'{i}. [{cmd}]: world hash hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
@@ -776,24 +760,18 @@ for filename in sorted(args.filenames):
                         if o1 != o2:
                             print(colored(f"{o1}\n{o2}", "red"))
 
-                    print(f"Testing walkthrough without '{cmd}'...")
-                    alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
-                    alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
+                    # For debugging.
+                    # print(f"Testing walkthrough without '{cmd}'...")
+                    # alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
+                    # print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
+                    # alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
                     # print(f"Testing walkthrough replacing '{cmd}' with '0'...")
-                    # test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
+                    # alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
                     # print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
-                    # test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
-                    alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
-
-                    # if alt1 or alt2 or alt3:
-                    #     print(f"$$$ {i}: \"{cmd}\"")
-                    # else:
-                    #     breakpoint()
-                    #     pass
-
-                    breakpoint()
+                    # alt4 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
+                    # print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
+                    # alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+                    # breakpoint()
 
     if not env.victory():
         print(colored("FAIL", 'red'))
