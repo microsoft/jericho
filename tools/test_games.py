@@ -2,6 +2,7 @@ import os
 import textwrap
 import argparse
 
+import numpy as np
 from tqdm import tqdm
 from termcolor import colored
 
@@ -713,6 +714,11 @@ for filename in sorted(args.filenames):
                     for o1, o2 in zip(env_objs, env_objs_):
                         if o1 != o2:
                             print(colored(f"{o1}\n{o2}", "red"))
+
+                    rams1 = env._get_special_ram()
+                    rams2 = env_._get_special_ram()
+                    if any(rams1 != rams2):
+                        print(np.array(rams1, rams2).T)
 
                     breakpoint()
                     break

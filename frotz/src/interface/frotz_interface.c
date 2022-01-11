@@ -398,23 +398,6 @@ void setRAM(unsigned char *ram) {
   memcpy(zmp, ram, h_dynamic_size);
 }
 
-int zmp_diff(int addr) {
-  if (zmp[addr] != prev_zmp[addr]) {
-    return 1;
-  }
-  return 0;
-}
-
-int zmp_diff_range(int start, int end) {
-  int i;
-  for (i=start; i<end; ++i) {
-    if (zmp_diff(i)) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 int getPC() {
   return pcp - zmp;
 }
@@ -1477,6 +1460,23 @@ void update_objs_tracker() {
   }
 }
 
+void get_prev_objs_state(zobject *objs_state) {
+  memcpy(objs_state, prev_objs_state, (get_num_world_objs() + 1) * sizeof(zobject));
+}
+
+void set_prev_objs_state(zobject *objs_state) {
+  memcpy(prev_objs_state, objs_state, (get_num_world_objs() + 1) * sizeof(zobject));
+}
+
+void get_prev_special_ram(zbyte *ram) {
+  memcpy(ram, prev_special_ram, get_special_ram_size() * sizeof(zbyte));
+}
+
+void set_prev_special_ram(zbyte *ram) {
+  memcpy(prev_special_ram, ram, get_special_ram_size() * sizeof(zbyte));
+}
+
+
 char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   char* text;
   emulator_halted = 0;
@@ -1575,7 +1575,7 @@ char* jericho_step(char *next_action) {
   update_special_ram_tracker();
 
   objects_state_changed = memcmp(prev_objs_state, curr_objs_state, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
-  special_ram_changed = memcmp(prev_special_ram, curr_special_ram, get_special_ram_size() * sizeof(zword)) != 0;
+  special_ram_changed = memcmp(prev_special_ram, curr_special_ram, get_special_ram_size() * sizeof(zbyte)) != 0;
 
   // Retrieve and concatenate upper and lower screens.
   strcpy(world, dumb_get_lower_screen());
