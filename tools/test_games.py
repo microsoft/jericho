@@ -135,39 +135,35 @@ SKIP_PRECHECK_STATE = {
     },
     "curses.z5": {
         '*': [
+            386, # Waiting to get caught after triggering the alarm.
+            387, # Arriving in the Coven Cell -> This sets Attr8 for rself and Coven Cell.
+            648, # Waiting for the bomb's timer runs out.
+            673, # Waiting for the magnesium-flare flash at the lighthouse.
+            721, # Waiting for the messenger-boy comes feed the pigeons.
+            838, # Waiting for the Napoleonic officers to arrive.
+            843, # Waiting for the Napoleonic officers to tweak the nose of the sphinx.
+            918, # Doing something else causes the hand to fall off the knight.
+            921, # Doing something else causes the skull to fall off the knight.
             877, 878, 879, # enter coffin (You are so distracted that common sense takes over and you clamber out of the mummy case.)
             1024,  # druidical figure sequence
+            1032,  # Waiting for the Sazon spy to show up.
             1063, 1064, 1065, # Ending
         ],
-        "z": [386, 387],  # Waiting
+        "ignore_commands": [
+            "examine mirror", "examine vanity", "examine long", "examine long vanity mirror",  # The monkey leaps from your arms, revelling in its new life
+            "examine book", "examine poetry", "examine books", "examine a",  # teleports you to Unreal City.
+            "examine sheets", "examine pile",  # exposes the radio.
+            "examine rolls", "examine insulation",  # discovers a battery.
+            "examine agricultural", "examine implement", "examine bladed", # changes the name of the object to "spade".
+        ],
         "ignore_objects": [
-            111,  # antiquated wireless
-            76,  # new-lookty (examine insulation -> discover battery)
+            111,  # antiquated wireless (i.e., a radio)
             58,  # Austin the cat walking around.
             114,  # Jemima (Jemima hums along)
-            154,  # Unreal City (examine book/poetry -> transport you?!)
-            298,  # spade (examine agricultural -> let's just call a spade a spade.)
-            216,  # model ship (examine ship -> you pick it up from force of habit)
             211,  # Cups Glasses (look -> hear noise and voices)
-            195,  # Coven Cell (look -> attr 8, prop 23.)
-            309,  # beanle (look -> prop 23)
-            2,  # north (moving from compass to flagpole?!)
-            371,  # flurries ofeen luminescence (fading away)
-            200,  # glass cabinet
-            70,  # book of Twentiesetry (examine book/poetry -> transport you?!)
-            206, # timer-detonator (timer runs out)
-            205, # complicated-look bomb (counter prop 23)
-            396, # Causeway (counter prop 23)
-            448, # BirdcagfMuses (counter prop 23)
+            371,  # flurries ofeen luminescence (appearing or fading away)
             401, # skiff (drifting)
-            420, # Napoleonic officers (appears)
-            496, # adamantinend (The hand wobbles and falls off the knight again.)
-            432, # adamantinkull (The skull wobbles and falls off the knight again.)
-            394, # InsideOrb (attr 8)
-            353, # Tentle (prop 23)
-            354, # Saxon spy appears
-            355, # Encampment (prop 23)
-
+            394, # InsideOrb (The sphere rotates and displays images.)
         ]
     },
 
@@ -686,9 +682,12 @@ for filename in sorted(args.filenames):
             env_ = env.copy()
             state = env_.get_state()
             objs = env_._identify_interactive_objects(use_object_tree=True)
-            cmds = ["look", "inv"]
+            cmds = ["look", "inventory", "wait", "examine me", "asd"]
             cmds += ["examine " + obj[0][0] for obj in objs.values()]
             for cmd_ in cmds:
+                if cmd_ in SKIP_PRECHECK_STATE.get(rom, {}).get("ignore_commands", []):
+                    continue
+
                 env_.set_state(state)
                 obs_, _, _, _ = env_.step(cmd_)
 
@@ -719,6 +718,7 @@ for filename in sorted(args.filenames):
                     rams2 = env_._get_special_ram()
                     if any(rams1 != rams2):
                         print(np.array(rams1, rams2).T)
+
 
                     breakpoint()
                     break
@@ -767,17 +767,17 @@ for filename in sorted(args.filenames):
                             print(colored(f"{o1}\n{o2}", "red"))
 
                     # For debugging.
-                    # print(f"Testing walkthrough without '{cmd}'...")
-                    # alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
-                    # print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
-                    # alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
+                    print(f"Testing walkthrough without '{cmd}'...")
+                    alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
+                    print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
+                    alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
                     # print(f"Testing walkthrough replacing '{cmd}' with '0'...")
                     # alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
                     # print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
                     # alt4 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
-                    # print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
-                    # alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
-                    # breakpoint()
+                    print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
+                    alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+                    breakpoint()
 
     if not env.victory():
         print(colored("FAIL", 'red'))
