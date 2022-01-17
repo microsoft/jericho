@@ -36,7 +36,6 @@ SKIP_PRECHECK_STATE = {
         "*": [5, 6],  # Angela is moving and unlocking the door.
         'ignore_objects': [
             143,  # Ice (The ice has completely melted.)
-            204, 205, 206, 207,  # no-name objects.
         ]
     },
     "anchor.z8": {

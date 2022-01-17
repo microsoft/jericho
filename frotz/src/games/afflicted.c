@@ -128,4 +128,13 @@ void afflicted_clean_world_objs(zobject* objs) {
   for (int i=1; i<=afflicted_get_num_world_objs(); ++i) {
       objs[i].attr[3] &= mask3;
   }
+
+  // Zero out Prop28 some objects with no name.
+  int N;
+  N = 5;  // Prop28.
+  memset(&objs[204].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[204].prop_lengths[N-1] * sizeof(zbyte));
+  memset(&objs[205].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[205].prop_lengths[N-1] * sizeof(zbyte));
+  memset(&objs[206].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[206].prop_lengths[N-1] * sizeof(zbyte));
+  memset(&objs[207].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[207].prop_lengths[N-1] * sizeof(zbyte));
+
 }
