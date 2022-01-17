@@ -25,8 +25,7 @@ SKIP_PRECHECK_STATE = {
         169: "u",  # Otherwise the dwarf kills the player.
         180: "d",  # Otherwise the dwarf kills the player.
         202: "u",  # Otherwise the dwarf kills the player.
-        270: "u",  # Otherwise the dwarf kills the player.
-        '*': range(270, 276+1),  # Waiting. Nothing happens.
+        270: "wait",  # The cave is now closed.
         'ignore_objects': [
             264,  # Little Dwarf
             265,  # Little axe
@@ -717,8 +716,7 @@ for filename in sorted(args.filenames):
                     rams1 = env._get_special_ram()
                     rams2 = env_._get_special_ram()
                     if any(rams1 != rams2):
-                        print(np.array(rams1, rams2).T)
-
+                        print(np.array([rams1, rams2]).T)
 
                     breakpoint()
                     break
