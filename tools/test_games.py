@@ -1,6 +1,8 @@
 import os
 import textwrap
 import argparse
+from pprint import pprint
+from difflib import SequenceMatcher
 
 import numpy as np
 from tqdm import tqdm
@@ -40,45 +42,40 @@ SKIP_PRECHECK_STATE = {
     },
     "anchor.z8": {
         '*': [
-            1, 2, 3,  # Examining fence enables going through it.
-            15,  # Examining book initiate conversation with Micheal
-            26, 27,  # Examining notice enables new topic of conversation?
             39, 40, 41,  # Sleeping sequence
-            77,  # Examine paintings (One scene in particular catches your eye).
-            78,  # Examine scene.
             243, 244, 245,  # While sleeping.
             259, # Some light shine through a small hole in the wall.
-            277, # Examine wine bottles
             303, # From deep within the forest, you hear the deranged cry of a lone whippoorwill.
-            317, 318, 319,  # The sound of tearing undergrowth grows louder.
-            400,  # Ticking sound after lowering the hatch's handle.
-            431,  # Last night transition
+            317, 318, 319, 320,  # The sound of tearing undergrowth grows louder.
+            328,  # The townsfolk advances upon you.
+            340, 341,  # The church stairs are about to break.
+            376,  # The flashlight turns off and is wet.
+            395, 458,  # The match burns down.
+            401,  # Ticking sound after lowering the hatch's handle.
+            402,  # The hatch's handle snaps back to an upright position.
+            431, 432,  # Last night transition
+            472, 473,  # The crowd and the bum are arriving to Town Square.
+            475,  # Amulet is placed in the scene.
+            476, 477,  # The crowd and the bum are leaving Town Square.
+            480, 481,  # Run away from monster.
+            497,  # Micheal takes a torch from the crowd.
+            504,  # Summing sequence, the crowd and guards leave the scene.
+            505,  # Micheal leaves.
+            509,  # Island of flesh is removed from play.
             513,  # Boy is moving from Shanty Town to Mill Town Road.
-            521,  # Micheal is strangling you.
-            526,  # Ending sequence
-
+            526, 527,  # Ending sequence
         ],
-        'ignore_objects': [
-            141,  # Train (at time 0, the train is put on Obj129 Railroad Tracks.)
-            158,  # pale, frightened woman (prop 40)
-            210,  # (gang)
-            221,  # Footprints (set attr 8)
-            245,  # decapitated corpse (set attr 8)
-            251,  # church_stairs (prop 41)
-            252,  # Broken Stairs (clear attr 24)
-            370,  # Flashlight (clear attr 9 and 13)
-            372,  # book of matches (clear attr 9)
-            395,  # Wine Cellar (prop 40)
-            471,  # hatch (clear attr 11)
-            472,  # metal handle (clear attr 8)
-            487,  # mill machinery (set attr 8)
-            496,  # printed memo (move to player's inventory)
-            509,  # Top of the Lighthouse (change prop 41)
-            516,  # Island of Flesh (change prop 41)
-            27,  # (appearence) (change prop 41)
-            462,  # ghost of Croseus Verlac (change prop 41 - counter for battle sequence?)
-            467,  # pressure gauge (prop 41)
-            231,  # Home (change prop 41 - Micheal asking about pregnancy test)
+        "ignore_commands": [
+            "examine wooden", "examine tall",  # Examining fence enables going through it.
+            "examine book",  # Examining book initiate conversation with Micheal
+            "examine typewritten", "examine notice",  # Examining notice enables new topic of conversation?
+            "examine paintings", "examine scene",  # One scene in particular catches your eye.
+            "examine bottles",
+            "examine footprints", "examine ground", "examine pattern",
+            "examine corpse", "examine real", "examine woman's", "examine decapitated",  # Set Attr8 of Obj245: decapitated corpse
+            "examine vats", "examine machinery", "examine machines", "examine floor", "examine presses",  # Set Attr8 of Obj487: mill machinery
+            "examine notes",  # Pick up the printed memo.
+            "examine little",  # Ends the game.
         ],
     },
     "awaken.z5": {},
@@ -195,8 +192,15 @@ SKIP_CHECK_STATE = {
             "Look up Wilhelm in album", #"Look up Eustacia in album", "Look up Croseus in album",
             "read slip of paper",
             "read wall",
+            "read blueprint",
             "ask bum about himself", "ask bum about anna", "ask bum about crypt", "tell bum about skull",
             "put mirror 1 in caliper"
+        ],
+        "wait": [
+            400,  # Waiting to hear something from within the hatch.
+            471, 474,  # Waiting for the old man to meet his faith.
+            494,  # Waiting for Michael to ask for the mirror.
+            498, 499, 500, 501, 502, 503,  # Summoning sequence.
         ]
     },
     "awaken.z5": {
@@ -603,6 +607,25 @@ SKIP_CHECK_STATE = {
 }
 
 
+def display_diff(A, B):
+    s = SequenceMatcher(None, A, B)
+
+    line1, line2 = "", ""
+    prev_match = None
+    for match in s.get_matching_blocks():
+        if prev_match:
+            line1 += colored(A[prev_match.a+prev_match.size:match.a], "red")
+            line2 += colored(B[prev_match.b+prev_match.size:match.b], "red")
+
+        line1 += A[match.a:match.a+match.size]
+        line2 += B[match.b:match.b+match.size]
+
+        prev_match = match
+
+    print(line1)
+    print(line2)
+
+
 def test_walkthrough(env, walkthrough):
     env.reset()
     for cmd in walkthrough:
@@ -710,12 +733,12 @@ for filename in sorted(args.filenames):
                     print(colored(f'{i}. [{cmd_}]: world hash has changed.\n"""\n{obs_}\n"""', 'red'))
                     for o1, o2 in zip(env_objs, env_objs_):
                         if o1 != o2:
-                            print(colored(f"{o1}\n{o2}", "red"))
+                            display_diff(str(o1), str(o2))
 
                     rams1 = env._get_special_ram()
                     rams2 = env_._get_special_ram()
                     if any(rams1 != rams2):
-                        print(np.array([rams1, rams2]).T)
+                        pprint(dict(zip(env_._get_ram_addrs(), np.array([rams1, rams2]).T)))
 
                     breakpoint()
                     break
@@ -756,12 +779,12 @@ for filename in sorted(args.filenames):
                     print("Objects diff:")
                     for o1, o2 in zip(last_env_objs, env_objs):
                         if o1 != o2:
-                            print(colored(f"{o1}\n{o2}", "red"))
+                            display_diff(str(o1), str(o2))
 
                     print("Cleaned objects diff:")
                     for o1, o2 in zip(last_env_objs_cleaned, env_objs_cleaned):
                         if o1 != o2:
-                            print(colored(f"{o1}\n{o2}", "red"))
+                            display_diff(str(o1), str(o2))
 
                     # For debugging.
                     print(f"Testing walkthrough without '{cmd}'...")

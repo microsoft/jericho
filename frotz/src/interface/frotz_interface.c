@@ -1427,6 +1427,15 @@ void get_special_ram(zbyte *ram) {
   }
 }
 
+// Returns the special ram addresses.
+void get_special_ram_addrs(zword *ram_addrs) {
+  int num_special_addrs;
+  zword* special_ram_addrs = get_ram_addrs(&num_special_addrs);
+  for (int i=0; i<num_special_addrs; ++i) {
+    ram_addrs[i] = special_ram_addrs[i];
+  }
+}
+
 // Create memory used to hold the special ram values.
 void init_special_ram_tracker() {
   if (prev_special_ram) { free(prev_special_ram); }

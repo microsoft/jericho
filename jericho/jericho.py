@@ -290,6 +290,8 @@ def _load_frotz_lib():
     frotz_lib.get_special_ram_size.restype = int
     frotz_lib.get_special_ram.argtypes = [c_void_p]
     frotz_lib.get_special_ram.restype = None
+    frotz_lib.get_special_ram_addrs.argtypes = [c_void_p]
+    frotz_lib.get_special_ram_addrs.restype = None
 
     frotz_lib.get_narrative_text.argtypes = []
     frotz_lib.get_narrative_text.restype = c_char_p
@@ -1036,6 +1038,16 @@ class FrotzEnv():
         ram = np.zeros(ram_size, dtype=np.uint8)
         self.frotz_lib.getRAM(as_ctypes(ram))
         return ram
+
+    def _get_ram_addrs(self):
+        """
+        Returns a numpy array containing the special ram addresses for the game.
+
+        """
+        ram_size = self.frotz_lib.get_special_ram_size()
+        ram_addrs = np.zeros(ram_size, dtype=np.uint16)
+        self.frotz_lib.get_special_ram_addrs(as_ctypes(ram_addrs))
+        return ram_addrs
 
     def _get_special_ram(self):
         """
