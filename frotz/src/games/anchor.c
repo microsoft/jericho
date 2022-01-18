@@ -26,7 +26,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *anchor_intro[] = { "\n", "\n", "\n" };
 
-const zword anchor_special_ram_addrs[4] = {
+const zword anchor_special_ram_addrs[3] = {
   // 21922, // Combination lock
   40660, // Bathe
   // 38470, // Transitions between days
@@ -37,11 +37,11 @@ const zword anchor_special_ram_addrs[4] = {
   18839, // Being chased by a monster around the Old Stone Well.
   // 31625, // Breaking door leading to Hallway.
   // 17267, // Ritual sequence in town square
-  27970, // Opening the hatch and waiting for the sound.
+  // 27970, // Opening the hatch and waiting for the sound.
 };
 
 zword* anchor_ram_addrs(int *n) {
-    *n = 4;
+    *n = 3;
     return anchor_special_ram_addrs;
 }
 
@@ -117,10 +117,90 @@ void anchor_clean_world_objs(zobject* objs) {
   // Zero out attribute 25 for all objects.
   // attr[0]  attr[1]  attr[2]  attr[3]
   // 11111111 01111111 11111111 10111111
-  // char mask1 = 0b01111111;  // Attr 8
   char mask3 = 0b10111111;  // Attr 25.
   for (int i=1; i<=anchor_get_num_world_objs(); ++i) {
       // objs[i].attr[1] &= mask1;
       objs[i].attr[3] &= mask3;
   }
+
+  // Train's location according to its schedule.
+  objs[141].parent = 0;
+
+  char maskAttr8 = 0b01111111;  // Attr 8
+  // Zero out Attr8 of the handcuffs.
+  objs[518].attr[1] &= maskAttr8;
+
+  int N;
+  // Zero out the Wine Cellar's counter.
+  N = 5;  // Prop40.
+  memset(&objs[395].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[395].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the Flashlight's battery counter.
+  N = 5;  // Prop41.
+  memset(&objs[370].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[370].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the pale, frightened woman's counter before she slams the door shut.
+  N = 3;  // Prop40.
+  memset(&objs[158].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[158].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the pressure gauge's counter controlling the noise it makes.
+  N = 2;  // Prop41.
+  memset(&objs[467].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[467].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the book of matches's counter before the match burns down completely.
+  N = 4;  // Prop40.
+  memset(&objs[372].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[372].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the metal handle's counter before its snaps back to an upright position.
+  N = 2;  // Prop41.
+  memset(&objs[472].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[472].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the Island of Flesh's counter.
+  N = 3;  // Prop41.
+  memset(&objs[516].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[516].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the rain's counter controlling lighting.
+  N = 4;  // Prop41.
+  memset(&objs[82].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[82].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the madman's counter.
+  N = 4;  // Prop41.
+  memset(&objs[578].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[578].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the Town Square's counter controlling the old man's faith.
+  N = 3;  // Prop41.
+  memset(&objs[172].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[172].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the (appearance)'s counter.
+  N = 1;  // Prop41.
+  memset(&objs[27].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[27].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the monster's counter.
+  N = 3;  // Prop41.
+  memset(&objs[171].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[171].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the Lighthouse's counter controlling Michael's actions.
+  N = 3;  // Prop41.
+  memset(&objs[509].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[509].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the Burial Mound's counter.
+  N = 3;  // Prop40.
+  memset(&objs[447].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[447].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the stone obelisk's counter.
+  N = 2;  // Prop41.
+  memset(&objs[174].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[174].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out Michael's counter.
+  N = 4;  // Prop41.
+  memset(&objs[524].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[524].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out ghost of Croseus Verlac's counter.
+  N = 2;  // Prop41.
+  memset(&objs[462].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[462].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out Home's counter.
+  N = 2;  // Prop41.
+  memset(&objs[231].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[231].prop_lengths[N-1] * sizeof(zbyte));
+
 }
