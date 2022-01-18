@@ -81,16 +81,13 @@ SKIP_PRECHECK_STATE = {
     "awaken.z5": {},
     "balances.z5": {
         '*': [
-            20, 21,  # Examining the sapphire causes it to break.
-            109, 110  # The cyclops is losing patience.
+            71,  # A tortoise-feather flutters to the ground before you!
         ],
-        "ignore_objects": [
-            57,  # Shiny scroll (examining the pile of oats gives you the scroll).
-            51,  # cedarwood box (examining the furniture gives you the box)
-            67,  # tortoise feather (A tortoise-feather flutters to the ground before you!)
-            65,  # (lobal_spell) (prop 40)
-            86,  # buck-toothed cyclops (prop 40)
-        ]
+        "ignore_commands": [
+            "examine furniture",  # Discover a cedarwood box.
+            "examine oats", "examine pile", "examine of",  # Discover a shiny scroll.
+            "examine perfect sapphire", "examine sapphire", "examine perfect",  # Causes to break the sapphire and learn the caskly spell.
+        ],
     },
     "ballyhoo.z3": {
         "*": [

@@ -117,4 +117,13 @@ void balances_clean_world_objs(zobject* objs) {
       objs[i].attr[1] &= mask1;
       objs[i].attr[3] &= mask3;
   }
+
+  int N;
+  // Zero out the lobal_spell's counter.
+  N = 4;  // Prop40.
+  memset(&objs[65].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[65].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the buck-toothed cyclops's counter.
+  N = 3;  // Prop40.
+  memset(&objs[86].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[86].prop_lengths[N-1] * sizeof(zbyte));
 }
