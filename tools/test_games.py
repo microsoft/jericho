@@ -91,39 +91,39 @@ SKIP_PRECHECK_STATE = {
     },
     "ballyhoo.z3": {
         "*": [
-            6, 7, 8, # Listening to the conversation with Munrab.
-            41, 62, 88, 122, 125, 126, 249,  # Turnstile's state changes.
+            6, 7, 8,  # Listening to the conversation with Munrab.
+            40, 41, 62, 88, 122, 125, 126, 249,  # Turnstile's state changes.
+            44,  # the trailer door is slammed shut.
+            48, 49,  # You get kicked out of the trailer by Chuckles.
+            64,  # Observe the detective fo through the turnstile.
             110, 111, 112, 113,  # Lion stand state changes.
-            278, 279,  # Playing cardsrn
-            200, 214, # Rewinding the tape
-            260, 261, 262, 263, 264, 265, # Sequence for "search desk" (addr. 8629).
-            266, # Examining the spreadsheet triggers (addr. 8845).
-            297, 298, 299, 301, # Ladder is being moved.
-            396, 405, 406, # Triggering Turnstile (addr. 9113)
+            149,  # Right next to the long line a much shorter line begins to form.
+            152,  # Jerry yelling to a group of people.
+            153,  # You get pushed aside.
+            200, 214,  # The tape stops rewinding.
+            225,  # Not moving, causes you to die.
+            226, 227,  # headphones being reduced to dust in the ape's tense grip.
+            253,  # Hannibal of the Jungle thunders out of the tent
+            260,  # You can hear someone, presumably Mr. Munrab, barge into the office.
+            275, 281, 289, 293, # The spring-loaded secret panel slides shut
+            278, 279, # Playing cards
+            285,  # Comrade Thumb arrives.
+            290, 291, 292, # Dealer and Billy are moving.
+            297, 298, 299, 300, 301, # Ladder is being moved.
+            342,  # Gottfried arrives
+            356, 357,  # Chelsea moves
+            361,  # Follow Chelsea.
+            368, 369,  # roustabout comes sprinting
             415, # Game ending (slip off the wire).
         ],
-        "ignore_objects": [
-            113,  # Chuckles is moving around.
-            122,  # ticket is revealed while examining the garbage
-            20,  # leatsofa (examine leather, set attr 12)
-            78,  # hawker appears
-            17,  # short line (Right next to the long line a much shorter line begins to form.)
-            162,  # Jerry
-            42,  # groballplayers
-            211,  # it
-            142,  # concessistand (you see the line you first entered suddenly kicking into gear)
-            163,  # one-dollar-and-85-cent granola bar (examine garbage -> picks it up)
-            9,  # Mahler (screams, clear attr 12)
-            141,  # elephant (thunders out of the tent)
-            175,  # Menagerie (set attr 18)
-            95,  # blackjack table (set attr 12)
-            212,  # secret panel (attr 15, opens/closes it)
-            219,  # Comrade Thumb (appears in the room)
-            116,  # dealer (appears/disappears)
-            300,  # elephant prod (moving)
-            218,  # Gottfried Wilhelm vKatzenjammer (moving)
-            84,  # Chelsea (moving)
-        ]
+        "ignore_commands": [
+            "examine flower",  # the daisy spritzes some water in your face
+            "examine garbage",  # find an unmarked ticket
+            "examine chandelier", "examine leather", "examine sofa",  # Rimshaw the Incomparable speaks
+            "examine spreadsheet",  # Discover Chuckles' real name.
+            "examine Comrade Thumb",  # You can see a trembling midget hand pull the tablecloth back down.
+            "examine andrew",  # Triggering Turnstile (addr. 9113)
+        ],
     },
     "curses.z5": {
         '*': [
@@ -218,6 +218,8 @@ SKIP_CHECK_STATE = {
             "wait",  # You hear a loud growl nearby.
             "ask pitchman about dr nostrum",  # Not needed to complete the game.
             "read note",  # Not needed to complete the game.
+            "buy candy from hawker",  # Doesn't work. Need to give the money instead.
+            "look into cage", "look into wagon", "search desk",
         ]
     },
     "curses.z5": {
@@ -623,10 +625,12 @@ def display_diff(A, B):
     print(line2)
 
 
-def test_walkthrough(env, walkthrough):
+def test_walkthrough(env, walkthrough, verbose=False):
     env.reset()
-    for cmd in walkthrough:
+    for i, cmd in enumerate(walkthrough):
         obs, score, done, info = env.step(cmd)
+        if verbose:
+            print(colored(f"{i}. > {cmd}\n{obs}", "yellow"))
 
     if not env.victory():
         msg = "FAIL\tScore {}/{}".format(info["score"], env.get_max_score())
@@ -769,7 +773,7 @@ for filename in sorted(args.filenames):
 
         if check_state:
             if not env._world_changed():
-                if cmd.split(" ")[0] not in {"look", "l", "x", "search", "examine", "i", "inventory"}:
+                if True: #cmd != "look" and cmd.split(" ")[0] not in {"l", "i", "inventory"}:
 
                     print(colored(f'{i}. [{cmd}]: world hash hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
 

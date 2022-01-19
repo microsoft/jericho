@@ -24,13 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Ballyhoo: http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg
 
-const zword ballyhoo_special_ram_addrs[23] = {
+const zword ballyhoo_special_ram_addrs[22] = {
   8853, // Listen to the conversation with Munrab.
   8623, // Crossing the tightrope
   9113, // turnstile
   8835, // Lion stand
   8723, // Give case to harry
-  9067, // buy candy
+  8639, // give money to hawker to buy candy
   8791, // stand
   8893, // walking in the crowd
   9053, // get out of line
@@ -38,7 +38,7 @@ const zword ballyhoo_special_ram_addrs[23] = {
   8911, // radio
   8643, // tape
   9047, // radio on/off
-  8629, // search desk
+  // 8629, // search desk
   8759, // cards
   8989, // ladder
   2735, // veil
@@ -51,7 +51,7 @@ const zword ballyhoo_special_ram_addrs[23] = {
 };
 
 zword* ballyhoo_ram_addrs(int *n) {
-    *n = 23;
+    *n = 22;
     return ballyhoo_special_ram_addrs;
 }
 
@@ -127,17 +127,19 @@ int ballyhoo_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void ballyhoo_clean_world_objs(zobject* objs) {
-  // Clear out object "it"
-  // objs[211].parent = 0;
-
-  // Zero out attribute 13 of object 211 ("it")
-  // attr[0]  attr[1]  attr[2]  attr[3]
-  // 11111111 11111011 11111111 11111101
-  // char mask1 = 0b11111011;  // Attr 13
-  char mask3 = 0b11111101;  // Attr 30
-  // objs[211].attr[1] &= mask1;
-
+  // Clear Attr30 for all objects.
   for (int i=1; i<=ballyhoo_get_num_world_objs(); ++i) {
-      objs[i].attr[3] &= mask3;
+      clear_attr(&objs[i], 30);
   }
+
+  clear_attr(&objs[211], 13);  // it
+  clear_attr(&objs[175], 18);  // Menagerie
+  clear_attr(&objs[142], 12);  // concessistand
+
+  // Ignore Chuckles (the clown) movements.
+  objs[113].parent = 0;
+
+  // Ignore hawker movements.
+  objs[78].parent = 0;
+
 }
