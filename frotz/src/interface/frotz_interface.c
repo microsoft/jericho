@@ -1335,6 +1335,23 @@ void (*clean_world_objs_fns[]) (zobject* objs) = {
 };
 
 
+//================================//
+// ZObject Manipulation Functions //
+//================================//
+
+void clear_attr(zobject* obj, unsigned char attr_id) {
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111011 11111111 11111111
+  // ^        ^    ^   ^        ^
+  // 0        8   13  16       24
+  //
+  // bit = 8 - (13 % 8) - 1 = 2
+  // mask = ~(1 << 2) = 0b11111011
+  char bit = 8 - (attr_id % 8) - 1;
+  char mask = ~(1 << bit);
+  obj->attr[attr_id / 8] &= mask;
+}
+
 //==========================//
 // Function Instantiations  //
 //==========================//
