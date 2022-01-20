@@ -120,6 +120,18 @@ void replace_newlines_with_spaces(char *s) {
   }
 }
 
+char* trim_whitespaces(char* obs) {
+  // Trim trailing whitespace.
+  char* pch = obs + strlen(obs) - 1;
+  while (pch > obs && isspace(*pch)) {
+      pch = pch - 1;
+  }
+  *(pch+1) = '\0';
+
+  // Trim leading whitespaces.
+  return obs + strspn(obs, "\n\r ");
+}
+
 enum SUPPORTED {
   DEFAULT_,
   ACORNCOURT_,
@@ -1365,7 +1377,10 @@ char** get_intro_actions(int* num_actions) {
 }
 
 char* clean_observation(char* obs) {
-  return (*clean_observation_fns[ROM_IDX])(obs);
+  char* out = (*clean_observation_fns[ROM_IDX])(obs);
+  out = trim_whitespaces(out);
+  // printf("-<obs>-\n%s\n-</obs>-", out);  // For debugging.
+  return out;
 }
 
 short get_score() {

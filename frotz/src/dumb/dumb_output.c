@@ -572,6 +572,7 @@ void dumb_init_output(void)
 }
 
 char* dumb_get_screen(void) {
+  flush_buffer();
   *screen_buffer_ptr = '\0';
   return screen_buffer;
 }
@@ -582,6 +583,7 @@ void dumb_clear_screen(void) {
 
 
 char* dumb_get_lower_screen(void) {
+  flush_buffer();
   *screen_buffer_ptr = '\0';
   return screen_buffer;
 }
