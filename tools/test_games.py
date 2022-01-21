@@ -158,7 +158,29 @@ SKIP_PRECHECK_STATE = {
             394, # InsideOrb (The sphere rotates and displays images.)
         ]
     },
-
+    "cutthroat.z3": {
+        '*': [
+            13, 14, 15,  # Weasel arrives and leaves the player's location.
+            69,  # Talking with Johnny Red.
+            92, 93, 94, 95, 96,  # Waiting for Johnny Red.
+            104,  # McGinty
+            133, 134, 135, 136,  # Ferry arrives and leaves.
+            203,  # Causes a lot of changes.
+            204,  # Causes hunger.
+            251, 252, # Weasel moves.
+            262,  # Causes hunger.
+            285,  # The sharks get you.
+        ],
+        "wait": [
+            5, 6, 7, 8, 9, 10, 11, 12,  # You begin to feel hungry.
+            105,  # Causes hunger.
+            210, 211, 212, 213, 244, 245, 246, 248,  # Weasel's movements
+            250, 253,  # boat moves with you and other objects on it.
+            254, 255, 256, 257, 258, 259, 260, 261,  # Causes hunger.
+        ],
+        "ignore_commands": [
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -237,9 +259,27 @@ SKIP_CHECK_STATE = {
     },
     "cutthroat.z3": {
         1: "wind watch",  # Could be replaced by wait.
-        "wait": [12, 132, 133, 150, 190, 191, 216, 217, 218],  # Needed to time the actions.
+        "look": [107],  # Needed to time the actions.
+        "yes": [92, 93, 94, 95],  # Waiting for Johnny Red.
+        "wait": [  # Needed to time the actions.
+            12, 46,
+            105, 106,  # Wait for McGinty to leave.
+            129, 130, 131, 132, 133, 134, 136,  # Wait for the ferry to arrive and leave.
+            148, 150, 152, 188, 189, 190, 191,
+            194, # Waiting for delivery boy.
+            214, 215, 216, 217, 218,  # Waiting for Johnny Red to ask you the coordinates.
+        ],
         "noop": [
+            "i",
             "read envelope",  # Not needed to complete the game.
+            "look in closet",
+            "examine plate",
+            "look through window",
+            "look under bunk",
+            "examine compressor",
+            "examine air tank",
+            "examine glass case",
+            "examine stamps",
         ]
     },
     "deephome.z5": {
@@ -707,7 +747,13 @@ for filename in sorted(args.filenames):
             cmds = ["look", "inventory", "wait", "examine me", "asd"]
             cmds += ["examine " + obj[0][0] for obj in objs.values()]
             for cmd_ in cmds:
-                if cmd_ in SKIP_PRECHECK_STATE.get(rom, {}).get("ignore_commands", []):
+                skip_precheck_state = (
+                    cmd_ in SKIP_PRECHECK_STATE.get(rom, {}).get(i, [])
+                    or cmd_ in SKIP_PRECHECK_STATE.get(rom, {}).get("ignore_commands", [])
+                    or i in SKIP_PRECHECK_STATE.get(rom, {}).get(cmd_, [])
+                )
+
+                if skip_precheck_state:
                     continue
 
                 env_.set_state(state)
@@ -749,6 +795,7 @@ for filename in sorted(args.filenames):
             if tmp.strip():
                 cmd = tmp
 
+        # last_env = env.copy()
         last_env_objs = env.get_world_objects(clean=False)
         last_env_objs_cleaned = env.get_world_objects(clean=True)
 
