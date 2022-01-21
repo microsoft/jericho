@@ -223,6 +223,13 @@ SKIP_PRECHECK_STATE = {
             "examine walls",  # Needed for progression.
         ],
     },
+    "enter.z5": {
+        '*': [
+            5,  # Mr. Alltext starts to leave the cafeteria but talks to you.
+            15,  # Judy arrives.
+            37,  # Stephanie leaves.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -372,6 +379,10 @@ SKIP_CHECK_STATE = {
         6: "1",  # Could also say nothing, i.e. '0'.
         20: "read list",  # Not needed to complete the game.
         62: "w",  # Not needed to complete the game.
+        "noop": [
+            "look at mural",
+            "look at list",
+        ],
     },
     "gold.z5": {
         146: "open washing machine",  # (door is jammed) Not needed to complete the game.

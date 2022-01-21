@@ -24,18 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Enterprise Incidents: http://ifdb.tads.org/viewgame?id=ld1f3t5epeagilfz
 
-const zword enter_special_ram_addrs[7] = {
+const zword enter_special_ram_addrs[5] = {
   9667, // Say -120 to garrulous
-  10249, // Take candygram / talk to queenie
+  // 10249, // Take candygram / talk to queenie
   11059, // Open door and and talk with Ms. Empirious.
   11607, // Put gram in basket
-  11219, // Talk to Emperius / take jar
+  // 11219, // Talk to Emperius / take jar
   10644, // Say firefly to jim
   10259, // Ask Queenie to dance; Also 10264
 };
 
 zword* enter_ram_addrs(int *n) {
-    *n = 7;
+    *n = 5;
     return enter_special_ram_addrs;
 }
 
@@ -48,7 +48,7 @@ char* enter_clean_observation(char* obs) {
   char* pch;
   pch = strchr(obs, '>');
   if (pch != NULL) {
-    *(pch-2) = '\0';
+    *(pch) = '\0';
   }
   return obs+1;
 }
@@ -102,4 +102,9 @@ int enter_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void enter_clean_world_objs(zobject* objs) {
+  clear_attr(&objs[78], 25);  // Ms. Empirious
+
+  clear_prop(&objs[170], 40);  // North-South Hall--South End's counter.
+  clear_prop(&objs[140], 40);  // Room 8's counter.
+  clear_prop(&objs[146], 40);  // Hall Near Office's counter.
 }
