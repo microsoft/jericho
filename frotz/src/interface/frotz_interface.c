@@ -1364,6 +1364,15 @@ void clear_attr(zobject* obj, unsigned char attr_id) {
   obj->attr[attr_id / 8] &= mask;
 }
 
+void clear_prop(zobject* obj, unsigned char prop_id) {
+  for (int i=0; i < JERICHO_NB_PROPERTIES; ++i) {
+    if (obj->prop_ids[i] == prop_id) {
+      memset(&obj->prop_data[i * JERICHO_PROPERTY_LENGTH], 0, obj->prop_lengths[i] * sizeof(zbyte));
+      break;
+    }
+  }
+}
+
 //==========================//
 // Function Instantiations  //
 //==========================//
