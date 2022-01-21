@@ -178,8 +178,6 @@ SKIP_PRECHECK_STATE = {
             250, 253,  # boat moves with you and other objects on it.
             254, 255, 256, 257, 258, 259, 260, 261,  # Causes hunger.
         ],
-        "ignore_commands": [
-        ],
     },
     "deephome.z5": {
         '*': [
@@ -187,18 +185,23 @@ SKIP_PRECHECK_STATE = {
             184, # scraps become a cohesive whole, melting together
             303, # The gold coin is getting ready.
         ],
-        "wait": [
-        ],
         "ignore_commands": [
             "examine patch",  # You find a perfect four leaf clover.
         ],
     },
-    "detective.z5": {
+    "detective.z5": {},
+    "dragon.z5": {
         '*': [
-        ],
-        "wait": [
+            54, 55,  # Troll is coming in.
         ],
         "ignore_commands": [
+            "examine remains", "examine barrels",  # You have found a pewter mug
+            "examine hollow tree stump", "examine hollow", "examine stump", "examine tree",   # You have found a box of matches
+            "examine reeds",  # You have found a sack
+            "examine booklet",  # Needed to win the game.
+            "examine hessian", "examine brown hessian sack",  # Finds a flute.
+            "examine bones", "examine pile",  # Finds a green glass bottle.
+            "examine glass",  # Finds a parchment.
         ],
     },
 }
@@ -325,7 +328,9 @@ SKIP_CHECK_STATE = {
     },
     "dragon.z5": {
         "noop": [
-            "break bottle",  # Not needed to complete the game.
+            "break bottle",
+            "examine table", "examine parchment", "examine chair",
+            "examine carvings", "examine goblin",
         ]
     },
     "enchanter.z3": {
