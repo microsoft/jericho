@@ -181,6 +181,18 @@ SKIP_PRECHECK_STATE = {
         "ignore_commands": [
         ],
     },
+    "deephome.z5": {
+        '*': [
+            14,  # Dark Spirit arrives.
+            184, # scraps become a cohesive whole, melting together
+            303, # The gold coin is getting ready.
+        ],
+        "wait": [
+        ],
+        "ignore_commands": [
+            "examine patch",  # You find a perfect four leaf clover.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -285,12 +297,16 @@ SKIP_CHECK_STATE = {
     "deephome.z5": {
         "wait": [13, 183],  # Needed to time the actions.
         "noop": [
-            "read letter",  # Not needed to complete the game.
-            "read warning note",  # Not needed to complete the game.
-            "ask man about hammer",  # Not needed to complete the game.
-            "ask man about eranti",  # Not needed to complete the game.
-            "read sign",  # Not needed to complete the game.
-            "ask spirit for name",  # Not needed to complete the game.
+            "read letter", "read warning note",
+            "ask man about hammer", "ask man about eranti",
+            "read sign", "ask spirit for name",
+            "examine hatch", "examine cabinet", "search table",
+            "x door", "x generator", "x terrock", "x pipe", "x panel",
+            "x box", "x chest",
+            "look up terrock in leshosh", "look up kebarn in leshosh",
+            "look up partaim in fresto", "look up indanaz in leshosh",
+            "look up ternalim in fresto", "look up cholok in leshosh",
+            "look up yetzuiz in fresto", "look up squirrel in leshosh",
         ]
     },
     "detective.z5": {
