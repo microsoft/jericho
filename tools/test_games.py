@@ -228,6 +228,14 @@ SKIP_PRECHECK_STATE = {
             5,  # Mr. Alltext starts to leave the cafeteria but talks to you.
             15,  # Judy arrives.
             37,  # Stephanie leaves.
+            207,  # A bell rings as the package arrives.
+        ],
+    },
+    "gold.z5": {
+        "ignore_commands": [
+            "examine ash",
+            "examine rotting", "examine skeleton",  # Takes the blackened metal poker.
+            "examine sludge",  # Finds a small key.
         ],
     },
 }
@@ -385,10 +393,30 @@ SKIP_CHECK_STATE = {
         ],
     },
     "gold.z5": {
-        146: "open washing machine",  # (door is jammed) Not needed to complete the game.
-        178: "plug in television",  # (already plugged in) Not needed to complete the game.
-        179: "watch television",  # (nothing on the screen) Not needed to complete the game.
-        309: "ask fairy godmother about horse",  # Not needed to complete the game.
+        146: "open washing machine",  # (door is jammed)
+        178: "plug in television",  # (already plugged in)
+        179: "watch television",  # (nothing on the screen)
+        198: "watch television",  # (cookery programme)
+        166: "cut cable", # (too rusty)
+        260: "get magic porridge pot",  # (too big)
+        340: "get bearskin rug",  # (already have that)
+        "noop": [
+            "inventory", "look",
+            "ask pedlar about suitcase", "ask fairy godmother about horse",
+            "ask pedlar about beans", "ask wolf about pigs",
+            'ask fairy godmother about cinderella',
+            "examine vegetable plot", "examine packet",
+            "examine plant pots", "examine table", "examine fireplace",
+            "examine dresser", "examine washing machine",
+            "examine mousetrap", "examine porridge oats",
+            "examine wardrobe", "get dumbells", 'examine tiny metal',
+            'examine fusebox', 'examine volt meter', 'examine switch a',
+            'examine switch b', 'examine large chair', 'examine electrodes',
+            'examine television', 'examine remote control', 'examine dining table',
+            'examine toaster', 'examine toaster', 'read leaflet',
+            'read instructions', 'examine bench', 'examine dynamite',
+            'examine huge bed', 'examine snooker table', 'examine pockets',
+        ],
     },
     "hhgg.z3": {
         56: "push switch",  # Not needed to complete the game.
@@ -786,6 +814,7 @@ for filename in sorted(args.filenames):
     if args.very_verbose:
         print(obs)
 
+    commands_to_ignore = []
     walkthrough = env.get_walkthrough()
     for i, cmd in tqdm(list(enumerate(walkthrough))):
         cmd = cmd.lower()
@@ -900,8 +929,13 @@ for filename in sorted(args.filenames):
                     # alt4 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
                     print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
                     alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+
+                    if all((alt1, alt2, alt5)):
+                        commands_to_ignore.append(cmd)
+
                     breakpoint()
 
+    print(repr(commands_to_ignore))
     if not env.victory():
         print(colored("FAIL", 'red'))
         if args.debug:

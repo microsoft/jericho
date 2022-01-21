@@ -24,8 +24,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Goldilocks is a FOX!: http://ifdb.tads.org/viewgame?id=59ztsy9p01avd6wp
 
-const zword gold_special_ram_addrs[9] = {
-    1025, // Eating porridge
+const zword gold_special_ram_addrs[8] = {
+    // 1025, // Eating porridge
     20672, // Move wardrobe (Also 23313)
     18314, // Oil secateurs
     8251, // TV Channel
@@ -37,7 +37,7 @@ const zword gold_special_ram_addrs[9] = {
 };
 
 zword* gold_ram_addrs(int *n) {
-    *n = 9;
+    *n = 8;
     return gold_special_ram_addrs;
 }
 
@@ -108,4 +108,16 @@ int gold_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void gold_clean_world_objs(zobject* objs) {
+  for (int i=1; i<=gold_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 25);
+    clear_attr(&objs[i], 31);
+  }
+
+  clear_prop(&objs[31], 40);  // (suppressor)'s counter
+  clear_prop(&objs[262], 40);  // Wolf's eyes in forest's counter
+  clear_prop(&objs[259], 40);  // Wolf at the door's counter
+  clear_prop(&objs[258], 40);  // Package arrives' counter
+  clear_prop(&objs[261], 40);  // Cave system fills with porridge's counter
+
+  objs[252].parent = 0;  // Big Bad Wolf
 }
