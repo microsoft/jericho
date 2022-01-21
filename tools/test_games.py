@@ -193,6 +193,14 @@ SKIP_PRECHECK_STATE = {
             "examine patch",  # You find a perfect four leaf clover.
         ],
     },
+    "detective.z5": {
+        '*': [
+        ],
+        "wait": [
+        ],
+        "ignore_commands": [
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -311,8 +319,8 @@ SKIP_CHECK_STATE = {
     },
     "detective.z5": {
         "noop": [
-            "read paper",  # Not needed to complete the game.
-            "read note",  # Not needed to complete the game.
+            "read paper", "read note",
+            "inventory",
         ]
     },
     "dragon.z5": {
