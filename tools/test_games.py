@@ -204,6 +204,25 @@ SKIP_PRECHECK_STATE = {
             "examine glass",  # Finds a parchment.
         ],
     },
+    "enchanter.z3": {
+        '*': [
+            148,  # You get dragged to the Cell.
+            150,  # You get dragged to the Sacrificial Altar.
+            176, 177, 178, 179, 180, 181,  # The Adventurer moves.
+            204, 205,  # Lurking evil presence is around.
+            262, 263, 264,  # The warlock Krill kills you.
+        ],
+        "wait": [
+            67,  # Hearing a voice.
+            68,  # group of four hunched and hairy shapes walks into your presence
+            149,  # You get killed in the Cell.
+            175,  # The Adventurer leaves the room.
+        ],
+        "ignore_commands": [
+            "examine tracks",  # Needed for progression.
+            "examine walls",  # Needed for progression.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -336,21 +355,17 @@ SKIP_CHECK_STATE = {
     "enchanter.z3": {
         16: "read scroll",  # Not actually needed for learning the spell.
         202: "read map",  # Not actually needed for completing the game.
+        30: "examine it",  # Not actually needed for completing the game.
         "wait": [84],  # Needed to time the actions.
+        "look": [127],
         "noop": [
-            "read shredded scroll",  # Not needed to complete the game.
-            "read crumpled scroll",  # Not needed to complete the game.
-            "read faded scroll",  # Not needed to complete the game.
-            "read damp scroll",  # Not needed to complete the game.
-            "read of unseen terror",  # Not needed to complete the game.
-            "read frayed scroll",  # Not needed to complete the game.
-            "read gold leaf scroll",  # Not needed to complete the game.
-            "read stained scroll",  # Not needed to complete the game.
-            "read brittle scroll",  # Not needed to complete the game.
-            "read black scroll",  # Not needed to complete the game.
-            "read powerful scroll",  # Not needed to complete the game.
-            "read vellum scroll",  # Not needed to complete the game.
-            "read ornate scroll",  # Not needed to complete the game.
+            "read shredded scroll", "read crumpled scroll", "read faded scroll",
+            "read damp scroll", "read of unseen terror", "read frayed scroll",
+            "read gold leaf scroll", "read stained scroll", "read brittle scroll",
+            "read black scroll", "read powerful scroll", "read vellum scroll",
+            "read ornate scroll",
+            "examine post",
+            "examine dusty book",
         ]
     },
     "enter.z5": {

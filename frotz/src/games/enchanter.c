@@ -98,11 +98,32 @@ int enchanter_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void enchanter_clean_world_objs(zobject* objs) {
-    // int i;
-    // char mask;
-    // mask = ~1;
-    // // Clear attr 15
-    // for (i=1; i<=enchanter_get_num_world_objs(); ++i) {
-    //     objs[i].attr[1] &= mask;
-    // }
+  // int i;
+  // char mask;
+  // mask = ~1;
+  // // Clear attr 15
+  // for (i=1; i<=enchanter_get_num_world_objs(); ++i) {
+  //     objs[i].attr[1] &= mask;
+  // }
+  clear_attr(&objs[55], 10);  // cretin a.k.a. the player
+  clear_attr(&objs[122], 17);  // Temple
+  clear_attr(&objs[87], 17);  // Cell
+  clear_attr(&objs[142], 17);  // Courtyard
+  clear_attr(&objs[66], 17);  // Courtyard
+  clear_attr(&objs[190], 17);  // Courtyard
+  clear_attr(&objs[116], 17);  // Courtyard
+  clear_attr(&objs[167], 16);  // Frobozz portrait
+  clear_attr(&objs[179], 16);  // Flathead portrait
+  clear_attr(&objs[242], 16);  // no-name object
+  clear_attr(&objs[27], 17);  // Kitchen
+  clear_attr(&objs[64], 17);  // North Gate
+  clear_attr(&objs[64], 15);  // North Gate
+  clear_attr(&objs[43], 17);  // East Hall
+  clear_attr(&objs[43], 15);  // East Hall
+  clear_attr(&objs[47], 15);  // Winding Stair
+
+  // Completely ignore the 'pseudo' object.
+  strcpy(&objs[252].name, "pseudo");  // Its name reflects what the player's focus.
+  clear_prop(&objs[252], 9);
+
 }
