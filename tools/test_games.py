@@ -238,6 +238,61 @@ SKIP_PRECHECK_STATE = {
             "examine sludge",  # Finds a small key.
         ],
     },
+    "hhgg.z3": {
+        '*': [
+            11, 12,  # Bulldozer arrives.
+            13,  # Prefect arrives
+            15,  # Conversation with Prosser
+            17,  # Prefect leaves.
+            34,  # fleet VogConstructor ships arrive
+            35,  # electronic Sub-Etha signaling device arrives
+            47,  # "thing aunt gave you which you don't know it is" comes back into the inventory.
+            48,  # Gets to the Vogon Hold.
+            58,  # Brought to the Captain's Quarters.
+            64, 69, 74,  # Brought to the airlock.
+            83,  # Going to the Bridge.
+            85,  # Zaphod, Ford, and Trillian all head off to port.
+            90,  # Marvin arrives.
+            96, 97, 98, 99,  # Need to answer a question.
+            114,  # "thing aunt gave you which you don't know it is" comes back
+            176, 177, 178, 179,  # In the void.
+            187,  # Phil arrives and you end up in the Dark.
+            201, 202, 203, 204, 205, 206,  # In the void
+            212,  # Engineer robot asked a question.
+            224, 225, 226, 227, 228,  # In the void.
+            243,  # Trillian leaps out of the crowd
+            262, 263,  # In the void.
+            269,  # The game expects the word "idiot".
+            280, 281,  # fleet VogConstructor ships arrive
+            282,  # electronic Sub-Etha signaling device arrives
+            283,  # In the void
+            294, 295, 296, 297, 298, 299, 300, 301, 302,  # In the void
+            307,  # Transported to the Maze
+            351, 352,  # Marvin is opening the hatch.
+        ],
+        "look": [
+            101, # Ignore the game trying to make you not look.
+        ],
+        "examine room": [
+            101, # Ignore the game trying to make you not look.
+        ],
+        "wait": [
+            16,
+            37,  # Earth is destroyed.
+            45,  # "thing aunt gave you which you don't know it is" appears into your gown.
+            46, 47,  # Ford gives you the Hitchhiker's Guide to the Galaxy.
+            88, 89, 93,  # Marvin arrives.
+            136,  # Suddenly a team of Fronurbdian Beasthunters charges in
+            155,  # Announcement.
+            182,  # Arthur talks to hostess.
+            331,  # Plant is growing.
+        ],
+        "ignore_commands": [
+            "examine shadow",  # get teleported to Vogon Hold
+            "examine Eddie (shipboard computer)",
+            "examine arthur", "examine dent", # Reveals ball of fluff on Arthur's jacket.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -420,8 +475,25 @@ SKIP_CHECK_STATE = {
     },
     "hhgg.z3": {
         56: "push switch",  # Not needed to complete the game.
+        "wait": [
+            14,
+            28, 29, 30, 31, 32, 33, 34,  # waiting for fleet VogConstructor ships
+            38, 39, 40, 41, # In the void.
+            57,  # Announcement
+            59, 60, 61, 62, 63,  # Waiting for Vogon to read poetry.
+            65, 66, 67, 68, # Waiting for Vogon to read poetry (second verse).
+            72, 73,  # Waiting to be thrown into the airlock.
+            77, 78, 79, 80,  # In the void.
+            84,  # Conversation.
+
+        ],
         "noop": [
-            "z", "wait", # Needed to time the actions.
+            "look", "wait", "z",
+            "inventory", "i",
+            "look shelf",
+            "examine thumb",
+            "examine memorial",
+            "examine plant",
         ]
     },
     "hollywood.z3": {
