@@ -366,6 +366,11 @@ SKIP_PRECHECK_STATE = {
             313,  # Cyberman gets you.
         ],
     },
+    "library.z5": {
+        "ignore_commands": [
+            "examine printers",  # You take the Encyclopedia Frobozzica.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -674,6 +679,11 @@ SKIP_CHECK_STATE = {
         19: "smell",  # Not needed to complete the game.
         41: "ask marion about encyclopedia",  # Not needed to complete the game.
         50: "ask technician about security gates",  # Not needed to complete the game.
+        "noop": [
+            'i',
+            'x attendant', 'x librarian', 'x stairs', 'x painting',
+            'x technician', 'x shelves', 'x magazines',
+        ]
     },
     "loose.z5": {},
     "lostpig.z8": {
@@ -1128,7 +1138,7 @@ for filename in sorted(args.filenames):
 
                     breakpoint()
 
-    print(repr(commands_to_ignore))
+    print(repr(sorted(set(commands_to_ignore))))
     if not env.victory():
         print(colored("FAIL", 'red'))
         if args.debug:
