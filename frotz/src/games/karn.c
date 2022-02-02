@@ -24,15 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Return to Karn: http://ifdb.tads.org/viewgame?id=bx8118ggp6j7nslo
 
-const zword karn_special_ram_addrs[4] = {
+const zword karn_special_ram_addrs[5] = {
   14066, // Tardis flying/grounded
   13050, // Color sequence
   1213, // k9 following player
   2194, // Pull lever and Push button
+  3101, // Pull pipe
 };
 
 zword* karn_ram_addrs(int *n) {
-    *n = 4;
+    *n = 5;
     return karn_special_ram_addrs;
 }
 
@@ -103,11 +104,11 @@ int karn_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void karn_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=karn_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=karn_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 25);
+    clear_attr(&objs[i], 8);
+  }
+
+  clear_prop(&objs[253], 25);  // firework's counter
+  clear_prop(&objs[254], 25);  // match's counter
 }

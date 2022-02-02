@@ -354,6 +354,18 @@ SKIP_PRECHECK_STATE = {
             211,  # You arrive at the Pebble Beach
         ],
     },
+    "karn.z5": {
+        "*": [
+            133,  # The thrusters are moved to the Plain.
+            148,  # A spacecraft arrives outside the TARDIS.
+            255,  # Cybermen arrives.
+            256,  # Explosion
+            308,  # The firework goes off.
+            309, 310, 311,  # Cyberman is coming in.
+            312,  # Plastic Button pops back up.
+            313,  # Cyberman gets you.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -641,7 +653,12 @@ SKIP_CHECK_STATE = {
         239: "ask k9 about sequence",  # Not actually needed for completing the game (important information).
         320: "ask k9 about cybermen",  # Not needed to complete the game.
         "noop": [
-            "z"
+            "z",
+            'x homing', 'x scanner', 'x tree', 'x k9', 'x bubble',
+            'x plate', 'x left screen', 'x right screen', 'look up',
+            'x control', 'x mine', 'x door', 'x device', 'x apparatus',
+            'x respirator', 'x vent', 'x console', 'x slot', 'x creature',
+            'x globe',
         ],
     },
     "library.z5": {
