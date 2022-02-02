@@ -371,6 +371,16 @@ SKIP_PRECHECK_STATE = {
             "examine printers",  # You take the Encyclopedia Frobozzica.
         ],
     },
+    "loose.z5": {
+        "*" : [
+            # 5,  # The wolf loiters in the area, keeping an eye on you.
+            # 8,  # The wolf loiters in the area, keeping an eye on you.
+            12,  # bungalow door slams open and a voice shouts
+        ],
+        "ignore_commands": [
+            "examine ladder",  # let you borrow the ladder
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -685,7 +695,11 @@ SKIP_CHECK_STATE = {
             'x technician', 'x shelves', 'x magazines',
         ]
     },
-    "loose.z5": {},
+    "loose.z5": {
+        "noop": [
+            "ask mary for ladder",
+        ],
+    },
     "lostpig.z8": {
         15: "follow pig",  # Not needed to complete the game.
         28: "wear it",  # Not needed to complete the game.

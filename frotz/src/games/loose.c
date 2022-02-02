@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -98,11 +98,16 @@ int loose_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void loose_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7) & ~(1 << 6);
-    // Clear attr 24 & 25
-    for (i=1; i<=loose_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
+  for (int i=1; i<=loose_get_num_world_objs(); ++i) {
+    if (i != 99 && i != 101) {  // Except for 'knock' and 'ladder'.
+      clear_attr(&objs[i], 8);
     }
+
+    clear_attr(&objs[i], 25);
+  }
+
+  objs[176].parent = 0;
+  clear_attr(&objs[176], 3);
+
+  clear_prop(&objs[170], 41);  // Mary's counter.
 }
