@@ -315,6 +315,19 @@ SKIP_PRECHECK_STATE = {
             18,  # Player arrives to (Maze).
         ],
     },
+    "infidel.z3": {
+        "*": [
+            7,  # large crate lands right before you
+            59,  # match went out.
+        ],
+        "wait": [
+            58,  # match went out.
+        ],
+        "ignore_commands": [
+            "examine all",
+            "examine jeweled", "examine jeweled ring", "examine ring",  # Reveals a tiny needle.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -551,6 +564,9 @@ SKIP_CHECK_STATE = {
         159: "read hieroglyphs",  # Not needed to complete the game.
         173: "read hieroglyphs",  # Not needed to complete the game.
         184: "read scroll",  # Not needed to complete the game.
+        "noop": {
+            "examine slot",
+        },
     },
     "inhumane.z5": {},
     "jewel.z5": {
