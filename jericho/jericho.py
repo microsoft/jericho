@@ -940,7 +940,7 @@ class FrotzEnv():
         desc2obj = {}
         # Filter out objs that aren't examinable
         name2desc = {}
-        for obj in objs:
+        for obj in sorted(objs):
             if obj[0] in name2desc:
                 ex = name2desc[obj[0]]
             else:
