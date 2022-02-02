@@ -328,6 +328,17 @@ SKIP_PRECHECK_STATE = {
             "examine jeweled", "examine jeweled ring", "examine ring",  # Reveals a tiny needle.
         ],
     },
+    "inhumane.z5": {
+        "*": [
+            13,  # the pit collapse, ... you end up in the desert again.
+            54,  # the door swings shut.
+            84,  # you get pushed off the swinging platform.
+        ],
+        "ignore_commands": [
+            "examine toilet", "examine Roboff's toilet",  # find a dark hole in the toilet.
+            "examine pyramid", "examine obelisk", "examine stone",  #  mind is numbed and full of RAHN's strange commandments
+        ]
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -568,7 +579,11 @@ SKIP_CHECK_STATE = {
             "examine slot",
         },
     },
-    "inhumane.z5": {},
+    "inhumane.z5": {
+        "z": [
+            59, 60, 61, 63, 64, 65, 76, 77, 78, 79, 80, 81, 83,  # Timing movement with the swinging platform.
+        ],
+    },
     "jewel.z5": {
         22: "smell dirty floor",  # Not needed to complete the game.
         91: "get treasure",  # Not needed to complete the game.
