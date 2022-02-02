@@ -102,11 +102,24 @@ int jewel_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void jewel_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=jewel_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=jewel_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 25);
+  }
+
+  clear_prop(&objs[58], 41);  // geyser's counter
+  clear_prop(&objs[60], 41);  // Shaft Base's counter
+  clear_prop(&objs[61], 41);  // Middle Shaft's counter
+  clear_prop(&objs[62], 41);  // Top of the Shaft's counter
+  clear_prop(&objs[66], 41);  // On the Ledge's counter
+  clear_prop(&objs[143], 41);  // Black Dargon's Lair's counter
+  clear_prop(&objs[148], 41);  // At the Top of the Ramp's counter
+  clear_prop(&objs[153], 41);  // Black Dragon's Antechamber's counter
+  clear_prop(&objs[159], 41);  // Well-Lit Passage's counter
+  clear_prop(&objs[162], 41);  // Steep Cliff Face's counter
+  clear_prop(&objs[164], 41);  // Red Dragon Gate's counter
+  clear_prop(&objs[167], 41);  // Red Dragon Lair's counter
+  clear_prop(&objs[170], 41);  // On The Divide's counter
+  clear_prop(&objs[174], 41);  // Red Dragon's Plateau's counter
+  clear_prop(&objs[180], 41);  // In the River's counter
+  clear_prop(&objs[182], 41);  // Underground River's counter
 }

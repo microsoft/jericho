@@ -339,6 +339,21 @@ SKIP_PRECHECK_STATE = {
             "examine pyramid", "examine obelisk", "examine stone",  #  mind is numbed and full of RAHN's strange commandments
         ]
     },
+    "jewel.z5": {
+        "*": [
+            21,  # 'x moss' triggered a clarifying question.
+            60,  # Geyser erupts.
+            164,  # Dragon attacks you.
+            178,  # Sit on the dragon.
+            180, 182,  # Dragon moves with you on top of it.
+            184,  # Dragon opens the lava gate.
+            185,  # You arrive in the Red Dragon's Lair.
+            194,  # eastern wall from which the river flows finally gives way
+            200,  # surprisingly rejuvenated dragon leaps towards you
+            208,  # You're bobbing up and down in a river of cold black water.
+            211,  # You arrive at the Pebble Beach
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -591,6 +606,29 @@ SKIP_CHECK_STATE = {
         125: "ask allarah about white",  # Not needed to complete the game.
         127: "ask allarah about red",  # Not needed to complete the game.
         128: "ask allarah about jewel",  # Not needed to complete the game.
+        151: "ask dragon about trinket",  # Not needed to complete the game.
+        152: "ask dragon about white",  # Not needed to complete the game.
+        153: "ask dragon about black",  # Not needed to complete the game.
+        154: "ask dragon about red",  # Not needed to complete the game.
+        169: "show crossbow to dragon",
+        "z": [
+            58, 59,  # Geyser
+            160, 161, 162, 163,  # Waiting for the Dragon to be annoyed.
+            176, 177, 179, 181, 182, 183,  # Dragon is flying around with you on it.
+            187, 188, 189, 190, 191, 192, 193,  # Black dragon spews acid on you.
+            206, 207, 209, 210,  # River pushes you.
+        ],
+        "noop": [
+            "i", "look",
+            "read label", "read book",
+            "x minerals", "x gaping", "x outcrop", "x insect", "x skeleton",
+            "x block", "x dragon", "x fungus", "x mushroom", "x crossbow",
+            "x body", "x salt", "x door", "x murals", "x mirror", "x pedestal",
+            "x porous wall", "x bladder", "x ariana", "x boots", "x lye", "x coat",
+            "x chandelier",
+            "search refuse", "search boots",
+            "look under cushion",
+        ],
     },
     "karn.z5": {
         46: "read sign",  # Not needed to complete the game.
