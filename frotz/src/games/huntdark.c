@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,17 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hunter, in Darkness: http://ifdb.tads.org/viewgame?id=mh1a6hizgwjdbeg7
 
-const zword huntdark_special_ram_addrs[4] = {
-  8130, // Crossbow cocked
-  8201, // Going left
+const zword huntdark_special_ram_addrs[1] = {
+  // 8130, // Crossbow cocked
+  // 8201, // Going left
   8551, // Birth
-  8824, // Bats
+  // 8824, // Bats
 };
 
 const char *huntdark_intro[] = { "\n", "\n" };
 
 zword* huntdark_ram_addrs(int *n) {
-    *n = 4;
+    *n = 1;
     return huntdark_special_ram_addrs;
 }
 
@@ -108,11 +108,17 @@ int huntdark_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void huntdark_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 6);
-    // Clear attr 25
-    for (i=1; i<=huntdark_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=huntdark_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 25);
+  }
+
+  clear_prop(&objs[23], 41);  // bloody wound's counter
+  clear_prop(&objs[80], 41);  // bats' counter
+
+  objs[80].parent = 0;  // bats' location
+  objs[117].parent = 0;  // bats' location
+
+  clear_prop(&objs[109], 1);  // (BUG) object.
+  clear_prop(&objs[110], 1);  // (BUG) object.
+  clear_prop(&objs[111], 1);  // (BUG) object.
 }

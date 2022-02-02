@@ -309,6 +309,12 @@ SKIP_PRECHECK_STATE = {
             383, 384,  # Water drains out.
         ],
     },
+    "huntdark.z5": {
+        "*": [
+            3,  # Player arrives to Bottom of Pit.
+            18,  # Player arrives to (Maze).
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -533,6 +539,8 @@ SKIP_CHECK_STATE = {
     "huntdark.z5": {
         "noop": [
             "wait",  # Waiting for the bat to show the way out.
+            "x bats",
+            "x pool",
         ]
     },
     "infidel.z3": {
