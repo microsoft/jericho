@@ -293,6 +293,22 @@ SKIP_PRECHECK_STATE = {
             "examine arthur", "examine dent", # Reveals ball of fluff on Arthur's jacket.
         ],
     },
+    "hollywood.z3": {
+        "*": [
+            9, 10,  # Tanks are moving.
+            39,  # strip of film falls onto the floor.
+            311,  # Red match goes out.
+            334,  # Green match goes out.
+            339,  # the rope it snaps
+            385,  # Water drains out.
+            387, 388, 389, 390, 391, 392, 393,  # Herman grabs and swings things at you.
+        ],
+        "wait": [
+            310,  # Red match goes out.
+            376,  # Closet door swings shut
+            383, 384,  # Water drains out.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -502,6 +518,17 @@ SKIP_CHECK_STATE = {
         348: "read plaque",  # Not needed for completing the game.
         376: "wait",  # Waiting for the closet's door to swing shut.
         383: "read note",  # Not needed to complete the game.
+        "wait": [
+            375,  # waiting for the closet door to swings shut.
+        ],
+        "noop": [
+            "examine model", "examine film projector", "examine safe",
+            "examine red statuette", "examine white statuette", "examine blue statuette",
+            "examine lights",
+            "put it on yellowed paper",  # Display the maze.
+            "read plaque", "read note",
+            "read business card"
+        ],
     },
     "huntdark.z5": {
         "noop": [
