@@ -375,10 +375,13 @@ SKIP_PRECHECK_STATE = {
         "*" : [
             # 5,  # The wolf loiters in the area, keeping an eye on you.
             # 8,  # The wolf loiters in the area, keeping an eye on you.
+            11,  # Need to answer to "Who's there."
             12,  # bungalow door slams open and a voice shouts
+            48, 49,  # Ending sequence.
         ],
         "ignore_commands": [
             "examine ladder",  # let you borrow the ladder
+            "examine corner",  # you find a tranished brass key
         ],
     },
 }
