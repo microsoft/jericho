@@ -412,6 +412,11 @@ SKIP_PRECHECK_STATE = {
             "examine big",  "examine paper",  # New topic: piece paper
         ]
     },
+    "ludicorp.z5": {
+        "ignore_commands": [
+            "examine White Board",  # Reveals Board Marker object.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -766,6 +771,18 @@ SKIP_CHECK_STATE = {
         239: "play arcade",  # (you died) Not needed to complete the game.
         241: "play pool",  # (no ball nor cues) Not needed to complete the game.
         255: "w",  # (outer airlock door blocks your way) Not needed to complete the game.
+        "noop": [
+            'x arcade', 'x bar', 'x blank card', 'x boxes', 'x bushes', 'x button', 'x car',
+            'x carpark', 'x chairs', 'x city', 'x clingfilm', 'x coffee', 'x computers',
+            'x console', 'x cooler', 'x copier', 'x counter', 'x cubicles', 'x cup',
+            'x cupboard', 'x desk', 'x desks', 'x dispenser', 'x door', 'x drain', 'x duct',
+            'x flowers', 'x footprints', 'x fountain', 'x fuse', 'x gate', 'x generator',
+            'x grill', 'x gun', 'x key', 'x keypad', 'x keys', 'x knife', 'x label', 'x ladder',
+            'x light', 'x machine', 'x marker', 'x panel', 'x paper', 'x papers', 'x pass', 'x patch',
+            'x pen', 'x pipe', 'x plants', 'x plaque', 'x pool', 'x pots', 'x printer', 'x robot',
+            'x screen', 'x servers', 'x sheet', 'x shelves', 'x slot', 'x statue', 'x toner',
+            'x tray', 'x trees', 'x water', 'x well', 'x window', 'x wire'
+        ],
     },
     "lurking.z3": {
         "noop": ["z"]
