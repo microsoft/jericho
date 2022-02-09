@@ -1035,7 +1035,9 @@ for filename in sorted(args.filenames):
         print(obs)
 
     commands_to_ignore = []
+    triggered_ram_addrs = set()
     walkthrough = env.get_walkthrough()
+    env_ = env.copy()
     for i, cmd in tqdm(list(enumerate(walkthrough))):
         cmd = cmd.lower()
         last_hash = env.get_world_state_hash()
@@ -1044,9 +1046,9 @@ for filename in sorted(args.filenames):
                           and cmd not in SKIP_PRECHECK_STATE.get(rom, {}).get(i, {})
                           and i not in SKIP_PRECHECK_STATE.get(rom, {}).get("*", []))
 
+        state = env.get_state()
+        env_.set_state(state)
         if precheck_state:
-            env_ = env.copy()
-            state = env_.get_state()
             objs = env_._identify_interactive_objects(use_object_tree=True)
             cmds = ["look", "inventory", "wait", "examine me", "asd"]
             cmds += ["examine " + obj[0][0] for obj in objs.values()]
@@ -1099,7 +1101,6 @@ for filename in sorted(args.filenames):
             if tmp.strip():
                 cmd = tmp
 
-        # last_env = env.copy()
         last_env_objs = env.get_world_objects(clean=False)
         last_env_objs_cleaned = env.get_world_objects(clean=True)
 
@@ -1123,39 +1124,55 @@ for filename in sorted(args.filenames):
                        and cmd not in SKIP_CHECK_STATE.get(rom, {}).get('noop', {}))
 
         if check_state:
-            if not env._world_changed():
-                if True: #cmd != "look" and cmd.split(" ")[0] not in {"l", "i", "inventory"}:
+            if env._world_changed():
 
-                    print(colored(f'{i}. [{cmd}]: world hash hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
+                if env.frotz_lib.get_special_ram_changed() and not env.frotz_lib.get_objects_state_changed():
+                    ram_addrs = env._get_ram_addrs()
+                    ram_old = env_._get_special_ram()
+                    ram_new = env._get_special_ram()
+                    for ram_addr, value_old, value_new in zip(ram_addrs, ram_old, ram_new):
+                        if value_old != value_new:
+                            triggered_ram_addrs.add(ram_addr)
 
-                    print("Objects diff:")
-                    for o1, o2 in zip(last_env_objs, env_objs):
-                        if o1 != o2:
-                            display_diff(str(o1), str(o2))
+            else:
+                print(colored(f'{i}. [{cmd}]: world hash hasn\'t changed.\n"""\n{obs}\n"""', 'red'))
 
-                    print("Cleaned objects diff:")
-                    for o1, o2 in zip(last_env_objs_cleaned, env_objs_cleaned):
-                        if o1 != o2:
-                            display_diff(str(o1), str(o2))
+                print("Objects diff:")
+                for o1, o2 in zip(last_env_objs, env_objs):
+                    if o1 != o2:
+                        display_diff(str(o1), str(o2))
 
-                    # For debugging.
-                    print(f"Testing walkthrough without '{cmd}'...")
-                    alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
-                    alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
-                    # print(f"Testing walkthrough replacing '{cmd}' with '0'...")
-                    # alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
-                    # print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
-                    # alt4 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
-                    print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
-                    alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
+                print("Cleaned objects diff:")
+                for o1, o2 in zip(last_env_objs_cleaned, env_objs_cleaned):
+                    if o1 != o2:
+                        display_diff(str(o1), str(o2))
 
-                    if all((alt1, alt2, alt5)):
-                        commands_to_ignore.append(cmd)
+                # For debugging.
+                print(f"Testing walkthrough without '{cmd}'...")
+                alt1 = test_walkthrough(env.copy(), walkthrough[:i] + walkthrough[i+1:])
+                print(f"Testing walkthrough replacing '{cmd}' with 'wait'...")
+                alt2 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait"] + walkthrough[i+1:])
+                # print(f"Testing walkthrough replacing '{cmd}' with '0'...")
+                # alt3 = test_walkthrough(env.copy(), walkthrough[:i] + ["0"] + walkthrough[i+1:])
+                # print(f"Testing walkthrough replacing '{cmd}' with 'wait 1 minute'...")
+                # alt4 = test_walkthrough(env.copy(), walkthrough[:i] + ["wait 1 minute"] + walkthrough[i+1:])
+                print(f"Testing walkthrough replacing '{cmd}' with 'look'...")
+                alt5 = test_walkthrough(env.copy(), walkthrough[:i] + ["look"] + walkthrough[i+1:])
 
+                if all((alt1, alt2, alt5)):
+                    commands_to_ignore.append(cmd)
+                else:
                     breakpoint()
 
-    print(repr(sorted(set(commands_to_ignore))))
+    not_triggered_ram_addrs = set(env._get_ram_addrs()) - triggered_ram_addrs
+    if not_triggered_ram_addrs:
+        msg = "-> Special RAM not used: " + repr(sorted(not_triggered_ram_addrs))
+        print(colored(msg, "yellow"))
+
+    if commands_to_ignore:
+        msg = "-> Walkthrough commands that can be safely ignored: " + repr(sorted(set(commands_to_ignore)))
+        print(colored(msg, "yellow"))
+
     if not env.victory():
         print(colored("FAIL", 'red'))
         if args.debug:
