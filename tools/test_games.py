@@ -384,6 +384,34 @@ SKIP_PRECHECK_STATE = {
             "examine corner",  # you find a tranished brass key
         ],
     },
+    "lostpig.z8": {
+        "*": [
+            87,  # Gnome examines the book with a missing page.
+            118,  # Gnome put the missing page back into the book.
+            123, 124, 125, 126,  # Pig is eating the bricks.
+        ],
+        "examine west": [
+            23,  # Describes the picture on the west wall (new topics).
+        ],
+        "examine east": [
+            23, 24,  # Describes the picture on the east wall (new topics).
+        ],
+        "examine south": [
+            14, 15, 16, 17, 18, 19, 20,  # Maps to "examine curtain" (see below)
+        ],
+        "ignore_commands": [
+            "examine stairs", "examine metal",  # reveals the whistle and enables a new topic.
+            "examine coin",  # Enables a new topic.
+            "examine curtain",  # Reveals a way out of cave.
+            "examine block", "examine stone",  # Reveals mark on the side of the block.
+            "examine hat", "examine little",  # Enable topic about hat.
+            "examine box", "examine dent",  # Reveal a lever (enable topics).
+            "examine gnome",  # New topics: dress, clos, hair, ear, nose.
+            "examine chest", "examine keyhole",  # New topic: key.
+            "examine book",  # New topic: mark
+            "examine big",  "examine paper",  # New topic: piece paper
+        ]
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -704,15 +732,32 @@ SKIP_CHECK_STATE = {
         ],
     },
     "lostpig.z8": {
-        15: "follow pig",  # Not needed to complete the game.
-        28: "wear it",  # Not needed to complete the game.
-        36: "smell it",  # Not needed to complete the game.
-        52: "listen",  # Not needed to complete the game.
-        94: "take thing",  # Not needed to complete the game.
-        95: "cross river",  # Not needed to complete the game.
-        98: "take water",  # Not needed to complete the game.
-        109: "take paper",  # Not needed to complete the game.
-        110: "take paper with pole",  # Not needed to complete the game.
+        15: "follow pig",
+        28: "wear hat",
+        36: "smell brick",
+        52: "listen",
+        58: "look under bed",
+        61: "look under bed",
+        62: "open trunk",  # It's looked.
+        64: "take ball",
+        79: "open chest",  # Grunk not have any key.
+        88: "ask gnome about page",
+        94: "take thing",
+        95: "cross river",
+        98: "take water",
+        109: "take paper",
+        110: "take paper with pole",
+        122: "z",  # Waiting for to eat the brick.
+        139: "north",  # It too dark, and tunnel look twisty.
+        145: "thank gnome",
+        "noop": [
+            "look",
+            'inventory',
+            'look inside tube', 'x brick', 'x coin', 'x crack', 'x dent',
+            'x fountain', 'x hand', 'x key', 'x man', 'x pig', 'x shadow',
+            'x thing', 'x chair', 'x farm', 'x forest', 'x pole', 'x windy tunnel',
+            'x top shelf', 'x hat', 'x river', 'x ball', 'x shelf',
+        ],
     },
     "ludicorp.z5": {
         7: "smell car",  # Not needed to complete the game.
