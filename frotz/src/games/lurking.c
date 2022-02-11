@@ -26,18 +26,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 // The Lurking Horror: http://ifdb.tads.org/viewgame?id=jhbd0kja1t57uop
 
 const zword lurking_special_ram_addrs[11] = {
-  883, // Cut line with axe
-  756, // knock on door
-  859, // Read page, click on more
-  813, // Throw axe at cord
+  // 4889, // Drinking coke
+  // 756, // knock on door
   1047, // Lower ladder (alt. 1163, 1333)
-  11251, // Microwave timer
+  1067, // Move lab bench.
   11235, // press up/down button
-  961, // Microwave setting
+  11251, // Microwave timer
   1145, // Cleaning up junk
-  4889, // Drinking coke
-  935, // Position of valve
+  813, // Throw axe at cord
+  859, // Read page, click on more, again and again.
+  883, // Cut line with axe
   883, // Cutting line
+  935, // Position of valve
+  961, // Microwave setting
+  // 1132, 1133, // Microwave timer
 };
 
 const char *lurking_intro[] = { "sit on chair\n",
@@ -113,11 +115,34 @@ int lurking_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void lurking_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 1);
-    // Clear attr 6
-    for (i=1; i<=lurking_get_num_world_objs(); ++i) {
-        objs[i].attr[0] &= mask;
-    }
+  for (int i=1; i<=lurking_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 6);
+    clear_attr(&objs[i], 10);
+  }
+
+  clear_attr(&objs[183], 11);  // sign-up sheet
+
+  clear_prop(&objs[90], 3);  // Chinese food.
+  clear_prop(&objs[206], 16);  // Infinite Corridor.
+
+  // Completely ignore the 'pseudo' object.
+  strcpy(&objs[247].name, "pseudo");  // Its name reflects what the player's focus.
+
+  objs[100].parent = 0;  // urchin
+  objs[235].parent = 0;  // waxer
+  objs[20].parent = 0;  // man
+
+  if (objs[56].parent != objs[122].parent) {  // If player is not in the same room as the doors.
+    clear_attr(&objs[122], 13);  // doors
+    clear_attr(&objs[225], 13);  // doors
+  }
+
+  objs[143].parent = 0;  // tangle machinery
+  objs[153].parent = 0;  // tangle machinery
+
+  // // Track whether player has knocked on the Alchemy door.
+  int N = 23;  // Use last property slot.
+  objs[108].prop_ids[N-1] = 63;
+  objs[108].prop_lengths[N-1] = 1;
+  objs[108].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH] = (zmp[9306] == 140 && zmp[9307] == 121);
 }

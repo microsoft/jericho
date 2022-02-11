@@ -417,6 +417,38 @@ SKIP_PRECHECK_STATE = {
             "examine White Board",  # Reveals Board Marker object.
         ],
     },
+    "lurking.z3": {
+        "*": [
+            29, 30, 31, 32,   # Forced to click on "MORE".
+            34,  # Arriving to the Platform.
+            37,  # Arriving to Terminal Room
+            38,  # Hacker takes your chair.
+            41,  # Hack returns to his hacking.
+            43, 44, 45, 46, 49,  # Elevator is moving, its doors open and close.
+            106,  # The dark shape drops next to you.
+            168,  # Thick black mist begins to form in the room.
+            171,  # The mist gets you.
+            177,  # The hand is trying to crawl out of the vat.
+            216, 217,  # You hear the rats coming.
+            236,  # Elevator doors.
+            249, 250, 251,  # You go up in the elevator + elevator doors.
+            257,  # greasy chain is revealed.
+            274,  # The mist dissipates.
+            277, 278,  # The Hacker is at the door and arrives.
+            281,  # Hacker does something.
+            282,  # Powerline is revealed.
+            285,  # Hacker pulls himself out of the side of the mass.
+            287,  # The creature eats you.
+        ],
+        "wait": [
+            162,  # Enter the Department of Alchemy,
+            237,  # Elevator doors.
+        ],
+        "ignore_commands": [
+            "examine paper",  # Makes you click on "MORE".
+            "examine objects",  # Read the piece of paper.
+        ],
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -785,7 +817,19 @@ SKIP_CHECK_STATE = {
         ],
     },
     "lurking.z3": {
-        "noop": ["z"]
+        "z": [
+            14, 15, 16, 17,  # Waiting for the microwave to finish.
+            36,  # Wait for darkness creature to appear.
+            39, 40,  # Hacker is typing on the computer.
+            67, 68, 69,  # Wait for the floor waxer to wax away.
+            165, 166,  # Wait for the professor to let you in.
+            176,  # The hand is trying to crawl out of the vat.
+            215,  # Wait for the rats to arrive.
+            286,  # Wait for the smooth stone to flow before throwing it at the thing.
+        ],
+        "noop": [
+            "examine tree", "look in it",
+        ]
     },
     "moonlit.z5": {},
     "murdac.z5": {},
