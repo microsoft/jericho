@@ -1058,3 +1058,50 @@ class FrotzEnv():
         ram = np.zeros(ram_size, dtype=np.uint8)
         self.frotz_lib.get_special_ram(as_ctypes(ram))
         return ram
+
+    def _get_globals(self):
+        """ Extract the value for all 240 global variables. """
+        ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
+        self.frotz_lib.getRAM(as_ctypes(ram))
+
+        # The starting address for the 240 two-byte global variables (ranging from G00 to Gef)
+        # is found at byte 0x0c of the header.
+        # Ref: https://inform-fiction.org/zmachine/standards/z1point1/sect11.html
+        # Ref: https://inform-fiction.org/zmachine/standards/z1point1/sect06.html#two
+        globals_addr = ram.view(">u2")[0x0c // 2]
+        globals = ram[globals_addr:globals_addr + 240 * 2].view(">i2")
+        return globals
+
+    def _print_memory_map(self):
+        ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
+        self.frotz_lib.getRAM(as_ctypes(ram))
+
+        high_addr = ram.view(">u2")[0x04 // 2]
+        dict_addr = ram.view(">u2")[0x08 // 2]
+        objs_addr = ram.view(">u2")[0x0a // 2]
+        globals_addr = ram.view(">u2")[0x0c // 2]
+        static_addr = ram.view(">u2")[0x0e // 2]
+        abbr_addr = ram.view(">u2")[0x18 // 2]
+        length_of_file = ram.view(">u2")[0x1a // 2]
+
+        print("     -= {} =- ".format(self.story_file.decode()))
+        print("Dynamic | {:05x} | header".format(0))
+        # print("        | {:05x} | abbreviation strings".format())
+        print("        | {:05x} | abbreviation table".format(abbr_addr))
+        print("        | {:05x} | global variables".format(globals_addr))
+        # print("        | {:05x} | property defaults".format())
+        print("        | {:05x} | objects".format(objs_addr))
+        # print("        | {:05x} | object descriptions and properties".format())
+        # print("        | {:05x} | arrays".format())
+        print("Static  | {:05x} | grammar table".format(static_addr))
+        # print("        | {:05x} | actions table".format())
+        # print("        | {:05x} | preactions table".format())
+        # print("        | {:05x} | adjectives table".format())
+        print("        | {:05x} | dictionary".format(dict_addr))
+        print("High    | {:05x} | Z-code".format(high_addr))
+        # print("        | {:05x} | static strings".format())
+        print("        | {:05x} | end of file".format(length_of_file))
+
+
+
+

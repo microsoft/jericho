@@ -30,7 +30,7 @@ def get_zmp(env):
     #start = zmp.view(">u2")[6]  # ref: https://inform-fiction.org/zmachine/standards/z1point1/sect06.html#two
     #length = 240 * 2  # 240 2-byte global variables.
     #globals = zmp[start:start + length].view(">i2")
-    return zmp
+    return zmp.view(">u2")
 
 
 def display_indices(indices):
@@ -189,7 +189,7 @@ def display_unique_changes(idx, history, changes_history):
         # if matches[idx][0][0] == 0:
         #     continue
 
-        print(f"{idx:6d}: {count:3d} : " + ", ".join(f"{i}.{cmd}({value})" for i, cmd, value in matches[idx][:20]))
+        print(f"{idx*2}-{idx*2+1}: {count:3d} : " + ", ".join(f"{i}.{cmd}({value:x})" for i, cmd, value in matches[idx][:20]))
 
 
 def main():
