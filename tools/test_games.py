@@ -419,7 +419,7 @@ SKIP_PRECHECK_STATE = {
     },
     "lurking.z3": {
         "*": [
-            29, 30, 31, 32,   # Forced to click on "MORE".
+            29, 30, 31, 32,  # Forced to click on "MORE".
             34,  # Arriving to the Platform.
             37,  # Arriving to Terminal Room
             38,  # Hacker takes your chair.
@@ -448,6 +448,11 @@ SKIP_PRECHECK_STATE = {
             "examine paper",  # Makes you click on "MORE".
             "examine objects",  # Read the piece of paper.
         ],
+    },
+    "moonlit.z5": {
+        "ignore_commands": [
+            "examine sky",
+        ]
     },
 }
 
@@ -831,7 +836,16 @@ SKIP_CHECK_STATE = {
             "examine tree", "look in it",
         ]
     },
-    "moonlit.z5": {},
+    "moonlit.z5": {
+        47: "d",  # You emerge back where you started.
+        "noop": [
+            "i", "l", "look",
+            "x arrangement", "x comb", "x fan",'x bones', 'x compass',
+            'x crane', 'x feather', 'x flower', 'x hawk', 'x hawks',
+            'x horse', 'x kite', 'x leaf', 'x light', 'x self',
+            'x shadow', 'x storm', 'x swallow', 'x trees', 'x mask',
+        ]
+    },
     "murdac.z5": {},
     "night.z5": {
         37: "get printer",  # Not needed to complete the game.
