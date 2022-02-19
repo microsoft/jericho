@@ -1597,8 +1597,11 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
 }
 
 char* jericho_step(char *next_action) {
-  if (emulator_halted > 0)
+  if (emulator_halted == 1)
     return halted_message;
+
+  if (emulator_halted == 2)
+    return "Emulator has stopped.";
 
   // Swap prev_objs_state and curr_objs_state.
   zobject* tmp_objs_state;

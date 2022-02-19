@@ -890,6 +890,7 @@ void z_nop (void)
 void z_quit (void)
 {
     finished = 9999;
+    emulator_halted = 2;
 
 }/* z_quit */
 
