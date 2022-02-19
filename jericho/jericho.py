@@ -1068,7 +1068,7 @@ class FrotzEnv():
         # is found at byte 0x0c of the header.
         # Ref: https://inform-fiction.org/zmachine/standards/z1point1/sect11.html
         # Ref: https://inform-fiction.org/zmachine/standards/z1point1/sect06.html#two
-        globals_addr = ram.view(">u2")[0x0c // 2]
+        globals_addr = ram[0x0c:0x0c+2].view(">u2")[0]  # Extract a word data.
         globals = ram[globals_addr:globals_addr + 240 * 2].view(">i2")
         return globals
 
@@ -1076,13 +1076,16 @@ class FrotzEnv():
         ram = np.zeros(self.frotz_lib.getRAMSize(), dtype=np.uint8)
         self.frotz_lib.getRAM(as_ctypes(ram))
 
-        high_addr = ram.view(">u2")[0x04 // 2]
-        dict_addr = ram.view(">u2")[0x08 // 2]
-        objs_addr = ram.view(">u2")[0x0a // 2]
-        globals_addr = ram.view(">u2")[0x0c // 2]
-        static_addr = ram.view(">u2")[0x0e // 2]
-        abbr_addr = ram.view(">u2")[0x18 // 2]
-        length_of_file = ram.view(">u2")[0x1a // 2]
+        def _get_word(pos):
+            return ram[pos:pos+2].view(">u2")[0]
+
+        high_addr = _get_word(0x04)
+        dict_addr = _get_word(0x08)
+        objs_addr = _get_word(0x0a)
+        globals_addr = _get_word(0x0c)
+        static_addr = _get_word(0x0e)
+        abbr_addr = _get_word(0x18)
+        length_of_file = _get_word(0x1a)
 
         print("     -= {} =- ".format(self.story_file.decode()))
         print("Dynamic | {:05x} | header".format(0))
