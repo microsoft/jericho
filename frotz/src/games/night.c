@@ -100,11 +100,7 @@ int night_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void night_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=night_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  objs[108].parent = 0;  // Mouse
+  objs[112].parent = 0;  // Message
+  clear_prop(&objs[108], 24);
 }

@@ -465,6 +465,9 @@ SKIP_PRECHECK_STATE = {
             *range(179, 189+1),  # Water in the bowls boil away (strange vision).
         ]
     },
+    "night.z5": {
+
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -865,7 +868,13 @@ SKIP_CHECK_STATE = {
     "night.z5": {
         37: "get printer",  # Not needed to complete the game.
         38: "ask gnome about printer",  # Not needed to complete the game.
-        "noop": ["z"]
+        "z": [
+            30, 31, # Waiting for the mouse.
+            64, 65, 66, 67, 68,  # Waiting for the mouse.
+        ],
+        "noop": [
+            "x sign",
+        ]
     },
     "omniquest.z5": {},
     "partyfoul.z8": {
