@@ -465,9 +465,13 @@ SKIP_PRECHECK_STATE = {
             *range(179, 189+1),  # Water in the bowls boil away (strange vision).
         ]
     },
-    "night.z5": {
-
-    },
+    "night.z5": {},
+    "omniquest.z5": {
+        "ignore_commands": [
+            "examine tree",  # snorkel hanging from the tree.  You take it.
+            "examine boot",  # boot further reveals a crystal, which you take.
+        ]
+    }
 }
 
 SKIP_CHECK_STATE = {
@@ -876,7 +880,12 @@ SKIP_CHECK_STATE = {
             "x sign",
         ]
     },
-    "omniquest.z5": {},
+    "omniquest.z5": {
+        "noop": [
+            "read scroll",
+            "x cage",
+        ]
+    },
     "partyfoul.z8": {
         "z": [53, 54],  # Ending sequence.
     },
