@@ -471,6 +471,14 @@ SKIP_PRECHECK_STATE = {
             "examine tree",  # snorkel hanging from the tree.  You take it.
             "examine boot",  # boot further reveals a crystal, which you take.
         ]
+    },
+    "partyfoul.z8": {
+        "*": [
+            34, 35,  # Lights turn off and back on.
+            39,  # It seems as if someone has just turned something off in another room (the hair dryer).
+            41,  # You get caugth with celery in your hands.
+            47,  # Abbey take the knife from your hands.
+        ],
     }
 }
 
@@ -887,7 +895,11 @@ SKIP_CHECK_STATE = {
         ]
     },
     "partyfoul.z8": {
-        "z": [53, 54],  # Ending sequence.
+        1: "look at frank",
+        2: "look at ron",
+        7: "take jar",  # Abbey stops you.
+        30: "z",  # Waiting for Abbey to leave the room.
+        31: "z",  # Waiting for Abbey to leave the room.
     },
     "pentari.z5": {},
     "planetfall.z3": {

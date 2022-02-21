@@ -24,30 +24,31 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Party Foul - http://ifdb.tads.org/viewgame?id=cqwq699i9qiqdju
 
-const zword partyfoul_special_ram_addrs[3] = {
+const zword partyfoul_special_ram_addrs[4] = {
   17509,  // Spread peanut butter on frank (alt. 17755, 19428, 21423, 47829)
   1923, // plug the toaster
+  2259, // plug the hair dryer
   28036, // Waiting for your husband to be prepared to leave the party (alt. 28037, 32186)
 };
 
-const char *partyfoul_intro[] = { "\n",
-                                  "no\n" };
+const char *partyfoul_intro[] = { "\n", "no\n", "\n" };
 
 zword* partyfoul_ram_addrs(int *n) {
-    *n = 3;
+    *n = 4;
     return partyfoul_special_ram_addrs;
 }
 
 char** partyfoul_intro_actions(int *n) {
-  *n = 2;
+  *n = 3;
+  skip_z_read_char = TRUE;
   return partyfoul_intro;
 }
 
 char* partyfoul_clean_observation(char* obs) {
   char* pch;
-  pch = strstr(obs, ">  ");
+  pch = strstr(obs, "> ");
   if (pch != NULL) {
-    *(pch-2) = '\0';
+    *(pch-1) = '\0';
   }
   return obs + strspn(obs, "\n ");  // Skip leading newlines and whitespaces.
 }
@@ -108,4 +109,18 @@ int partyfoul_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void partyfoul_clean_world_objs(zobject* objs) {
+  for (int i=1; i<=partyfoul_get_num_world_objs(); ++i) {
+      clear_attr(&objs[i], 29);
+      clear_attr(&objs[i], 30);
+  }
+
+  clear_attr(&objs[124], 21);
+
+  objs[49].parent = 0;
+  objs[67].parent = 0;
+  objs[84].parent = 0;
+  objs[85].parent = 0;
+  objs[86].parent = 0;
+  objs[95].parent = 0;
+  objs[100].parent = 0;
 }

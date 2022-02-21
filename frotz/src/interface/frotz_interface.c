@@ -73,6 +73,7 @@ extern int getRngCounter();
 extern void setRng(long, int, int);
 
 zbyte next_opcode;
+bool skip_z_read_char = FALSE;
 int last_ret_pc = -1;
 int desired_seed = 0;
 int ROM_IDX = 0;
@@ -103,7 +104,7 @@ void zstep() {
 // Run the Z-Machine until it requires user input
 void run_free() {
   // Opcode 228 (z_read) and 246 (z_read_char) indicate need for user input
-  while (next_opcode != 228 && next_opcode != 246 && emulator_halted <= 0) {
+  while (next_opcode != 228 && (next_opcode != 246 || skip_z_read_char) && emulator_halted <= 0) {
     zstep();
   }
 }
