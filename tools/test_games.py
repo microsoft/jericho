@@ -454,6 +454,17 @@ SKIP_PRECHECK_STATE = {
             "examine sky",
         ]
     },
+    "murdac.z5": {
+        "*": [
+            43, 44,  # Monster gets you.
+            *range(64, 71+1),  # Poltergeist gets you.
+            170,  # Geyser strikes you and you leave the room.
+            242,  # Cannibals get you.
+        ],
+        "look": [
+            *range(179, 189+1),  # Water in the bowls boil away (strange vision).
+        ]
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -846,7 +857,11 @@ SKIP_CHECK_STATE = {
             'x shadow', 'x storm', 'x swallow', 'x trees', 'x mask',
         ]
     },
-    "murdac.z5": {},
+    "murdac.z5": {
+        "noop": [
+            "look"
+        ]
+    },
     "night.z5": {
         37: "get printer",  # Not needed to complete the game.
         38: "ask gnome about printer",  # Not needed to complete the game.
