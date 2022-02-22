@@ -479,7 +479,13 @@ SKIP_PRECHECK_STATE = {
             41,  # You get caugth with celery in your hands.
             47,  # Abbey take the knife from your hands.
         ],
-    }
+    },
+    "pentari.z5": {
+        "*": [
+            44,  # Dark Elf gets you.
+            48,  # Victory.
+        ]
+    },
 }
 
 SKIP_CHECK_STATE = {
@@ -901,7 +907,9 @@ SKIP_CHECK_STATE = {
         30: "z",  # Waiting for Abbey to leave the room.
         31: "z",  # Waiting for Abbey to leave the room.
     },
-    "pentari.z5": {},
+    "pentari.z5": {
+        "z": [42],
+    },
     "planetfall.z3": {
         216: "eat brown goo",  # Not needed to complete the game.
     },
