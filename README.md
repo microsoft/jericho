@@ -23,7 +23,7 @@
 <br>
 
 ## Requirements
-***Linux***, ***Python 3***, ***Spacy***, and basic build tools like ***gcc***.
+***Linux***, ***Python 3***, ***Spacy***, and basic build tools like ***gcc***,***make*** & ***curl***.
 
 ## Install
 ```bash
