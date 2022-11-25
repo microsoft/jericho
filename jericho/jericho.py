@@ -330,7 +330,7 @@ def _load_frotz_lib():
     frotz_lib.is_supported.restype = int
     frotz_lib.get_dictionary_word_count.argtypes = [c_char_p]
     frotz_lib.get_dictionary_word_count.restype = int
-    frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord)]
+    frotz_lib.get_dictionary.argtypes = [POINTER(DictionaryWord), c_int]
     frotz_lib.get_dictionary.restype = None
     frotz_lib.ztools_cleanup.argtypes = []
     frotz_lib.ztools_cleanup.restype = None
