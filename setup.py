@@ -15,9 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from setuptools import setup
-from setuptools.command.install import install
-from distutils.command.build import build
-from distutils.core import setup, Extension
+from distutils.core import setup
 import os.path, sys
 import subprocess
 
