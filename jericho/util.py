@@ -38,14 +38,13 @@ def clean(s):
 def _load_spacy():
     """ Loads spacy into the global namespace. """
     if 'spacy_nlp' not in globals():
+        global spacy_nlp
         import spacy
         try:
-            global spacy_nlp
-            import en_core_web_sm
-            spacy_nlp = en_core_web_sm.load()
-        except Exception as e:
-            print("Failed to load \'en\' with exception {}. Try: python -m spacy download en_core_web_sm".format(e))
-            raise
+            spacy_nlp = spacy.load("en_core_web_sm")
+        except OSError:
+            spacy.cli.download("en_core_web_sm")
+            spacy_nlp = spacy.load("en_core_web_sm")
 
 
 def tokenize(str):
