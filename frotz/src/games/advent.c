@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,16 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Adventure: http://ifdb.tads.org/viewgame?id=fft6pu91j85y4acv
 
-const zword advent_special_ram_addrs[5] = {
+const zword advent_special_ram_addrs[3] = {
   15198, // Kill dragon
-  15191, // Pour water on plant
-  15287, // Give food to bear
+  // 15191, // Pour water on plant
+  //15287, // Give food to bear
   15282, // Bear following you
   15642, // FEE/FIE/FOE/FOO
 };
 
 zword* advent_ram_addrs(int *n) {
-    *n = 5;
+    *n = 3;
     return advent_special_ram_addrs;
 }
 
@@ -84,7 +84,7 @@ int advent_max_score() {
 }
 
 int advent_get_num_world_objs() {
-  return 255;
+  return 276;
 }
 
 int advent_ignore_moved_obj(zword obj_num, zword dest_num) {
@@ -104,4 +104,11 @@ int advent_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void advent_clean_world_objs(zobject* objs) {
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 10111111
+  char mask = 0b10111111;  // Attr 25.
+  for (int i=1; i<=advent_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= mask;
+  }
 }

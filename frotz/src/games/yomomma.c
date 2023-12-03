@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,14 +24,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Raising the Flag on Mount Yomomma - http://ifdb.tads.org/viewgame?id=1iqmpkn009h9gbug
 
-const zword yomomma_special_ram_addrs[3] = {
+const zword yomomma_special_ram_addrs[8] = {
   21060, // Climb on stage
   16005, // Counts stage victories
   36238, // Discovered Ralph's secrets
+  21072, // Insult Vincent.
+  15643, // Set thermostat to warm
+  16638, // Take Gus' sweater.
+  36226, // Talk to britney to learn Gus' secret. (alt. 26050, 36202)
+  14110, // Turn music up.
+  // 36248, // Set thermostat to warm + give cola to guard
 };
 
 zword* yomomma_ram_addrs(int *n) {
-    *n = 3;
+    *n = 8;
     return yomomma_special_ram_addrs;
 }
 

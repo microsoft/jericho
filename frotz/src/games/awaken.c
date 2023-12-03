@@ -24,9 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Awakening: http://www.ifwiki.org/index.php/The_Awakening
 
+
+
+const zword awaken_special_ram_addrs[3] = {
+  9746, // Make the guard dog in front of the church angry. Alternative: 10756
+  13298, // Read the journal on the desk in the Small Office.
+  11465, // Tie rope to handle. Alternative: 11466
+};
+
 zword* awaken_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 3;
+    return awaken_special_ram_addrs;
 }
 
 char** awaken_intro_actions(int *n) {
@@ -96,11 +104,11 @@ int awaken_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void awaken_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=awaken_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 10111111
+  char mask3 = 0b10111111;  // Attr 25
+  for (int i=1; i<=awaken_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= mask3;
+  }
 }

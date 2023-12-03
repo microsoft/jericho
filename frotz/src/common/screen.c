@@ -1554,7 +1554,7 @@ void z_show_status (void)
     /* One V5 game (Wishbringer Solid Gold) contains this opcode by
        accident, so just return if the version number does not fit */
 
-    if (h_version >= V4)
+    if (h_version >= V4 || h_config & CONFIG_NOSTATUSLINE)
 	return;
 
     /* Read all relevant global variables from the memory of the

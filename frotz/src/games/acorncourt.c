@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -103,11 +103,11 @@ int acorn_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void acorn_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 6);
-    // Clear attr 25
-    for (i=1; i<=acorn_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  // Zero out attribute 25 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111111 11111111 10111111
+  char mask3 = 0b10111111;  // Attr 25.
+  for (int i=1; i<=acorn_get_num_world_objs(); ++i) {
+      objs[i].attr[3] &= mask3;
+  }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,9 +24,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Night at the Computer Center: http://ifdb.tads.org/viewgame?id=ydhwa11st460g9u3
 
+const zword night_special_ram_addrs[1] = {
+  6837,  // listen
+};
+
 zword* night_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return night_special_ram_addrs;
 }
 
 char** night_intro_actions(int *n) {
@@ -76,7 +80,7 @@ int night_max_score() {
 }
 
 int night_get_num_world_objs() {
-  return 113;
+  return 122;
 }
 
 int night_ignore_moved_obj(zword obj_num, zword dest_num) {
@@ -96,11 +100,7 @@ int night_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void night_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=night_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  objs[108].parent = 0;  // Mouse
+  objs[112].parent = 0;  // Message
+  clear_prop(&objs[108], 24);
 }

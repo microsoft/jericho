@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,15 +24,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Theatre: http://ifdb.tads.org/viewgame?id=bv8of8y9xeo7307g
 
-const zword theatre_special_ram_addrs[2] = {
+const zword theatre_special_ram_addrs[4] = {
   17830, // Tracks dial location
   17834, // Track watch hand
+  17832, // Hearing gibberish
+  18122, // Push the chandelier
 };
 
 const char *theatre_intro[] = { "\n" };
 
 zword* theatre_ram_addrs(int *n) {
-    *n = 2;
+    *n = 4;
     return theatre_special_ram_addrs;
 }
 
@@ -83,7 +85,7 @@ int theatre_max_score() {
 }
 
 int theatre_get_num_world_objs() {
-  return 255;
+  return 396;
 }
 
 int theatre_ignore_moved_obj(zword obj_num, zword dest_num) {

@@ -24,13 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Infidel: http://ifdb.tads.org/viewgame?id=anu79a4n1jedg5mm
 
-const zword infidel_special_ram_addrs[2] = {
+const zword infidel_special_ram_addrs[5] = {
   4333, // Dig in sand
-  9512 // Activated by 'eat beef'
+  9512, // Activated by 'eat beef'
+  9214, // Pour liquid on torch.
+  9200, // Stand on beam
+  9204, // Break seal
 };
 
 zword* infidel_ram_addrs(int *n) {
-    *n = 2;
+    *n = 5;
     return infidel_special_ram_addrs;
 }
 
@@ -81,7 +84,7 @@ int infidel_max_score() {
 }
 
 int infidel_get_num_world_objs() {
-  return 246;
+  return 249;
 }
 
 int infidel_ignore_moved_obj(zword obj_num, zword dest_num) {

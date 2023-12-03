@@ -24,14 +24,16 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Zork I: http://ifdb.tads.org/viewgame?id=0dbnusxunq7fw5ro
 
-const zword zork1_special_ram_addrs[3] = {
+const zword zork1_special_ram_addrs[5] = {
   2842, // Activated after 'read prayer' to dispel spirits; Alternative: 9108
   8856, // Activated by 'dig sand'
-  5657  // Tracks thief health
+  5657, // Tracks thief health
+  8898, // Press yellow buttom at the dam
+  8896, // Turn bolt with wrench at the dam
 };
 
 zword* zork1_ram_addrs(int *n) {
-    *n = 3;
+    *n = 5;
     return zork1_special_ram_addrs;
 }
 
@@ -108,9 +110,8 @@ int zork1_ignore_attr_clr(zword obj_num, zword attr_idx) {
 void zork1_clean_world_objs(zobject* objs) {
     char mask;
     int i;
-    zobject* thief_obj;
-    zobject* thief_loc;
-    mask = ~(1 << 4);
+    zobject *thief_obj, *thief_loc;
+    zobject *player_obj, *player_loc;
     thief_obj = &objs[114];
     thief_loc = &objs[thief_obj->parent];
     if (thief_loc->child == 114) {
@@ -119,10 +120,18 @@ void zork1_clean_world_objs(zobject* objs) {
     thief_obj->parent = 0;
     thief_obj->sibling = 0;
     thief_obj->child = 0;
+
     // Zero attribute 3 for all objects
+    mask = ~(1 << 4);
     for (i=1; i<=zork1_get_num_world_objs(); ++i) {
         objs[i].attr[0] &= mask;
     }
+
+    // Clear self/cretin attr 12.
+    player_obj = &objs[4];
+    player_loc = &objs[player_obj->parent];
+    mask = ~(1 << 3);
+    player_obj->attr[1] &= mask;
 }
 
 // Zork1-specific move count

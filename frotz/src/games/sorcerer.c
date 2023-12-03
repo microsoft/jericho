@@ -24,12 +24,18 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Sorcerer: http://ifdb.tads.org/viewgame?id=lidg5nx9ig0bwk55
 
-const zword sorcerer_special_ram_addrs[1] = {
+const zword sorcerer_special_ram_addrs[7] = {
   9807,  // Inside glass maze
+  9917, // Read matchbook, open vial, and drink potion
+  9875, // Wake up gnome and give them the coin.
+  9925, // Sleeping
+  9725, // Turn dial
+  9977, // Interactions with younger self
+  9871, // Effects of the vilstu potion
 };
 
 zword* sorcerer_ram_addrs(int *n) {
-    *n = 1;
+    *n = 7;
     return sorcerer_special_ram_addrs;
 }
 

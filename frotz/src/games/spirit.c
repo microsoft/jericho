@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -96,7 +96,7 @@ int spirit_max_score() {
 }
 
 int spirit_get_num_world_objs() {
-  return 176;
+  return 817;
 }
 
 int spirit_ignore_moved_obj(zword obj_num, zword dest_num) {

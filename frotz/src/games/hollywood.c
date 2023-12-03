@@ -24,12 +24,14 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Hollywood Hijinx: http://ifdb.tads.org/viewgame?id=jnfkbgdgopwfqist
 
-const zword hollywood_special_ram_addrs[5] = {
-  8207, // Atomic Chihuahua
-  8241, // Atomic Chihuahua
-  8341, // Atomic Chihuahua
+const zword hollywood_special_ram_addrs[8] = {
+  8241, 8341, // Atomic Chihuahua
   8323, // Breathing fire
-  8381, // Safe dial
+  8381, // Safe dial (Hallway)
+  8345, // Push piano
+  8269, // Hedge Maze
+  8221, // Safe dial (Bomb Shelter)
+  8363, // throw club at herman
 };
 
 const char *hollywood_intro[] = { "turn statue west\n",
@@ -37,12 +39,22 @@ const char *hollywood_intro[] = { "turn statue west\n",
                                   "turn statue north\n" };
 
 zword* hollywood_ram_addrs(int *n) {
-    *n = 5;
+    *n = 8;
     return hollywood_special_ram_addrs;
 }
 
 char** hollywood_intro_actions(int *n) {
   *n = 3;
+  // Patch bug in source file.
+  // 8b31:  GET_PROP        G00,#0c -> -(SP)
+  // 8b35:  PRINT_PADDR     (SP)+
+  //
+  // G00 is object 102 (Crawl Space, South) which doesn't have property 0x0c (i.e., 12).
+  // PRINT_PADDR will try to print text found at address 0 (segfault).
+  // Replace that PRINT_PADDR op with the nop.
+  zmp[0x8b35] = 180;  // Nop
+  zmp[0x8b36] = 180;  // Nop
+
   return hollywood_intro;
 }
 
@@ -108,11 +120,19 @@ int hollywood_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void hollywood_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 3);
-    // Clear attr 28
-    for (i=1; i<=hollywood_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=hollywood_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 4);
+    clear_attr(&objs[i], 28);
+  }
+
+  clear_attr(&objs[116], 31);  // Upstairs Hall
+  clear_attr(&objs[158], 31);  // Entrance to Hedge Maze
+
+  clear_prop(&objs[19], 1);  // Red match counter.
+  clear_prop(&objs[169], 1);  // Green match counter.
+  clear_prop(&objs[181], 9);  // The red wax statuette burning down counter.
+
+  // Completely ignore the 'pseudo' object.
+  strcpy(&objs[237].name, "pseudo");  // Its name reflects what the player's focus.
+  clear_prop(&objs[237], 31);
 }

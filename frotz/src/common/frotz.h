@@ -550,21 +550,6 @@ extern char *option_zcode_path;	/* dg */
 
 extern long reserve_mem;
 
-// Keep track of the last n=16 changes to object tree
-extern int move_diff_cnt;
-extern zword move_diff_objs[16];
-extern zword move_diff_dest[16];
-
-// Keep track of the last n=16 changes to obj attributes
-extern int attr_diff_cnt;
-extern zword attr_diff_objs[16];
-extern zword attr_diff_nb[16];
-
-// Keep track of the last n=16 clears of obj attributes
-extern int attr_clr_cnt;
-extern zword attr_clr_objs[16];
-extern zword attr_clr_nb[16];
-
 // Keep track of up to n=16 changes to special ram locations defined by the game
 extern int ram_diff_cnt;
 extern zword ram_diff_addr[16];

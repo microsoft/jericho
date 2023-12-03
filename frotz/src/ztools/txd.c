@@ -194,7 +194,7 @@ extern int optind;
 extern const char *optarg;
 #endif
 
-static int option_labels = 1;
+static int option_labels = 0;
 static int option_grammar = 1;
 static int option_dump = 0;
 static int option_width = 500;
