@@ -18,16 +18,22 @@ from setuptools import setup
 from distutils.core import setup
 import os.path, sys
 import subprocess
+import platform
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 FROTZPATH = os.path.join(BASEPATH, 'frotz')
-subprocess.check_call(['make', 'clean'], cwd=FROTZPATH)
-subprocess.check_call(['make', 'library', '-j', '4'], cwd=FROTZPATH)
 
-frotz_c_lib = 'jericho/libfrotz.so'
-if not os.path.isfile(frotz_c_lib):
-    print('ERROR: Unable to find required library %s.'%(frotz_c_lib))
-    sys.exit(1)
+if platform.system() == 'Windows':
+    # No DLL needed on windows, just skip it.
+    pass
+else:
+    subprocess.check_call(['make', 'clean'], cwd=FROTZPATH)
+    subprocess.check_call(['make', 'library', '-j', '4'], cwd=FROTZPATH)
+
+    frotz_c_lib = 'jericho/libfrotz.so'
+    if not os.path.isfile(frotz_c_lib):
+        print('ERROR: Unable to find required library %s.'%(frotz_c_lib))
+        sys.exit(1)
 
 exec(open('jericho/version.py').read())
 setup(name='jericho',
