@@ -380,7 +380,7 @@ extern int property_size_mask;
 
 extern zbyte_t *datap;
 
-extern option_inform;
+extern short option_inform;
 
 extern unsigned long file_size;
 
@@ -431,7 +431,7 @@ void show_syntax_of_action(int action,
 			unsigned int prep_type,
 			unsigned long attr_names_base,
 			unsigned long prep_table_base);
-			
+
 void show_syntax_of_parsing_routine(unsigned long parsing_routine,
 				    unsigned long verb_table_base,
 				    unsigned int verb_count,
@@ -439,7 +439,7 @@ void show_syntax_of_parsing_routine(unsigned long parsing_routine,
 				    unsigned int prep_type,
 				    unsigned long prep_table_base,
 				    unsigned long attr_names_base);
-				    
+
 int is_gv2_parsing_routine(unsigned long parsing_routine,
 				    unsigned long verb_table_base,
 				    unsigned int verb_count);

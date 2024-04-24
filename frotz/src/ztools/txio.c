@@ -24,7 +24,7 @@ int property_size_mask;
 
 zbyte_t *datap;
 
-int option_inform = 0;
+short option_inform = 0;
 
 unsigned long file_size = 0;
 
@@ -406,7 +406,7 @@ unsigned long *address;
                         lookup_table[i][j] = v1_lookup_table[i][j];
                     else
                         lookup_table[i][j] = v3_lookup_table[i][j];
-                }   
+                }
                 if (option_inform && lookup_table[i][j] == '\"')
                     lookup_table[i][j] = '~';
             }
@@ -646,7 +646,7 @@ char *buf
                         lookup_table[i][j] = v1_lookup_table[i][j];
                     else
                         lookup_table[i][j] = v3_lookup_table[i][j];
-                }   
+                }
                 if (option_inform && lookup_table[i][j] == '\"')
                     lookup_table[i][j] = '~';
             }
@@ -992,7 +992,7 @@ int c;
     static int unicode_table_loaded;
     int unicode_table_addr;
     int length, i;
-    
+
     if (!unicode_table_loaded) {
     	if (header.mouse_table && (get_word(header.mouse_table) > 2)) {
 	    unicode_table_addr = get_word(header.mouse_table + 6);
@@ -1004,7 +1004,7 @@ int c;
 	}
 	unicode_table_loaded = 1;
     }
-  
+
     if ((c <= 0xdf) && !unicode_table[c]) {
     	if (option_inform)
 	    tx_printf("@%s", inform_euro_substitute[c - 0x9b]);

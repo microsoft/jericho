@@ -21,8 +21,8 @@ static void show_words
 static unsigned long lookup_word
     (unsigned long, unsigned int, unsigned int, unsigned int);
 void configure_inform_tables
-    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
-     unsigned long, unsigned long, unsigned long);
+    (unsigned long, unsigned short *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *, unsigned long *, unsigned long *);
 int print_attribute_name (unsigned long, int);
 int print_inform_action_name (unsigned long, int);
 void configure_object_tables
@@ -525,7 +525,7 @@ int symbolic;
 
     unsigned int obj_count;
     unsigned long obj_table_base, obj_table_end, obj_data_base, obj_data_end;
-    unsigned int inform_version;
+    unsigned short inform_version;
     unsigned long class_numbers_base, class_numbers_end;
     unsigned long property_names_base, property_names_end;
     unsigned long attr_names_base, attr_names_end;

@@ -19,8 +19,8 @@ static void print_object
 static void print_object_desc
     (int);
 void configure_inform_tables
-    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
-     unsigned long, unsigned long, unsigned long);
+    (unsigned long, unsigned short *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *, unsigned long *, unsigned long *);
 int print_attribute_name (unsigned long, int);
 int print_property_name (unsigned long, int);
 #else

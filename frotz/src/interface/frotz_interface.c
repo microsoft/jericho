@@ -466,7 +466,7 @@ void setZArgs(unsigned char *s) {
 //   Function pointers      //
 //==========================//
 
-char** (*ram_addr_fns[]) (int* num_actions) = {
+zword* (*ram_addr_fns[]) (int* num_actions) = {
   default_ram_addrs,
   acorn_ram_addrs,
   adventureland_ram_addrs,

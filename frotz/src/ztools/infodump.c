@@ -207,8 +207,8 @@ extern const char *optarg;
 
 #ifdef __STDC__
 void configure_inform_tables
-    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
-     unsigned long, unsigned long, unsigned long);
+    (unsigned long, unsigned short *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *, unsigned long *, unsigned long *);
 #else
 void configure_inform_tables ();
 #endif
