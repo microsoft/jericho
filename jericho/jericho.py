@@ -20,7 +20,7 @@ import tempfile
 import warnings
 import hashlib
 
-from pkg_resources import Requirement, resource_filename
+import importlib.resources
 from collections import defaultdict
 import multiprocessing as mp
 
@@ -33,8 +33,7 @@ from . import util as utl
 from .template_action_generator import TemplateActionGenerator
 from jericho.util import chunk
 
-
-JERICHO_PATH = resource_filename(Requirement.parse('jericho'), 'jericho')
+JERICHO_PATH = importlib.resources.files("jericho")
 FROTZ_LIB_PATH = os.path.join(JERICHO_PATH, 'libfrotz.so')
 
 # Function to unload a shared library.
