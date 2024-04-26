@@ -36,6 +36,7 @@ setup(name='jericho',
     description='A python interface to text-based adventure games.',
     author='Matthew Hausknecht',
     packages=['jericho'],
+    python_requires='>=3.9',
     include_package_data=True,
     test_suite='pytest',
     tests_require=[

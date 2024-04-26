@@ -1,6 +1,7 @@
 # Unix C makefile for the Infocom tools
 
-CC = cc
+# Use gcc if CC is not defined
+CC ?= gcc
 
 #Some systems declare getopt, others do not.  Pick whichever works
 #CFLAGS = -O -DHAS_GETOPT
