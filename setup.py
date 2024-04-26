@@ -31,20 +31,24 @@ if not os.path.isfile(frotz_c_lib):
 
 exec(open('jericho/version.py').read())
 setup(name='jericho',
-      version=__version__,
-      install_requires=[
-          'numpy',
-          "spacy>=2.1.0"
-      ],
-      description='A python interface to text-based adventure games.',
-      author='Matthew Hausknecht',
-      packages=['jericho'],
-      include_package_data=True,
-      package_dir={'jericho': 'jericho'},
-      package_data={'jericho': ['libfrotz.so', 'clubfloyd_verb_counts.json']},
-      classifiers=[
-          "Programming Language :: Python :: 3",
-          "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
-          "Operating System :: POSIX :: Linux",
-      ]
+    version=__version__,
+    install_requires=[
+        'numpy',
+        "spacy>=2.1.0"
+    ],
+    description='A python interface to text-based adventure games.',
+    author='Matthew Hausknecht',
+    packages=['jericho'],
+    include_package_data=True,
+    test_suite='pytest',
+    tests_require=[
+        'pytest',
+    ],
+    package_dir={'jericho': 'jericho'},
+    package_data={'jericho': ['libfrotz.so', 'clubfloyd_verb_counts.json']},
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: GNU General Public License v2 or later (GPLv2+)",
+        "Operating System :: POSIX :: Linux",
+    ]
 )
