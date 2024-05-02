@@ -23,12 +23,15 @@
 <br>
 
 ## Requirements
-***Linux***, ***Python 3***, ***Spacy***, and basic build tools like ***gcc***,***make*** & ***curl***.
+***Linux***, ***Python 3.9+***, ***Spacy***, and basic build tools like ***gcc***,***make*** & ***curl***.
 
 ## Install
 ```bash
-pip3 install jericho
-python3 -m spacy download en_core_web_sm
+conda create -n jericho python=3
+conda activate jericho
+
+python -m pip install jericho
+python -m spacy download en_core_web_sm
 ```
 
 ## Documentation

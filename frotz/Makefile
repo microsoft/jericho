@@ -7,7 +7,8 @@ RANLIB = /usr/bin/ranlib
 # Define your C compiler.  I recommend gcc if you have it.
 # MacOS users should use "cc" even though it's really "gcc".
 #
-CC = gcc
+# Use gcc if CC is not defined
+CC ?= gcc
 
 # Enable compiler warnings. This is an absolute minimum.
 CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
