@@ -98,8 +98,8 @@ static void dump_opcode (unsigned long, int, int, int *, int);
 static void dump_operand (unsigned long *, int, int, int *, int *);
 static void print_variable (int);
 void configure_inform_tables
-    (unsigned long, unsigned short, unsigned long, unsigned long, unsigned long,
-     unsigned long, unsigned long, unsigned long);
+    (unsigned long, unsigned short *, unsigned long *, unsigned long *, unsigned long *,
+     unsigned long *, unsigned long *, unsigned long *);
 void configure_object_tables
     (unsigned int *, unsigned long *, unsigned long *, unsigned long *,
      unsigned long *);
