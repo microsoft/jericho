@@ -1,2 +1,3 @@
 recursive-include frotz *
 include jericho/clubfloyd_verb_counts.json
+include requirements.txt
