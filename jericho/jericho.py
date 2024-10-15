@@ -36,6 +36,9 @@ from jericho.util import chunk
 JERICHO_PATH = importlib.resources.files("jericho")
 FROTZ_LIB_PATH = os.path.join(JERICHO_PATH, 'libfrotz.so')
 
+# The buffer size for actions in frotz. -2 to allow for newline and null terminator.
+INPUT_BUFFER_SIZE = 200 - 2
+
 # Function to unload a shared library.
 dlclose_func = CDLL(None).dlclose  # This WON'T work on Win
 dlclose_func.argtypes = [c_void_p]
@@ -361,6 +364,10 @@ class UnsupportedGameWarning(UserWarning):
     pass
 
 
+class TruncatedInputActionWarning(UserWarning):
+    pass
+
+
 class FrotzEnv():
     """
     The Frotz Environment is a fast interface to Z-Machine games.
@@ -465,9 +472,19 @@ class FrotzEnv():
         the immediate reward, a boolean indicating whether the game is over,\
         and a dictionary of info.
         :rtype: string, float, boolean, dictionary
+
+        Note:
+        - The action is converted to bytes and truncated to 198 characters.
         '''
+        action_bytes = action.encode('utf-8')
+        if len(action_bytes) > INPUT_BUFFER_SIZE:
+            action_bytes = action_bytes[:INPUT_BUFFER_SIZE]
+            msg = ("Once converted to bytes, actions should have less than 198 characters."
+                   " Action '{}' was truncated to '{}'.".format(action, action_bytes.decode()))
+            warnings.warn(msg, TruncatedInputActionWarning)
+
         old_score = self.frotz_lib.get_score()
-        next_state = self.frotz_lib.step((action+'\n').encode('utf-8')).decode('cp1252')
+        next_state = self.frotz_lib.step(action_bytes + b'\n').decode('cp1252')
         score = self.frotz_lib.get_score()
         reward = score - old_score
         return next_state, reward, (self.game_over() or self.victory()),\
