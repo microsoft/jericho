@@ -127,3 +127,19 @@ def test_saving_opcode_in_state():
         else:
             obs, rew, done, info = env.step(cmd)
             assert not env._emulator_halted()
+
+
+def test_very_long_action():
+    rom = pjoin(DATA_PATH, "905.z5")
+    env = jericho.FrotzEnv(rom)
+    env.reset()
+
+    long_command = "It's a " + "very " * 36 + "long action!"
+    assert len(long_command) == 199
+    env.step(long_command)
+    env.step(long_command * 2)
+
+    long_command = "It's a " + "très " * 36 + "long action!"
+    assert len(long_command) == 199
+    env.step(long_command)
+    env.step(long_command * 2)
