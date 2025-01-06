@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include "frotz_interface.h"
 #include "games.h"
 #include "ztools.h"
+#include "md5.h"
 
 extern void interpret (void);
 extern void interpret_until_read (void);
@@ -36,6 +37,10 @@ extern void dumb_set_next_action (char *a);
 extern void dumb_show_screen (int a);
 extern char* dumb_get_screen(void);
 extern void dumb_clear_screen(void);
+extern char* dumb_get_lower_screen(void);
+extern void dumb_clear_lower_screen(void);
+extern char* dumb_get_upper_screen(void);
+extern void dumb_clear_upper_screen(void);
 extern void z_save (void);
 extern void load_story(char *s);
 extern void load_story_rom(char *s, void* rom, size_t rom_size);
@@ -68,18 +73,26 @@ extern int getRngCounter();
 extern void setRng(long, int, int);
 
 zbyte next_opcode;
+bool skip_z_read_char = FALSE;
+int last_ret_pc = -1;
 int desired_seed = 0;
 int ROM_IDX = 0;
-char world[8192] = "";
+
+char world[256 + 8192] = "";  // Upper + lower screens.
+
 int emulator_halted = 0;
 char halted_message[] = "Emulator halted due to runtime error.\n";
-// Track the addresses and values of special per-game ram locations.
-int num_special_addrs = 0;
-zword *special_ram_addrs = NULL;
-zbyte *special_ram_values = NULL;
-int ram_diff_cnt;
-zword ram_diff_addr[16];
-zword ram_diff_value[16];
+
+// Track the objects.
+zobject* prev_objs_state = NULL;
+zobject* curr_objs_state = NULL;
+
+// Track the value of special per-game ram locations.
+zbyte* prev_special_ram = NULL;
+zbyte* curr_special_ram = NULL;
+
+bool objects_state_changed = FALSE;
+bool special_ram_changed = FALSE;
 
 
 // Runs a single opcode on the Z-Machine
@@ -91,7 +104,7 @@ void zstep() {
 // Run the Z-Machine until it requires user input
 void run_free() {
   // Opcode 228 (z_read) and 246 (z_read_char) indicate need for user input
-  while (next_opcode != 228 && next_opcode != 246 && emulator_halted <= 0) {
+  while (next_opcode != 228 && (next_opcode != 246 || skip_z_read_char) && emulator_halted <= 0) {
     zstep();
   }
 }
@@ -106,6 +119,18 @@ void replace_newlines_with_spaces(char *s) {
     *pch = ' ';
     s = pch;
   }
+}
+
+char* trim_whitespaces(char* obs) {
+  // Trim trailing whitespace.
+  char* pch = obs + strlen(obs) - 1;
+  while (pch > obs && isspace(*pch)) {
+      pch = pch - 1;
+  }
+  *(pch+1) = '\0';
+
+  // Trim leading whitespaces.
+  return obs + strspn(obs, "\n\r ");
 }
 
 enum SUPPORTED {
@@ -314,10 +339,11 @@ void shutdown() {
   reset_memory();
   dumb_free();
   free_setup();
-  if (special_ram_values != NULL) {
-    free(special_ram_values);
-    special_ram_values = NULL;
-  }
+
+  free(prev_objs_state); prev_objs_state = NULL;
+  free(curr_objs_state); curr_objs_state = NULL;
+  free(prev_special_ram); prev_special_ram = NULL;
+  free(curr_special_ram); curr_special_ram = NULL;
 }
 
 // Save the state of the game into a string buffer
@@ -385,23 +411,6 @@ void setRAM(unsigned char *ram) {
   memcpy(zmp, ram, h_dynamic_size);
 }
 
-int zmp_diff(int addr) {
-  if (zmp[addr] != prev_zmp[addr]) {
-    return 1;
-  }
-  return 0;
-}
-
-int zmp_diff_range(int start, int end) {
-  int i;
-  for (i=start; i<end; ++i) {
-    if (zmp_diff(i)) {
-      return 1;
-    }
-  }
-  return 0;
-}
-
 int getPC() {
   return pcp - zmp;
 }
@@ -424,6 +433,10 @@ int getFP() {
 
 void setFP(int v) {
   fp = stack + v;
+}
+
+int getRetPC() {
+  return *(fp+2) | (*(fp+2+1) << 9);
 }
 
 int get_opcode() {
@@ -1335,6 +1348,32 @@ void (*clean_world_objs_fns[]) (zobject* objs) = {
 };
 
 
+//================================//
+// ZObject Manipulation Functions //
+//================================//
+
+void clear_attr(zobject* obj, unsigned char attr_id) {
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 11111011 11111111 11111111
+  // ^        ^    ^   ^        ^
+  // 0        8   13  16       24
+  //
+  // bit = 8 - (13 % 8) - 1 = 2
+  // mask = ~(1 << 2) = 0b11111011
+  char bit = 8 - (attr_id % 8) - 1;
+  char mask = ~(1 << bit);
+  obj->attr[attr_id / 8] &= mask;
+}
+
+void clear_prop(zobject* obj, unsigned char prop_id) {
+  for (int i=0; i < JERICHO_NB_PROPERTIES; ++i) {
+    if (obj->prop_ids[i] == prop_id) {
+      memset(&obj->prop_data[i * JERICHO_PROPERTY_LENGTH], 0, obj->prop_lengths[i] * sizeof(zbyte));
+      break;
+    }
+  }
+}
+
 //==========================//
 // Function Instantiations  //
 //==========================//
@@ -1348,7 +1387,10 @@ char** get_intro_actions(int* num_actions) {
 }
 
 char* clean_observation(char* obs) {
-  return (*clean_observation_fns[ROM_IDX])(obs);
+  char* out = (*clean_observation_fns[ROM_IDX])(obs);
+  out = trim_whitespaces(out);
+  // printf("-<obs>-\n%s\n-</obs>-", out);  // For debugging.
+  return out;
 }
 
 short get_score() {
@@ -1383,18 +1425,6 @@ int halted() {
   return emulator_halted;
 }
 
-int ignore_moved_obj(zword obj_num, zword dest_num) {
-  return (*ignore_moved_obj_fns[ROM_IDX])(obj_num, dest_num);
-}
-
-int ignore_attr_diff(zword obj_num, zword dest_num) {
-  return (*ignore_attr_diff_fns[ROM_IDX])(obj_num, dest_num);
-}
-
-int ignore_attr_clr(zword obj_num, zword dest_num) {
-  return (*ignore_attr_clr_fns[ROM_IDX])(obj_num, dest_num);
-}
-
 void clean_world_objs(zobject* objs) {
   return (*clean_world_objs_fns[ROM_IDX])(objs);
 }
@@ -1408,11 +1438,15 @@ int is_supported(char *story_file) {
 void take_intro_actions() {
   int num_actions = 0;
   char **intro_actions = NULL;
-  int i;
   intro_actions = get_intro_actions(&num_actions);
   if (num_actions <= 0 || intro_actions == NULL)
     return;
-  for (i=0; i<num_actions; ++i) {
+
+  char* text;
+  for (int i=0; i<num_actions; ++i) {
+    strcat(world, dumb_get_lower_screen());
+    dumb_clear_lower_screen();
+
     dumb_set_next_action(intro_actions[i]);
     zstep();
     run_free();
@@ -1421,52 +1455,78 @@ void take_intro_actions() {
 
 // Returns the number of special ram addresses
 int get_special_ram_size() {
+  int num_special_addrs;
+  get_ram_addrs(&num_special_addrs);
   return num_special_addrs;
 }
 
 // Returns the current values of the special ram addresses
-void get_special_ram(unsigned char *ram) {
-  int i;
-  for (i=0; i<num_special_addrs; ++i) {
+void get_special_ram(zbyte *ram) {
+  int num_special_addrs;
+  zword* special_ram_addrs = get_ram_addrs(&num_special_addrs);
+  for (int i=0; i<num_special_addrs; ++i) {
     ram[i] = zmp[special_ram_addrs[i]];
   }
 }
 
-// Create memory used to hold the special ram values
-void init_special_ram() {
-  special_ram_addrs = get_ram_addrs(&num_special_addrs);
-  if (special_ram_values != NULL) {
-    free(special_ram_values);
+// Returns the special ram addresses.
+void get_special_ram_addrs(zword *ram_addrs) {
+  int num_special_addrs;
+  zword* special_ram_addrs = get_ram_addrs(&num_special_addrs);
+  for (int i=0; i<num_special_addrs; ++i) {
+    ram_addrs[i] = special_ram_addrs[i];
   }
-  if (num_special_addrs > 0) {
-    special_ram_values = (zbyte*) malloc(num_special_addrs * sizeof(zbyte));
-  }
+}
+
+// Create memory used to hold the special ram values.
+void init_special_ram_tracker() {
+  if (prev_special_ram) { free(prev_special_ram); }
+  if (curr_special_ram) { free(curr_special_ram); }
+  prev_special_ram = calloc(get_special_ram_size(), sizeof(zbyte));
+  curr_special_ram = calloc(get_special_ram_size(), sizeof(zbyte));
+}
+
+// Create memory used to hold the objects' state.
+void init_objects_tracker() {
+  free(prev_objs_state); prev_objs_state = NULL;
+  free(curr_objs_state); curr_objs_state = NULL;
+  prev_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
+  curr_objs_state = calloc(get_num_world_objs() + 1, sizeof(zobject));
 }
 
 // Updates the special ram values to reflect the current memory
-void update_special_ram() {
-  int i;
-  for (i=0; i<num_special_addrs; ++i) {
-    special_ram_values[i] = zmp[special_ram_addrs[i]];
+void update_special_ram_tracker() {
+  get_special_ram(curr_special_ram);
+}
+
+// Updates the objects list, used for tracking state changes, to reflect the current memory
+void update_objs_tracker() {
+  get_world_objects(curr_objs_state, TRUE);
+
+  // For a more robust state hash, do not include siblings and children
+  // since their ordering in memory may change.
+  for (int i=1; i<=get_num_world_objs(); ++i) {
+    curr_objs_state[i].sibling = 0;
+    curr_objs_state[i].child = 0;
   }
 }
 
-// Records changes to the special ram addresses and updates their values.
-void update_ram_diff() {
-  int i;
-  zbyte curr_ram_value;
-  zword addr;
-  for (i=0; i<num_special_addrs; ++i) {
-    addr = special_ram_addrs[i];
-    curr_ram_value = zmp[addr];
-    if (curr_ram_value != special_ram_values[i]) {
-      // Record the difference in global ram_diff_addr / ram_diff_value
-      ram_diff_addr[ram_diff_cnt] = addr;
-      ram_diff_value[ram_diff_cnt] = (zword) curr_ram_value;
-      ram_diff_cnt++;
-    }
-  }
+void get_prev_objs_state(zobject *objs_state) {
+  memcpy(objs_state, prev_objs_state, (get_num_world_objs() + 1) * sizeof(zobject));
 }
+
+void set_prev_objs_state(zobject *objs_state) {
+  memcpy(prev_objs_state, objs_state, (get_num_world_objs() + 1) * sizeof(zobject));
+}
+
+void get_prev_special_ram(zbyte *ram) {
+  memcpy(ram, prev_special_ram, get_special_ram_size() * sizeof(zbyte));
+}
+
+void set_prev_special_ram(zbyte *ram) {
+  memcpy(prev_special_ram, ram, get_special_ram_size() * sizeof(zbyte));
+}
+
 
 char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   char* text;
@@ -1493,8 +1553,11 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
   zstep();
   run_free();
   load_rom_bindings(story_file);
+
+  world[0] = '\0';  // Clear lower screen buffer.
   take_intro_actions();
-  init_special_ram();
+  init_special_ram_tracker();
+  init_objects_tracker();
 
   // Extra procedures for TextWorld
   if (ROM_IDX == TEXTWORLD_) {
@@ -1523,25 +1586,38 @@ char* setup(char *story_file, int seed, void *rom, size_t rom_size) {
     run_free();
   }
 
-  text = dumb_get_screen();
-  text = clean_observation(text);
-  strcpy(world, text);
-  dumb_clear_screen();
+  // Concatenate upper and lower screens.
+  strcat(world, dumb_get_lower_screen());
+  strcat(world, dumb_get_upper_screen());
+  strcpy(world, clean_observation(world));
+
+  dumb_clear_lower_screen();
+  dumb_clear_upper_screen();
+
   return world;
 }
 
-char* step(char *next_action) {
-  char* text;
-
-  if (emulator_halted > 0)
+char* jericho_step(char *next_action) {
+  if (emulator_halted == 1)
     return halted_message;
 
+  if (emulator_halted == 2)
+    return "Emulator has stopped.";
+
+  // Swap prev_objs_state and curr_objs_state.
+  zobject* tmp_objs_state;
+  tmp_objs_state = prev_objs_state;
+  prev_objs_state = curr_objs_state;
+  curr_objs_state = tmp_objs_state;
+
+  // Swap prev_special_ram and curr_special_ram.
+  zword* tmp_special_ram;
+  tmp_special_ram = prev_special_ram;
+  prev_special_ram = curr_special_ram;
+  curr_special_ram = tmp_special_ram;
+
   // Clear the object, attr, and ram diffs
-  move_diff_cnt = 0;
-  attr_diff_cnt = 0;
-  attr_clr_cnt = 0;
-  ram_diff_cnt = 0;
-  update_special_ram();
+  last_ret_pc = getRetPC();
 
   dumb_set_next_action(next_action);
 
@@ -1549,11 +1625,19 @@ char* step(char *next_action) {
   run_free();
 
   // Check for changes to special ram
-  update_ram_diff();
-  text = dumb_get_screen();
-  text = clean_observation(text);
-  strcpy(world, text);
-  dumb_clear_screen();
+  update_objs_tracker();
+  update_special_ram_tracker();
+
+  objects_state_changed = memcmp(prev_objs_state, curr_objs_state, (get_num_world_objs() + 1) * sizeof(zobject)) != 0;
+  special_ram_changed = memcmp(prev_special_ram, curr_special_ram, get_special_ram_size() * sizeof(zbyte)) != 0;
+
+  // Retrieve and concatenate upper and lower screens.
+  strcpy(world, dumb_get_lower_screen());
+  strcat(world, dumb_get_upper_screen());
+  strcpy(world, clean_observation(world));
+  dumb_clear_lower_screen();
+  dumb_clear_upper_screen();
+
   return world;
 }
 
@@ -1565,74 +1649,37 @@ void set_narrative_text(char* text) {
   strcpy(world, text);
 }
 
-// Returns a world diff that ignores selected objects
-// objs and dest are a 64-length pre-zeroed arrays.
-void get_cleaned_world_diff(zword *objs, zword *dest) {
-  int i;
-  int j = 0;
-  for (i=0; i<move_diff_cnt; ++i) {
-    if (ignore_moved_obj(move_diff_objs[i], move_diff_dest[i])) {
-      continue;
-    }
-    objs[j] = move_diff_objs[i];
-    dest[j] = move_diff_dest[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<attr_diff_cnt; ++i) {
-    if (ignore_attr_diff(attr_diff_objs[i], attr_diff_nb[i])) {
-      continue;
-    }
-    objs[16+j] = attr_diff_objs[i];
-    dest[16+j] = attr_diff_nb[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<attr_clr_cnt; ++i) {
-    if (ignore_attr_clr(attr_clr_objs[i], attr_clr_nb[i])) {
-      continue;
-    }
-    objs[32+j] = attr_clr_objs[i];
-    dest[32+j] = attr_clr_nb[i];
-    j++;
-  }
-  j = 0;
-  for (i=0; i<ram_diff_cnt; ++i) {
-    objs[48+j] = ram_diff_addr[i];
-    dest[48+j] = ram_diff_value[i];
-    j++;
-  }
+bool get_objects_state_changed() {
+  return objects_state_changed;
+}
+
+void set_objects_state_changed(bool value) {
+  objects_state_changed = value;
+}
+
+bool get_special_ram_changed() {
+  return special_ram_changed;
+}
+
+void set_special_ram_changed(bool value) {
+  special_ram_changed = value;
+}
+
+char* get_current_state() {
+  return world;
 }
 
 // Returns 1 if the last action changed the state of the world.
 int world_changed() {
-  int i;
-  for (i=0; i<move_diff_cnt; ++i) {
-    if (ignore_moved_obj(move_diff_objs[i], move_diff_dest[i])) {
-      continue;
-    }
+  if (game_over() > 0 || victory() > 0) {
     return 1;
   }
-  for (i=0; i<attr_diff_cnt; ++i) {
-    if (ignore_attr_diff(attr_diff_objs[i], attr_diff_nb[i])) {
-      continue;
-    }
-    return 1;
-  }
-  for (i=0; i<attr_clr_cnt; ++i) {
-    if (ignore_attr_clr(attr_clr_objs[i], attr_clr_nb[i])) {
-      continue;
-    }
-    return 1;
-  }
-  if (ram_diff_cnt > 0) {
-    return 1;
-  }
-  return 0;
+
+  return objects_state_changed || special_ram_changed || last_ret_pc != getRetPC();
 }
 
+
 void get_object(zobject *obj, zword obj_num) {
-  int i;
   zbyte prop_value;
   zbyte mask;
 
@@ -1644,12 +1691,19 @@ void get_object(zobject *obj, zword obj_num) {
   zbyte length;
   LOW_BYTE(obj_name_addr, length);
 
-  if (length <= 0 || length > 64) {
-    return;
-  }
-
   (*obj).num = obj_num;
-  get_text(0, obj_name_addr+1, &(*obj).name);
+
+  if (length > 0 && length <= 64) {
+    get_text(0, obj_name_addr+1, &(*obj).name);
+  }
+  else if (length > 64) {
+    // Object's short name is limited to 765 Z-characters.
+    // https://inform-fiction.org/zmachine/standards/z1point1/sect12.html#four.
+    char* buf = calloc(length, 1);
+    get_text(0, obj_name_addr+1, buf);
+    memcpy(&(*obj).name, buf, 64);  // Crop the name to the first 64 characters.
+    free(buf);
+  }
 
   (*obj).parent = get_parent(obj_num);
   (*obj).sibling = get_sibling(obj_num);
@@ -1657,32 +1711,136 @@ void get_object(zobject *obj, zword obj_num) {
 
   // Get the attributes of the object
   zword obj_addr = object_address(obj_num);
-  for (i=0; i<4; ++i) {
+  for (int i=0; i<4; ++i) {
     LOW_BYTE(obj_addr + i, (*obj).attr[i]);
   }
 
   // Get the properties of the object
+  zbyte value;
+  zbyte prop_id;
+  zword wprop_val;
+  zbyte bprop_val;
+  zword prop_data_addr;
+
+  /* Property id is in bottom five (six) bits */
   mask = (h_version <= V3) ? 0x1f : 0x3f;
-  zword prop_addr = first_property(obj_num);
-  LOW_BYTE(prop_addr, prop_value);
-  for (i=0; i<16 && prop_value != 0; ++i) {
-    (*obj).properties[i] = prop_value & mask;
-    prop_addr = next_property(prop_addr);
-    LOW_BYTE(prop_addr, prop_value);
+  zword prop_addr = first_property (obj_num);
+
+  /* Scan down the property list */
+  int i;
+  for (i=0; i < JERICHO_NB_PROPERTIES; ++i) {
+    LOW_BYTE (prop_addr, value)
+    prop_id = value & mask;
+    if (prop_id <= 0)
+        break;
+
+    (*obj).prop_ids[i] = prop_id;
+
+    /* Load property (byte or word sized) */
+    prop_data_addr = prop_addr + 1;
+    prop_addr = next_property (prop_addr);
+    zbyte prop_len = prop_addr - prop_data_addr - 1;
+
+    (*obj).prop_lengths[i] = prop_len;
+
+    // Zero-initialized the property data.
+    for (int j=0; j < JERICHO_PROPERTY_LENGTH; ++j) {
+      (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + j] = 0;
+    }
+
+    if (prop_len <= 2) {
+      if ((h_version <= V3 && !(value & 0xe0)) || (h_version >= V4 && !(value & 0xc0))) {
+          LOW_BYTE (prop_data_addr, bprop_val)
+          wprop_val = bprop_val;
+          (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + 0] = bprop_val;
+      } else {
+        LOW_WORD (prop_data_addr, wprop_val)
+        (*obj).prop_lengths[i] += 1;  // zword is two zbytes.
+        (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + 0] = zmp[prop_data_addr];
+        (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + 1] = zmp[prop_data_addr+1];
+      }
+
+    } else {
+      prop_data_addr++;  // Property data starts on the next zbyte.
+      for (int j=0; j < prop_len; ++j) {
+        (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + j] = zmp[prop_data_addr + j];
+      }
+    }
   }
-  for (; i<16; ++i) {
-    (*obj).properties[i] = 0;
+
+  // Zero-initialize the remaining properties.
+  for (; i<JERICHO_NB_PROPERTIES; ++i) {
+    (*obj).prop_ids[i] = 0;
+    (*obj).prop_lengths[i] = 0;
+
+    for (int j=0; j < JERICHO_PROPERTY_LENGTH; ++j) {
+      (*obj).prop_data[(i*JERICHO_PROPERTY_LENGTH) + j] = 0;
+    }
   }
 }
 
 void get_world_objects(zobject *objs, int clean) {
-  int i;
-  for (i=1; i<=get_num_world_objs(); ++i) {
+  for (int i=1; i<=get_num_world_objs(); ++i) {
     get_object(&objs[i], (zword) i);
   }
   if (clean > 0) {
     clean_world_objs(objs);
   }
+}
+
+
+#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c "
+#define BYTE_TO_BINARY(byte)  \
+  (byte & 0x80 ? '1' : '0'), \
+  (byte & 0x40 ? '1' : '0'), \
+  (byte & 0x20 ? '1' : '0'), \
+  (byte & 0x10 ? '1' : '0'), \
+  (byte & 0x08 ? '1' : '0'), \
+  (byte & 0x04 ? '1' : '0'), \
+  (byte & 0x02 ? '1' : '0'), \
+  (byte & 0x01 ? '1' : '0')
+
+// Print all information related to a given object.
+// Useful for debugging.
+void print_zobject(zobject* obj) {
+  //
+  printf("Obj%d: %s Parent%d Sibling%d Child%d", obj->num, obj->name, obj->parent, obj->sibling, obj->child);
+
+  printf(" Attributes [");
+  for (int i=0; i != 4; ++i) {
+    printf(BYTE_TO_BINARY_PATTERN, BYTE_TO_BINARY(obj->attr[i]));
+  }
+  printf("] Properties [");
+  for (int i=0; i != 64; ++i) {
+    if (obj->prop_ids[i] != 0) {
+      printf("%d ", obj->prop_ids[i]);
+    }
+  }
+
+  printf("]\n");
+  }
+
+void get_world_state_hash(char* md5_hash) {
+  int n_objs = get_num_world_objs() + 1; // Add extra spot for zero'th object
+  size_t objs_size = n_objs * sizeof(zobject);
+  size_t ram_size = get_special_ram_size() * sizeof(unsigned char);
+
+  int retPC = getRetPC();
+
+  size_t state_size = objs_size + ram_size + sizeof(int);
+  char* state = malloc(state_size);
+
+  memcpy(state, curr_objs_state, objs_size);
+  memcpy(&state[objs_size], curr_special_ram, ram_size);
+  memcpy(&state[objs_size+ram_size], &retPC, sizeof(int));
+
+  FILE* fp = fmemopen(state, state_size, "rb");
+  sum(fp, md5_hash);
+  fclose(fp);
+
+  // printf("md5 (objs): %s\n", md5_hash);  // For debugging.
+
+  free(state);
 }
 
 // Teleports an object (and all children) to the desired destination
@@ -1696,58 +1854,39 @@ void teleport_tree(zword obj, zword dest) {
   insert_tree(obj, dest);
 }
 
-void test() {
-  int i;
-  for (i=0; i<move_diff_cnt; ++i) {
-    printf("Move Diff %d: %d --> %d\n", i, move_diff_objs[i], move_diff_dest[i]);
-  }
-  for (i=0; i<attr_diff_cnt; ++i) {
-    printf("Attr Diff %d: %d --> %d\n", i, attr_diff_objs[i], attr_diff_nb[i]);
-  }
-  for (i=0; i<attr_clr_cnt; ++i) {
-    printf("Attr Clr %d: %d --> %d\n", i, attr_clr_objs[i], attr_clr_nb[i]);
-  }
-}
-
 // Given a list of action candidates, find the ones that lead to valid world changes.
-// candidate_actions contains a string with all the candidate actions, seperated by ';'
-// valid_actions will be written with each of the identified valid actions seperated by ';'
-// diff_array will be written with the world_diff for each valid_action indicating
-// which of the valid actions are equivalent to each other in terms of their world diffs.
+// 'candidate_actions' contains a string with all the candidate actions, seperated by ';'
+// 'valid_actions' will be written with each of the identified valid actions seperated by ';'
+// 'hashes' will be written with the resulting state hashe for each valid action indicating
+// which of the valid actions are equivalent to each other in terms of their state hashes.
 // Returns the number of valid actions found.
-int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array) {
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes) {
+
   char *act = NULL;
   char *act_newline = NULL;
   char *text;
-  short orig_score;
   int valid_cnt = 0;
   int v_idx = 0;
 
   // Variables used to store & reset game state
   unsigned char ram_cpy[h_dynamic_size];
   unsigned char stack_cpy[STACK_SIZE*sizeof(zword)];
-  int pc_cpy;
-  int sp_cpy;
-  int fp_cpy;
-  int next_opcode_cpy;
-  int frame_count_cpy;
-  long rngA_cpy;
-  int rngInterval_cpy;
-  int rngCounter_cpy;
 
   // Save the game state
   getRAM(ram_cpy);
   getStack(stack_cpy);
-  pc_cpy = getPC();
-  sp_cpy = getSP();
-  fp_cpy = getFP();
-  next_opcode_cpy = get_opcode();
-  frame_count_cpy = getFrameCount();
-  rngA_cpy = getRngA();
-  rngInterval_cpy = getRngInterval();
-  rngCounter_cpy = getRngCounter();
+  int pc_cpy = getPC();
+  int sp_cpy = getSP();
+  int fp_cpy = getFP();
+  int next_opcode_cpy = get_opcode();
+  int frame_count_cpy = getFrameCount();
+  long rngA_cpy = getRngA();
+  int rngInterval_cpy = getRngInterval();
+  int rngCounter_cpy = getRngCounter();
+  bool objects_state_changed_cpy = get_objects_state_changed();
+  bool special_ram_changed_cpy = get_special_ram_changed();
 
-  orig_score = get_score();
+  short orig_score = get_score();
 
   act = strtok(candidate_actions, ";");
   while (act != NULL)
@@ -1756,21 +1895,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
     act_newline = malloc(strlen(act) + 2);
     strcpy(act_newline, act);
     strcat(act_newline, "\n");
-
-    // Step: Code is copied due to inexplicable segfault when calling step() directly; Ugh!
-    move_diff_cnt = 0;
-    attr_diff_cnt = 0;
-    attr_clr_cnt = 0;
-    ram_diff_cnt = 0;
-    update_special_ram();
-    dumb_set_next_action(act_newline);
-    zstep();
-    run_free();
-    update_ram_diff();
-    text = dumb_get_screen();
-    text = clean_observation(text);
-    strcpy(world, text);
-    dumb_clear_screen();
+    text = jericho_step(act_newline);
 
     if (emulator_halted > 0) {
       printf("Emulator halted on action: %s\n", act);
@@ -1786,7 +1911,7 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
         valid_actions[v_idx++] = ';';
 
         // Write the world diff resulting from the last action.
-        get_cleaned_world_diff(&diff_array[128*valid_cnt], &diff_array[(128*valid_cnt) + 64]);
+        get_world_state_hash(&hashes[32*valid_cnt]);
         valid_cnt++;
       }
     }
@@ -1800,9 +1925,14 @@ int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword
     setFP(fp_cpy);
     set_opcode(next_opcode_cpy);
     setFrameCount(frame_count_cpy);
+    update_objs_tracker();
+    update_special_ram_tracker();
+    set_objects_state_changed(objects_state_changed_cpy);
+    set_special_ram_changed(special_ram_changed_cpy);
 
     act = strtok(NULL, ";");
     free(act_newline);
   }
+
   return valid_cnt;
 }

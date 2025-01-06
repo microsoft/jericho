@@ -12,6 +12,7 @@ CC ?= gcc
 
 # Enable compiler warnings. This is an absolute minimum.
 CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
+CFLAGS = -w
 
 # Define your optimization flags.
 #
@@ -20,7 +21,8 @@ CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
 # OPTS = -O3 -fomit-frame-pointer -falign-functions=2 -falign-loops=2 -falign-jumps=2 -fPIC
 OPTS = -O3 -fPIC
 # These are handy for debugging.
-# OPTS = $(CFLAGS) -g -fPIC
+# OPTS = $(CFLAGS) -O3 -g -fPIC  # With optimization (faster code)
+# OPTS = $(CFLAGS) -g -fPIC		 # Without optimization (slower code)
 # These are handy for profiling
 # OPTS = $(CFLAGS) -pg -fPIC
 

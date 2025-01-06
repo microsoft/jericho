@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,12 +24,12 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Omniquest: http://ifdb.tads.org/viewgame?id=mygqz9tzxqvryead
 
-const zword omniquest_special_ram_addrs[1] = {
-  2123 // Keep track of whether you've given sushi to samurai; Also 2135.
+const zword omniquest_special_ram_addrs[0] = {
+  // 2123 // Keep track of whether you've given sushi to samurai; Also 2135.
 };
 
 zword* omniquest_ram_addrs(int *n) {
-    *n = 1;
+    *n = 0;
     return omniquest_special_ram_addrs;
 }
 
@@ -100,11 +100,9 @@ int omniquest_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void omniquest_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=omniquest_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=omniquest_get_num_world_objs(); ++i) {
+      clear_attr(&objs[i], 24);
+      clear_attr(&objs[i], 25);
+  }
+  clear_prop(&objs[138], 40);  // (long_time)
 }

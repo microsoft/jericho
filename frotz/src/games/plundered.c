@@ -24,27 +24,37 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Plundered Hearts: http://ifdb.tads.org/viewgame?id=ddagftras22bnz8h
 
-const zword plundered_special_ram_addrs[1] = {
+const zword plundered_special_ram_addrs[10] = {
   729, // Tracks how far you have climbed the ladder
+  863, // Dip rag in water.
+  687, // Interacting with Lafond.
+  881, // Wait for Crulley to come back.
+  889, // Hit Crulley with coffer
+  1003, // Butler's falling asleep
+  1071, // Dialog with Jamison
+  1133, // In the cask, current pulling you.
+  1143, // Crocodile falling asleep.
+  9603, // Mast falls to the deck
 };
 
+const char *plundered_intro[] = { "\n" };
+
 zword* plundered_ram_addrs(int *n) {
-    *n = 1;
+    *n = 10;
     return plundered_special_ram_addrs;
 }
 
 char** plundered_intro_actions(int *n) {
-  *n = 0;
-  return NULL;
+  *n = 1;
+  return plundered_intro;
 }
 
 char* plundered_clean_observation(char* obs) {
-  char* pch;
-  pch = strchr(obs, '\n');
-  if (pch != NULL) {
-    return pch+1;
+  if (strstr(obs, ">SHOOT") != NULL){
+    return obs;
   }
-  return obs;
+
+  return obs + strspn(obs, "> \n");  // Skip leading prompt, whitespaces, and newlines.
 }
 
 int plundered_victory() {

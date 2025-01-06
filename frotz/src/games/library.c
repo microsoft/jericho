@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -26,9 +26,13 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *library_intro[] = { "\n" };
 
+const zword library_special_ram_addrs[1] = {
+  3594, // xyzzy (bonus point)
+};
+
 zword* library_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return library_special_ram_addrs;
 }
 
 char** library_intro_actions(int *n) {
@@ -98,11 +102,7 @@ int library_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void library_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7) & ~(1 << 6);
-    // Clear attr 24 & 25
-    for (i=1; i<=library_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  for (int i=1; i<=library_get_num_world_objs(); ++i) {
+    clear_attr(&objs[i], 8);
+  }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,9 +24,21 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Spellbreaker: http://ifdb.tads.org/viewgame?id=wqsmrahzozosu3r
 
+const zword spellbrkr_special_ram_addrs[9] = {
+  8987, // Notice the hole in the floor opens into thin air
+  8737, // Falling + carried by huge bird
+  8935, // Flying
+  9007, //:   2 : 104.sleep(5), 247.sleep(6)
+  8969, // Buying blue carpet.
+  8961, // water level in channel.
+  8857, // Move rock around.
+  8997, // ask belboz about me (alt. 9111)
+  8979, // Dialog with shadow.
+};
+
 zword* spellbrkr_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 9;
+    return spellbrkr_special_ram_addrs;
 }
 
 char** spellbrkr_intro_actions(int *n) {

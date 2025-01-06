@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -26,13 +26,15 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *snacktime_intro[] = { "\n" };
 
-const zword snacktime_special_ram_addrs[2] = {
+const zword snacktime_special_ram_addrs[5] = {
   20743, // Used to quantify how awake the pet is
-  8445 // Set when pet is fully awake
+  8445, // Set when pet is fully awake
+  20744, 9159, // Pushing the wand.
+  23769, // pet finished cleaning up
 };
 
 zword* snacktime_ram_addrs(int *n) {
-    *n = 2;
+    *n = 5;
     return snacktime_special_ram_addrs;
 }
 

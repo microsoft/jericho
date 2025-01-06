@@ -24,30 +24,34 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Ballyhoo: http://ifdb.tads.org/viewgame?id=b0i6bx7g4rkrekgg
 
-const zword ballyhoo_special_ram_addrs[19] = {
-  8835, // Lion
+const zword ballyhoo_special_ram_addrs[22] = {
+  8853, // Listen to the conversation with Munrab.
+  8623, // Crossing the tightrope
+  9113, // turnstile
+  8835, // Lion stand
   8723, // Give case to harry
-  9067, // buy candy
+  8639, // give money to hawker to buy candy
   8791, // stand
+  8893, // walking in the crowd
   9053, // get out of line
   8539, // tina
   8911, // radio
   8643, // tape
   9047, // radio on/off
-  8629, // search desk
+  // 8629, // search desk
   8759, // cards
   8989, // ladder
   2735, // veil
   1691, // dress
   8905, // mahler
-  8623, // tightrope
   8543, // tightrope
   8545, // wpdl
-  9113, // turnstile
+  8845, // read the spreadsheet
+  8525, // say hello Eddit to Chuckles.
 };
 
 zword* ballyhoo_ram_addrs(int *n) {
-    *n = 19;
+    *n = 22;
     return ballyhoo_special_ram_addrs;
 }
 
@@ -98,7 +102,7 @@ int ballyhoo_max_score() {
 }
 
 int ballyhoo_get_num_world_objs() {
-  return 235;
+  return 239;
 }
 
 int ballyhoo_ignore_moved_obj(zword obj_num, zword dest_num) {
@@ -106,20 +110,36 @@ int ballyhoo_ignore_moved_obj(zword obj_num, zword dest_num) {
 }
 
 int ballyhoo_ignore_attr_diff(zword obj_num, zword attr_idx) {
-  if (obj_num == 211 && attr_idx == 13)
-    return 1;
+  // if (obj_num == 211 && attr_idx == 13)
+  // if (obj_num == 211)
+    // return 1;
   if (attr_idx == 30)
     return 1;
   return 0;
 }
 
 int ballyhoo_ignore_attr_clr(zword obj_num, zword attr_idx) {
-  if (obj_num == 211 && attr_idx == 13)
-    return 1;
-  if (attr_idx == 20)
+  // if (obj_num == 211)
+    // return 1;
+  if (attr_idx == 20)  // TODO: Should it be attr 30 like in ballyhoo_ignore_attr_diff ?
     return 1;
   return 0;
 }
 
 void ballyhoo_clean_world_objs(zobject* objs) {
+  // Clear Attr30 for all objects.
+  for (int i=1; i<=ballyhoo_get_num_world_objs(); ++i) {
+      clear_attr(&objs[i], 30);
+  }
+
+  clear_attr(&objs[211], 13);  // it
+  clear_attr(&objs[175], 18);  // Menagerie
+  clear_attr(&objs[142], 12);  // concessistand
+
+  // Ignore Chuckles (the clown) movements.
+  objs[113].parent = 0;
+
+  // Ignore hawker movements.
+  objs[78].parent = 0;
+
 }

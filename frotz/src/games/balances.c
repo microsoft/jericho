@@ -24,19 +24,20 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Balances: http://ifdb.tads.org/viewgame?id=x6ne0bbd2oqm6h3a
 
-const zword balances_special_ram_addrs[8] = {
-    4162, // Write cave on cube
-    1217, // urbzig snake (Also 1219, 3776)
-    3760, // write chasm on cube
-    5086, // Give silver to barker
-    3327, // Keeps track of number of yomins memorized
-    5217, // write prize on featureless
-    4640, // write mace on featureless
-    4589, // Process to acquire the mace cube
+const zword balances_special_ram_addrs[0] = {
+    // 4162, // Write cave on cube
+    // 1217, // urbzig snake (Also 1219, 3776)
+    // 3760, // write chasm on cube
+    // 5086, // Give silver to barker
+    // 3327, // Keeps track of number of yomins memorized
+    // 5217, // write prize on featureless
+    // 4640, // write mace on featureless
+    // 4589, // Process to acquire the mace cube
+    // 1581, // urbzig toy and mace (Also 1583)
 };
 
 zword* balances_ram_addrs(int *n) {
-    *n = 8;
+    *n = 0;
     return balances_special_ram_addrs;
 }
 
@@ -107,11 +108,22 @@ int balances_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void balances_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7);
-    // Clear attr 24
-    for (i=1; i<=balances_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
-    }
+  // Zero out attribute 8, 25 and 31 for all objects.
+  // attr[0]  attr[1]  attr[2]  attr[3]
+  // 11111111 01111111 11111111 11111110
+  char mask1 = 0b01111111;  // Attr 8
+  char mask3 = 0b10111110;  // Attr 25, 31
+  for (int i=1; i<=balances_get_num_world_objs(); ++i) {
+      objs[i].attr[1] &= mask1;
+      objs[i].attr[3] &= mask3;
+  }
+
+  int N;
+  // Zero out the lobal_spell's counter.
+  N = 4;  // Prop40.
+  memset(&objs[65].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[65].prop_lengths[N-1] * sizeof(zbyte));
+
+  // Zero out the buck-toothed cyclops's counter.
+  N = 3;  // Prop40.
+  memset(&objs[86].prop_data[(N-1) * JERICHO_PROPERTY_LENGTH], 0, objs[86].prop_lengths[N-1] * sizeof(zbyte));
 }

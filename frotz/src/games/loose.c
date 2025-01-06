@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -26,13 +26,29 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 const char *loose_intro[] = { "\n" };
 
+const zword loose_special_ram_addrs[1] = {
+  13292, // going north to go home with your mother.
+};
+
 zword* loose_ram_addrs(int *n) {
-    *n = 0;
-    return NULL;
+    *n = 1;
+    return loose_special_ram_addrs;
 }
 
 char** loose_intro_actions(int *n) {
   *n = 1;
+
+  // Patch bug in source file.
+  // Routine 14370, 0 locals
+  // 14371:  JE              G00,#88 [FALSE] 1437e
+  // 14375:  CALL_VN         18cbc (Geb,#23)
+  //
+  // Geb refers to object 150 (hillside) where its property #23 is pointing
+  // to routine 14370 which ultimately creates an infinite recursive loop.
+  // Swapping Geb for G00, which refers to object 136 (hilltop), avoids the
+  // infinite loop and outputs the expected description of the hilltop.
+  zmp[0x14379] = 0x10;  // Replacing Geb with G00 in the above CALL_VN.
+
   return loose_intro;
 }
 
@@ -98,11 +114,18 @@ int loose_ignore_attr_clr(zword obj_num, zword attr_idx) {
 }
 
 void loose_clean_world_objs(zobject* objs) {
-    int i;
-    char mask;
-    mask = ~(1 << 7) & ~(1 << 6);
-    // Clear attr 24 & 25
-    for (i=1; i<=loose_get_num_world_objs(); ++i) {
-        objs[i].attr[3] &= mask;
+  for (int i=1; i<=loose_get_num_world_objs(); ++i) {
+    if (i != 99 && i != 101) {  // Except for 'knock' and 'ladder'.
+      clear_attr(&objs[i], 8);
     }
+
+    clear_attr(&objs[i], 25);
+  }
+
+  objs[176].parent = 0;
+  clear_attr(&objs[176], 3);
+
+  clear_prop(&objs[170], 41);  // Mary's counter.
+  clear_prop(&objs[125], 41);  // Clock Tower's counter.
+  clear_prop(&objs[174], 41);  // Mother Loose's counter.
 }

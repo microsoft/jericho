@@ -20,6 +20,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #ifndef frotz_interface_h__
 #define frotz_interface_h__
 
+#define JERICHO_NB_PROPERTIES 23  // Empirically found given Jericho's games.
+#define JERICHO_PROPERTY_LENGTH 64  // Empirically found given Jericho's games.
+
 typedef struct {
   unsigned int num;
   char name[64];
@@ -27,14 +30,16 @@ typedef struct {
   int sibling;
   int child;
   char attr[4];
-  unsigned char properties[16];
+  zbyte prop_ids[JERICHO_NB_PROPERTIES];
+  zbyte prop_lengths[JERICHO_NB_PROPERTIES];
+  zbyte prop_data[JERICHO_NB_PROPERTIES*JERICHO_PROPERTY_LENGTH];
 } zobject;
 
 extern char* setup(char *story_file, int seed, void* rom, size_t rom_size);
 
 extern void shutdown();
 
-extern char* step(char *next_action);
+extern char* jericho_step(char *next_action);
 
 extern int save(char *filename);
 
@@ -46,9 +51,11 @@ extern int getRAMSize();
 
 extern void getRAM(unsigned char *ram);
 
-int filter_candidate_actions(char *candidate_actions, char *valid_actions, zword *diff_array);
+int filter_candidate_actions(char *candidate_actions, char *valid_actions, char *hashes);
 
-extern char world[8192];
+extern bool skip_z_read_char;
+
+extern char world[256 + 8192];  // Upper + lower screens.
 
 extern int tw_max_score;
 
