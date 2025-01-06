@@ -29,12 +29,13 @@ const char *anchor_intro[] = { "\n", "\n", "\n" };
 const zword anchor_special_ram_addrs[3] = {
   // 21922, // Combination lock
   40660, // Bathe
+  40674, // Look in telescope
   // 38470, // Transitions between days
   // 37992, // Sleep
   8810, // Talking to Micheal
   // 18081, // Asking Bum about brother
   // 24928, // Turn c, w, h and e.
-  18839, // Being chased by a monster around the Old Stone Well.
+  // 18839, // Being chased by a monster around the Old Stone Well.
   // 31625, // Breaking door leading to Hallway.
   // 17267, // Ritual sequence in town square
   // 27970, // Opening the hatch and waiting for the sound.
@@ -91,6 +92,7 @@ short anchor_get_score() {
 
 int anchor_max_score() {
   return 100;
+  // return 99;
 }
 
 int anchor_get_num_world_objs() {

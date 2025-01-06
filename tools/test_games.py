@@ -513,19 +513,21 @@ SKIP_CHECK_STATE = {
     "anchor.z8": {
         "noop": [
             "read newspaper",# "read news in newspaper", "read sports in newspaper", "read features in newspaper",
-            "Look up Wilhelm in album", #"Look up Eustacia in album", "Look up Croseus in album",
+            "Look up Wilhelm in album", "Look up Eustacia in album", "Look up Croseus in album",
             "read slip of paper",
             "read wall",
             "read blueprint",
             "ask bum about himself", "ask bum about anna", "ask bum about crypt", "tell bum about skull",
-            "put mirror 1 in caliper"
+            "put mirror 1 in caliper",
+            'examine coffin', 'examine safe', 'look at bookshelf', 'look at controls', 'look at device', 'look at fireplace', 'look at furnace', 'look at ring', 'look at screen', 'look at window pane', 'look in displaycase', 'look in hole', 'look in overalls', 'look in safe', 'look in tear', 'look up croseus in album', 'look up edward in record', 'look up elijah inrecord', 'look up eustacia in album', 'look up heinrich in record', 'look up mordecai in record', 'look up wilhelm in album', 'look up wilhelm in record',
         ],
         "wait": [
             400,  # Waiting to hear something from within the hatch.
             471, 474,  # Waiting for the old man to meet his faith.
             494,  # Waiting for Michael to ask for the mirror.
             498, 499, 500, 501, 502, 503,  # Summoning sequence.
-        ]
+        ],
+        496: "look",  # Waiting for Michael to take up a torch from one of the crowd.
     },
     "awaken.z5": {
         4: "n",  # Dog blocks your path.
