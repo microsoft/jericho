@@ -197,7 +197,7 @@ enum SUPPORTED {
 
 // Set ROM_IDX according to the story_file.
 void load_rom_bindings(char *story_file) {
-  char md5_hash[32];
+  char md5_hash[64];
   char *start;
 
   FILE * f = fopen (story_file, "r");

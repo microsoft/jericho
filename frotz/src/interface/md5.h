@@ -12,9 +12,7 @@ typedef struct MD5state
   uint state[4];
 } MD5state;
 
-MD5state *nil;
-
 MD5state* md5(byte*, uint, byte*, MD5state*);
 void sum(FILE*, char*);
 
-#endif MD5_H
+#endif
