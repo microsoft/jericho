@@ -30,6 +30,8 @@ def get_zmp(env):
     #start = zmp.view(">u2")[6]  # ref: https://inform-fiction.org/zmachine/standards/z1point1/sect06.html#two
     #length = 240 * 2  # 240 2-byte global variables.
     #globals = zmp[start:start + length].view(">i2")
+    # Round up zmp to the nearest multiple of 16.
+    zmp = zmp[:len(zmp) - len(zmp) % 16]
     return zmp.view(">u2")
 
 
