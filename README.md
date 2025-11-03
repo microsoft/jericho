@@ -5,11 +5,11 @@
 <p>
 
 <p align="center">
-  <a href='https://jericho-py.readthedocs.io/en/latest/?badge=latest'>
-    <img src='https://readthedocs.org/projects/jericho-py/badge/?version=latest' alt='Documentation Status' />
+  <a href='https://ms-jericho.readthedocs.io/en/latest/?badge=latest'>
+    <img src='https://readthedocs.org/projects/ms-jericho/badge/?version=latest' alt='Documentation Status' />
   </a>
-  <a href='https://travis-ci.org/microsoft/jericho'>
-    <img src='https://travis-ci.org/microsoft/jericho.svg?branch=master' alt='Build Status' />
+  <a href='https://github.com/microsoft/jericho/actions'>
+    <img src='https://github.com/microsoft/jericho/actions/workflows/main.yml/badge.svg' alt='GitHub Actions Status' />
   </a>
   <a href='https://badge.fury.io/py/jericho'>
     <img src='https://badge.fury.io/py/jericho.svg' alt='PyPI version' />
@@ -23,7 +23,7 @@
 <br>
 
 ## Requirements
-***Linux***, ***Python 3.9+***, ***Spacy***, and basic build tools like ***gcc***,***make*** & ***curl***.
+***Linux***, ***Python 3.12+***, ***Spacy***, and basic build tools like ***gcc***,***make*** & ***curl***.
 
 ## Install
 ```bash
