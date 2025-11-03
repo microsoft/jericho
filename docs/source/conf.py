@@ -20,11 +20,11 @@ import sphinx_rtd_theme
 # -- Project information -----------------------------------------------------
 
 project = 'jericho'
-copyright = '2019, Matthew Hausknecht'
-author = 'Matthew Hausknecht'
+copyright = '2019-2025, Microsoft'
+author = 'Matthew Hausknecht and Marc-Alexandre Côté'
 
 # The full version, including alpha/beta/rc tags
-release = '1.3.1'
+release = '3.3.0'
 
 import os
 import sys

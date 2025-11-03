@@ -1,1 +1,1 @@
-Cython
+sphinx_rtd_theme
