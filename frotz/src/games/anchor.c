@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,9 +24,9 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Anchorhead: http://ifdb.tads.org/viewgame?id=op0uw1gn1tjqmjt7
 
-const char *anchor_intro[] = { "\n", "\n", "\n" };
+char *anchor_intro[] = { "\n", "\n", "\n" };
 
-const zword anchor_special_ram_addrs[4] = {
+zword anchor_special_ram_addrs[4] = {
   21922, // Combination lock
   40660, // Bathe
   38470, // Transitions between days

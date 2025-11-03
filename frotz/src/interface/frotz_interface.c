@@ -1649,7 +1649,7 @@ void get_object(zobject *obj, zword obj_num) {
   }
 
   (*obj).num = obj_num;
-  get_text(0, obj_name_addr+1, &(*obj).name);
+  get_text(0, obj_name_addr+1, (*obj).name);
 
   (*obj).parent = get_parent(obj_num);
   (*obj).sibling = get_sibling(obj_num);

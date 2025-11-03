@@ -36,7 +36,7 @@ const zword curses_special_ram_addrs[9] = {
   20911, // Turn sceptre
 };
 
-const char *curses_intro[] = { "\n" };
+char *curses_intro[] = { "\n" };
 
 zword* curses_ram_addrs(int *n) {
     *n = 9;

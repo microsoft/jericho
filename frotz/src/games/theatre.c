@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ const zword theatre_special_ram_addrs[2] = {
   17834, // Track watch hand
 };
 
-const char *theatre_intro[] = { "\n" };
+char *theatre_intro[] = { "\n" };
 
 zword* theatre_ram_addrs(int *n) {
     *n = 2;

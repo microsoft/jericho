@@ -32,9 +32,11 @@ const zword hollywood_special_ram_addrs[5] = {
   8381, // Safe dial
 };
 
-const char *hollywood_intro[] = { "turn statue west\n",
-                                  "turn statue east\n",
-                                  "turn statue north\n" };
+char *hollywood_intro[] = {
+  "turn statue west\n",
+  "turn statue east\n",
+  "turn statue north\n"
+};
 
 zword* hollywood_ram_addrs(int *n) {
     *n = 5;

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Meteor, the Stone and a Long Glass of Sherbet: http://ifdb.tads.org/viewgame?id=273o81yvg64m4pkz
 
-const char *sherbet_intro[] = { " \n" };
+char *sherbet_intro[] = { " \n" };
 
 zword* sherbet_ram_addrs(int *n) {
     *n = 0;

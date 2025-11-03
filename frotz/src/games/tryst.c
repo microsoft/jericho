@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -45,7 +45,7 @@ const zword tryst_special_ram_addrs[18] = {
   9362, // Door
 };
 
-const char *tryst_intro[] = { "\n" };
+char *tryst_intro[] = { "\n" };
 
 zword* tryst_ram_addrs(int *n) {
     *n = 18;

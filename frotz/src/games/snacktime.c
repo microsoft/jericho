@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Snack Time!: http://ifdb.tads.org/viewgame?id=yr3y8s9k8e40hl5q
 
-const char *snacktime_intro[] = { "\n" };
+char *snacktime_intro[] = { "\n" };
 
 const zword snacktime_special_ram_addrs[2] = {
   20743, // Used to quantify how awake the pet is

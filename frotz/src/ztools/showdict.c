@@ -86,7 +86,7 @@ int dict_size;
 
         /* Display the text for the word */
 
-        decode_text_to_buffer(&word_address, &(dict_word->word));
+        decode_text_to_buffer(&word_address, dict_word->word);
 
         /* Get the data for each entry */
 

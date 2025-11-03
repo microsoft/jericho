@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -31,7 +31,7 @@ const zword huntdark_special_ram_addrs[4] = {
   8824, // Bats
 };
 
-const char *huntdark_intro[] = { "\n", "\n" };
+char *huntdark_intro[] = { "\n", "\n" };
 
 zword* huntdark_ram_addrs(int *n) {
     *n = 4;
