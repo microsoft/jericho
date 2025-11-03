@@ -17,8 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python_version: ['3.12'] #['3.9', '3.10', '3.11', '3.12']
-        compiler: ['clang', 'gcc', 'clang-15']
+        python_version: ['3.12', '3.13']
+        compiler: ['clang', 'gcc-12', 'gcc-14', 'clang-15']
         exclude:
           - os: ubuntu-latest
             compiler: 'clang-15'
