@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Mother Loose: http://ifdb.tads.org/viewgame?id=4wd3lyaxi4thp8qi
 
-const char *loose_intro[] = { "\n" };
+char *loose_intro[] = { "\n" };
 
 zword* loose_ram_addrs(int *n) {
     *n = 0;

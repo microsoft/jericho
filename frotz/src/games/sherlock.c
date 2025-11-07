@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Sherlock: http://ifdb.tads.org/viewgame?id=ug3qu521hze8bsvz
 
-const char *sherlock_intro[] = { "\n" };
+char *sherlock_intro[] = { "\n" };
 
 zword* sherlock_ram_addrs(int *n) {
     *n = 0;

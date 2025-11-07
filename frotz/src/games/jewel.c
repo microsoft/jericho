@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // The Jewel of Knowledge: http://ifdb.tads.org/viewgame?id=hu60gp1bgkhlo5yx
 
-const char *jewel_intro[] = { "bypass\n", "yes\n" };
+char *jewel_intro[] = { "bypass\n", "yes\n" };
 
 zword* jewel_ram_addrs(int *n) {
     *n = 0;

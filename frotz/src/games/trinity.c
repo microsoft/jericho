@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Trinity: http://ifdb.tads.org/viewgame?id=j18kjz80hxjtyayw
 
-const char *trinity_intro[] = { "\n" };
+char *trinity_intro[] = { "\n" };
 
 zword* trinity_ram_addrs(int *n) {
     *n = 0;

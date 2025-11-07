@@ -34,10 +34,12 @@ const zword lurking_special_ram_addrs[6] = {
   883, // Cutting line
 };
 
-const char *lurking_intro[] = { "sit on chair\n",
-                                "turn pc on\n",
-                                "login 872325412\n",
-                                "password uhlersoth\n" };
+char *lurking_intro[] = {
+  "sit on chair\n",
+  "turn pc on\n",
+  "login 872325412\n",
+  "password uhlersoth\n"
+};
 
 zword* lurking_ram_addrs(int *n) {
     *n = 6;

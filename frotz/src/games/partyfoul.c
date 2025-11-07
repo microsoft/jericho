@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,8 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Party Foul - http://ifdb.tads.org/viewgame?id=cqwq699i9qiqdju
 
-const char *partyfoul_intro[] = { "\n",
-                                  "no\n" };
+char *partyfoul_intro[] = { "\n", "no\n" };
 
 zword* partyfoul_ram_addrs(int *n) {
     *n = 0;

@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // All Quiet on the Library Front: http://ifdb.tads.org/viewgame?id=400zakqderzjnu1i
 
-const char *library_intro[] = { "\n" };
+char *library_intro[] = { "\n" };
 
 zword* library_ram_addrs(int *n) {
     *n = 0;

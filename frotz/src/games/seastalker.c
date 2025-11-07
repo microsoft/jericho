@@ -1,4 +1,4 @@
-/* 
+/*
 Copyright (C) 2018 Microsoft Corporation
 
 This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 // Seastalker: http://ifdb.tads.org/viewgame?id=56wb8hflec2isvzm
 
-const char *seastalker_intro[] = { "John\n", "Wayne\n", "yes\n" };
+char *seastalker_intro[] = { "John\n", "Wayne\n", "yes\n" };
 
 const zword seastalker_special_ram_addrs[1] = {
   9740, // Tracks scimitar location
@@ -32,7 +32,7 @@ const zword seastalker_special_ram_addrs[1] = {
 
 zword* seastalker_ram_addrs(int *n) {
     *n = 1;
-    return seastalker_ram_addrs;
+    return seastalker_special_ram_addrs;
 }
 
 char** seastalker_intro_actions(int *n) {
