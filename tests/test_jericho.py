@@ -1,6 +1,6 @@
 import os
 import sys
-import unittest
+import pytest
 from os.path import join as pjoin
 
 import jericho
@@ -96,10 +96,11 @@ def test_copy():
                 assert (obs, rew, done, info) == expected[j]
 
 
+@pytest.mark.skipif(not os.path.exists(pjoin(DATA_PATH, "roms", "yomomma.z8")), reason="Missing data: roms/yomomma.z8")
 def test_saving_opcode_in_state():
     # At some point in yomomma.z8, the player is asked to hit [enter] to continue.
     # Restoring to that particular state without setting the opcode appropriately
-    # would result in the emulated halting.
+    # would result in the emulator halting.
     COMMANDS = [
         'south', 'southeast', 'sit', 'wait', 'yes', 'west', 'north',  # Actions needed to reach the corner case.
         'get in stage',  # -> opcode == 246 (z_read_char)
@@ -112,9 +113,6 @@ def test_saving_opcode_in_state():
     ]
 
     rom = pjoin(DATA_PATH, "roms", "yomomma.z8")
-    if not os.path.exists(rom):
-        raise unittest.SkipTest("Missing data: {}".format(rom))
-
     env = jericho.FrotzEnv(rom)
     env.reset()
 
