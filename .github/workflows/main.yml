@@ -18,10 +18,14 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
         python_version: ['3.12', '3.13']
-        compiler: ['clang', 'gcc-12', 'gcc-14', 'clang-15']
+        compiler: ['clang', 'gcc-12', 'gcc-14', 'gcc-15', 'clang-15']
         exclude:
           - os: ubuntu-latest
             compiler: 'clang-15'
+          - os: ubuntu-latest
+            compiler: 'gcc-15'
+          - os: macos-latest
+            compiler: 'gcc-12'
 
     steps:
       - name: Checkout repository
