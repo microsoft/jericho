@@ -18,7 +18,7 @@ CFLAGS += -Wall -Wextra -std=gnu99 -fPIC -Werror=implicit-function-declaration
 # These are good for regular use.
 # OPTS = -O2 -fomit-frame-pointer -falign-functions=2 -falign-loops=2 -falign-jumps=2 -fPIC
 # OPTS = -O3 -fomit-frame-pointer -falign-functions=2 -falign-loops=2 -falign-jumps=2 -fPIC
-OPTS = -O3 -fPIC
+OPTS = -O3 -std=gnu99 -fPIC
 # These are handy for debugging.
 # OPTS = $(CFLAGS) -g -fPIC
 # These are handy for profiling
