@@ -336,3 +336,6 @@ ASALocalRun/
 
 # Pip install files.
 *.egg-info/
+
+# Game ROMs
+roms/
