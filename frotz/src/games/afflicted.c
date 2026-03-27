@@ -89,7 +89,7 @@ short afflicted_get_score() {
 }
 
 int afflicted_max_score() {
-  return -113;
+  return 113;
 }
 
 int afflicted_get_num_world_objs() {
