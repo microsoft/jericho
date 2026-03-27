@@ -44,5 +44,6 @@ patterns.
 
 ### Walkthroughs (local)
 
-The `walkthroughs/` directory contains local walkthrough files for many games.
-These map game filenames to sequences of actions.
+This repository does not ship a `walkthroughs/` directory by default. If you
+create one locally, use it to store walkthrough files that map game filenames
+to sequences of actions.
