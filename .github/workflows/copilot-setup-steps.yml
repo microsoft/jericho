@@ -1,0 +1,50 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc make
+
+      - name: Install jericho in development mode
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.'
+          pip install pytest pytest-asyncio
+
+      - name: Download game ROMs from jericho-game-suite
+        run: |
+          GAME_SUITE_BASE_URL="https://raw.githubusercontent.com/BYU-PCCL/z-machine-games/master/jericho-game-suite"
+          mkdir -p roms
+          for rom in roms/*.z[0-9]; do
+            filename=$(basename "$rom")
+            if [ ! -f "roms/$filename" ] || [ ! -s "roms/$filename" ]; then
+              echo "Downloading $filename..."
+              curl -fsSL "$GAME_SUITE_BASE_URL/$filename" -o "roms/$filename" || echo "Warning: could not download $filename"
+            fi
+          done
