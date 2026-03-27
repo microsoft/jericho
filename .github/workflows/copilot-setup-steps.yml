@@ -1,0 +1,60 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # The job MUST be called `copilot-setup-steps` or it will not be picked up by Copilot.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.13"
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential gcc make
+
+      - name: Install jericho in development mode
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e '.'
+          pip install pytest pytest-asyncio
+
+      - name: Download game ROMs from jericho-game-suite
+        run: |
+          GAME_SUITE_BASE_URL="https://raw.githubusercontent.com/BYU-PCCL/z-machine-games/master/jericho-game-suite"
+          mkdir -p roms
+          ROMS=(
+            905.z5 acorncourt.z5 advent.z5 adventureland.z5 afflicted.z8
+            anchor.z8 awaken.z5 balances.z5 ballyhoo.z3 curses.z5
+            cutthroat.z3 deephome.z5 detective.z5 dragon.z5 enter.z5
+            gold.z5 hhgg.z3 hollywood.z3 huntdark.z5 infidel.z3
+            inhumane.z5 jewel.z5 karn.z5 library.z5 loose.z5
+            lostpig.z8 ludicorp.z5 lurking.z3 moonlit.z5 murdac.z5
+            night.z5 omniquest.z5 partyfoul.z8 pentari.z5 planetfall.z3
+            plundered.z3 reverb.z5 seastalker.z3 sherbet.z5 sherlock.z5
+            snacktime.z8 sorcerer.z3 spellbrkr.z3 spirit.z5 temple.z5
+            theatre.z5 trinity.z4 tryst205.z5 weapon.z5 wishbringer.z3
+            yomomma.z8 zenon.z5 zork1.z5 zork2.z5 zork3.z5 ztuu.z5
+          )
+          for filename in "${ROMS[@]}"; do
+            echo "Downloading $filename..."
+            curl -fsSL "$GAME_SUITE_BASE_URL/$filename" -o "roms/$filename" || echo "Warning: could not download $filename"
+          done
