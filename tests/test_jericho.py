@@ -80,12 +80,12 @@ def test_for_memory_leaks():
 def test_copy():
     rom = pjoin(DATA_PATH, "905.z5")
     env = jericho.FrotzEnv(rom)
-    env.reset()
+    env.reset(use_walkthrough_seed=True)
 
     walkthrough = env.get_walkthrough()
     expected = [env.step(act) for act in walkthrough]
 
-    env.reset()
+    env.reset(use_walkthrough_seed=True)
     for i, act in enumerate(walkthrough):
         obs, rew, done, info = env.step(act)
 

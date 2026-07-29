@@ -368,16 +368,25 @@ class TruncatedInputActionWarning(UserWarning):
     pass
 
 
+class ImplicitRandomSeedWarning(UserWarning):
+    pass
+
+
 class FrotzEnv():
     """
     The Frotz Environment is a fast interface to Z-Machine games.
 
     :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
     :param seed: Seed the random number generator used by the emulator.
-                 Default: use walkthrough's seed if it exists,
-                          otherwise use value of -1 which changes with time.
+                 Default: -1, i.e. the emulator's random number generator is
+                 seeded with the current time, making episodes stochastic.
     :type story_file: path
     :type seed: int
+
+    .. note:: Since Jericho 4.0, the seed needed to reproduce a game's walkthrough
+              is no longer used by default. To reproduce a walkthrough, either call
+              :meth:`jericho.FrotzEnv.reset` with `use_walkthrough_seed=True` or
+              provide :attr:`jericho.FrotzEnv.walkthrough_seed` as the `seed` argument.
 
     """
     def __init__(self, story_file, seed=None):
@@ -397,8 +406,8 @@ class FrotzEnv():
 
         :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
         :param seed: Seed the random number generator used by the emulator.
-                    Default: use walkthrough's seed if it exists,
-                            otherwise use value of -1 which changes with time.
+                    Default: -1, i.e. the emulator's random number generator is
+                    seeded with the current time, making episodes stochastic.
         :type story_file: path
         :type seed: int
         '''
@@ -434,30 +443,79 @@ class FrotzEnv():
         Changes seed used for the emulator's random number generator.
 
         :param seed: Seed the random number generator used by the emulator.
-                     Default: use walkthrough's seed if it exists,
-                              otherwise use value of -1 which changes with time.
+                     Default: -1, i.e. the emulator's random number generator is
+                     seeded with the current time, making episodes stochastic.
         :returns: The value of the seed.
 
         .. note:: :meth:`jericho.FrotzEnv.reset()` must be called before the seed takes effect.
 
-        '''
-        seed = seed or self.bindings.get('seed', -1)
-        self._seed = seed
-        return seed
+        .. note:: Since Jericho 4.0, calling this method without a seed no longer
+                  silently uses the game's walkthrough seed. Use
+                  :attr:`jericho.FrotzEnv.walkthrough_seed` or
+                  :meth:`jericho.FrotzEnv.reset` with `use_walkthrough_seed=True`
+                  to reproduce a walkthrough.
 
-    def reset(self):
+        '''
+        self._seed_is_explicit = seed is not None
+        self._seed = seed if seed is not None else -1
+        return self._seed
+
+    @property
+    def walkthrough_seed(self):
+        '''
+        Seed needed to reproduce this game's walkthrough, if it is known.
+
+        :returns: The walkthrough's seed, or `None` if the game has no known walkthrough seed.
+
+        :Example:
+
+        >>> import jericho
+        >>> env = jericho.FrotzEnv('zork1.z5')
+        >>> env.walkthrough_seed
+        12
+        >>> env.reset(use_walkthrough_seed=True)  # Same as env.seed(env.walkthrough_seed); env.reset()
+
+        '''
+        return self.bindings.get('seed')
+
+    def reset(self, use_walkthrough_seed=False):
         '''
         Resets the game.
 
         :param use_walkthrough_seed: Seed the emulator to reproduce the walkthrough.
+                                     Default: `False`, i.e. use the seed set with
+                                     :meth:`jericho.FrotzEnv.seed` (a time-dependent
+                                     seed, unless one was explicitly provided).
+        :type use_walkthrough_seed: bool
         :returns: A tuple containing the initial observation,\
         and a dictionary of info.
         :rtype: string, dictionary
 
+        .. note:: Using `use_walkthrough_seed=True` makes the game deterministic.
+                  As described in the Jericho paper, this is a *handicap* that
+                  should be disclosed when reporting results.
+
         '''
+        seed = self._seed
+        if use_walkthrough_seed:
+            if self.walkthrough_seed is None:
+                msg = ("No walkthrough seed is known for game '{}',"
+                       " using a time-dependent seed instead.").format(self.story_file.decode())
+                warnings.warn(msg, UnsupportedGameWarning)
+            else:
+                seed = self.walkthrough_seed
+
+        elif not self._seed_is_explicit and self.walkthrough_seed is not None:
+            msg = ("Since Jericho 4.0, the walkthrough seed ({}) of game '{}' is no longer used"
+                   " by default, i.e. this episode is stochastic (time-dependent seed)."
+                   " Call reset(use_walkthrough_seed=True) to reproduce the walkthrough,"
+                   " or provide an explicit seed (e.g. FrotzEnv(rom, seed=-1)) to silence"
+                   " this warning.").format(self.walkthrough_seed, self.story_file.decode())
+            warnings.warn(msg, ImplicitRandomSeedWarning)
+
         self.close()
         rom, _, _ = self._cache[self.story_file.decode()]
-        obs_ini = self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom)).decode('cp1252')
+        obs_ini = self.frotz_lib.setup(self.story_file, seed, rom, len(rom)).decode('cp1252')
         score = self.frotz_lib.get_score()
         return obs_ini, {'moves':self.get_moves(), 'score':score}
 
