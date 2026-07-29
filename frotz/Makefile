@@ -1,8 +1,8 @@
 # Define path for ar
-AR = /usr/bin/ar
+AR = $(shell which ar)
 
 # Define path for ranlib
-RANLIB = /usr/bin/ranlib
+RANLIB = $(shell which ranlib)
 
 # Define your C compiler.  I recommend gcc if you have it.
 # MacOS users should use "cc" even though it's really "gcc".
