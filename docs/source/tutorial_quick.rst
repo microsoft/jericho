@@ -135,7 +135,7 @@ Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.
                 >>> from jericho import *
                 >>> env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 >>> walkthrough = env.get_walkthrough()
-                >>> env.reset(use_walkthrough_seed=True)  # Equivalent to env.seed(env.walkthrough_seed); env.reset()
+                >>> env.reset(use_walkthrough_seed=True)  # Applies the walkthrough seed to this episode only.
                 >>> for act in walkthrough:
                 >>>     env.step(act)
 

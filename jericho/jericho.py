@@ -17,6 +17,7 @@
 import os
 import shutil
 import tempfile
+import operator
 import warnings
 import hashlib
 
@@ -372,6 +373,22 @@ class ImplicitRandomSeedWarning(UserWarning):
     pass
 
 
+def _resolve_seed(seed):
+    '''
+    Resolves a user-provided seed to the int handed to the emulator.
+
+    The emulator receives the seed as a C int; without a range check, a value
+    like 2**32-1 (e.g. from np.random.randint(2**32)) would silently wrap to
+    the -1 "time-dependent" sentinel, making an explicitly seeded env stochastic.
+    '''
+    if seed is None:
+        return -1
+    seed = operator.index(seed)  # Accepts any integer type; rejects e.g. floats.
+    if not -2**31 <= seed < 2**31:
+        raise ValueError("seed must fit in a signed 32-bit integer, got {}.".format(seed))
+    return seed
+
+
 class FrotzEnv():
     """
     The Frotz Environment is a fast interface to Z-Machine games.
@@ -434,9 +451,39 @@ class FrotzEnv():
 
         rom, self._bindings, self.act_gen = self._cache[story_file]
 
-        self.seed(seed)
+        # Track seed explicitness here rather than via seed(): a direct call
+        # to seed() is always an explicit choice, but the constructor default
+        # (seed=None) is not.
+        self._seed_is_explicit = seed is not None
+        self._seed = _resolve_seed(seed)
+        self._warned_implicit_seed = False
+        self._episode_seed_implicit = not self._seed_is_explicit
         self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom))
         self.player_obj_num = self.frotz_lib.get_self_object_num()
+
+    def _maybe_warn_implicit_seed(self, stacklevel):
+        '''
+        Warns (at most once per loaded game) when an episode is played without
+        an explicit seeding choice for a game whose walkthrough seed would
+        have been silently applied prior to Jericho 4.0. Called at the start
+        of the first episode interaction — reset() or, since stepping is
+        possible without calling reset(), the first step() — so that correct
+        usage such as `FrotzEnv(rom)` followed by
+        `reset(use_walkthrough_seed=True)` is never flagged.
+        '''
+        if not self._episode_seed_implicit or self._warned_implicit_seed:
+            return
+        if self.walkthrough_seed is None:
+            return
+        # Mark as warned *before* warning: under warnings.simplefilter("error")
+        # the user gets a single exception, not one per reset()/step() forever.
+        self._warned_implicit_seed = True
+        msg = ("Since Jericho 4.0, the walkthrough seed ({}) of game '{}' is no longer used"
+               " by default, i.e. this episode is stochastic (time-dependent seed)."
+               " Call reset(use_walkthrough_seed=True) to reproduce the walkthrough,"
+               " or make stochasticity explicit (e.g. FrotzEnv(rom, seed=-1) or env.seed(-1))"
+               " to silence this warning.").format(self.walkthrough_seed, self.story_file.decode())
+        warnings.warn(msg, ImplicitRandomSeedWarning, stacklevel=stacklevel)
 
     def seed(self, seed=None):
         '''
@@ -455,9 +502,14 @@ class FrotzEnv():
                   :meth:`jericho.FrotzEnv.reset` with `use_walkthrough_seed=True`
                   to reproduce a walkthrough.
 
+        .. note:: Calling this method counts as an explicit seeding choice, even
+                  without an argument (i.e. deliberately requesting a
+                  time-dependent seed), so subsequent episodes do not raise
+                  :class:`jericho.ImplicitRandomSeedWarning`.
+
         '''
-        self._seed_is_explicit = seed is not None
-        self._seed = seed if seed is not None else -1
+        self._seed_is_explicit = True
+        self._seed = _resolve_seed(seed)
         return self._seed
 
     @property
@@ -473,7 +525,7 @@ class FrotzEnv():
         >>> env = jericho.FrotzEnv('zork1.z5')
         >>> env.walkthrough_seed
         12
-        >>> env.reset(use_walkthrough_seed=True)  # Same as env.seed(env.walkthrough_seed); env.reset()
+        >>> env.reset(use_walkthrough_seed=True)  # Applies the walkthrough seed to this episode only.
 
         '''
         return self.bindings.get('seed')
@@ -495,23 +547,24 @@ class FrotzEnv():
                   As described in the Jericho paper, this is a *handicap* that
                   should be disclosed when reporting results.
 
+        .. note:: `use_walkthrough_seed=True` applies to this episode only: it does
+                  not modify the seed set with :meth:`jericho.FrotzEnv.seed`, so a
+                  subsequent plain `reset()` reverts to that seed. To make the
+                  walkthrough seed persistent, use `env.seed(env.walkthrough_seed)`.
+
         '''
         seed = self._seed
         if use_walkthrough_seed:
             if self.walkthrough_seed is None:
                 msg = ("No walkthrough seed is known for game '{}',"
-                       " using a time-dependent seed instead.").format(self.story_file.decode())
-                warnings.warn(msg, UnsupportedGameWarning)
+                       " using the environment's seed instead.").format(self.story_file.decode())
+                warnings.warn(msg, UnsupportedGameWarning, stacklevel=2)
             else:
                 seed = self.walkthrough_seed
 
-        elif not self._seed_is_explicit and self.walkthrough_seed is not None:
-            msg = ("Since Jericho 4.0, the walkthrough seed ({}) of game '{}' is no longer used"
-                   " by default, i.e. this episode is stochastic (time-dependent seed)."
-                   " Call reset(use_walkthrough_seed=True) to reproduce the walkthrough,"
-                   " or provide an explicit seed (e.g. FrotzEnv(rom, seed=-1)) to silence"
-                   " this warning.").format(self.walkthrough_seed, self.story_file.decode())
-            warnings.warn(msg, ImplicitRandomSeedWarning)
+        episode_explicit = self._seed_is_explicit or (use_walkthrough_seed and self.walkthrough_seed is not None)
+        self._episode_seed_implicit = not episode_explicit
+        self._maybe_warn_implicit_seed(stacklevel=3)
 
         self.close()
         rom, _, _ = self._cache[self.story_file.decode()]
@@ -534,6 +587,9 @@ class FrotzEnv():
         Note:
         - The action is converted to bytes and truncated to 198 characters.
         '''
+        # The env is playable without calling reset() first, so the implicit-seed
+        # warning must also cover episodes that begin with a step().
+        self._maybe_warn_implicit_seed(stacklevel=3)
         action_bytes = action.encode('utf-8')
         if len(action_bytes) > INPUT_BUFFER_SIZE:
             action_bytes = action_bytes[:INPUT_BUFFER_SIZE]
@@ -637,7 +693,7 @@ class FrotzEnv():
         '''
         Sets the game's internal state.
 
-        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, rng) as\
+        :param state: Tuple of (ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative) as\
         obtained by :meth:`jericho.FrotzEnv.get_state`.
         :type state: tuple
 
@@ -665,7 +721,7 @@ class FrotzEnv():
         Returns the internal game state. This state can be subsequently restored
         using :meth:`jericho.FrotzEnv.set_state`.
 
-        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, rng).
+        :returns: Tuple of (ram, stack, pc, sp, fp, frame_count, opcode, rng, narrative).
 
         >>> from jericho import *
         >>> env = FrotzEnv(rom_path)
@@ -694,9 +750,21 @@ class FrotzEnv():
         return self.frotz_lib.get_max_score()
 
     def copy(self):
-        ''' Forks this FrotzEnv instance. '''
+        ''' Forks this FrotzEnv instance.
+
+        The copy replays the current game faithfully (the emulator's RNG
+        registers are part of the copied state), but like the original, a
+        subsequent :meth:`jericho.FrotzEnv.reset` uses the seed set with
+        :meth:`jericho.FrotzEnv.seed` — not the seed of the episode being
+        copied, if that episode was started with `reset(use_walkthrough_seed=True)`.
+        '''
         state = self.get_state()
         env = FrotzEnv(self.story_file.decode(), seed=self._seed)
+        # Passing seed= above would make the copy count as explicitly seeded;
+        # carry over the original's bookkeeping instead.
+        env._seed_is_explicit = self._seed_is_explicit
+        env._warned_implicit_seed = self._warned_implicit_seed
+        env._episode_seed_implicit = self._episode_seed_implicit
         env.set_state(state)
         return env
 

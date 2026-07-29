@@ -54,8 +54,18 @@ that should be chosen and disclosed explicitly. Starting with version 4.0:
 - `FrotzEnv.reset()` accepts a `use_walkthrough_seed` argument to seed the emulator with the
   game's walkthrough seed, which is needed to reproduce the walkthrough.
 - `FrotzEnv.walkthrough_seed` returns the game's walkthrough seed, if it is known, otherwise `None`.
-- A `ImplicitRandomSeedWarning` is issued when resetting a game that has a walkthrough seed while
-  neither an explicit seed nor `use_walkthrough_seed` was provided.
+- An `ImplicitRandomSeedWarning` is issued (once per environment) when the first episode of a
+  game that has a walkthrough seed begins — via `reset()` or a direct `step()` — without an
+  explicit seeding choice. Providing any seed (e.g. `seed=-1` for time-dependent randomness),
+  calling `env.seed()`, or resetting with `use_walkthrough_seed=True` silences it.
+
+To keep the old behavior (e.g. to reproduce results published with Jericho ≤ 3.x), either pin
+`pip install 'jericho<4'` or seed explicitly: `env.seed(env.walkthrough_seed)` before `env.reset()`.
+
+> [!NOTE]
+> The time-dependent seed has one-second resolution, so unseeded environments created within
+> the same second play identical episodes. For parallel or vectorized runs, pass a distinct
+> explicit seed to each environment.
 
 ```python
 from jericho import FrotzEnv
