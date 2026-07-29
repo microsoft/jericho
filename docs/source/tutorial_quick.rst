@@ -56,6 +56,7 @@ Jericho implements a reinforcement learning interface in which the agent provide
 
                 from jericho import *
                 # Create the environment, optionally specifying a random seed
+                # (by default, the emulator is seeded with the current time).
                 env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 initial_observation, info = env.reset()
                 done = False
@@ -127,12 +128,15 @@ One of the most common difficulties with parser-based text games is identifying 
 Walkthroughs
 ------------
 
-Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.get_walkthrough`. To use the walkthrough, it is necessary to reset the environment with the desired seed:
+Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.get_walkthrough`. To reproduce a walkthrough, it is necessary to reset the environment with the game's walkthrough seed, which is available via :attr:`jericho.FrotzEnv.walkthrough_seed`:
 
 .. code-block:: python
 
                 >>> from jericho import *
                 >>> env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 >>> walkthrough = env.get_walkthrough()
+                >>> env.reset(use_walkthrough_seed=True)  # Equivalent to env.seed(env.walkthrough_seed); env.reset()
                 >>> for act in walkthrough:
                 >>>     env.step(act)
+
+.. note:: Since Jericho 4.0, an environment created without an explicit seed is stochastic, i.e. the emulator's random number generator is seeded with the current time. Seeding the emulator (e.g. with the walkthrough seed) is a *handicap*, as defined in the `Jericho paper <https://arxiv.org/abs/1909.05398>`_, and should be disclosed when reporting results.

@@ -43,6 +43,32 @@ python -m spacy download en_core_web_sm
 - [Utilities](https://jericho-py.readthedocs.io/en/latest/util.html)
 - [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
+## Breaking changes in Jericho 4.0
+
+Prior to version 4.0, creating an environment without specifying a seed would silently
+use the game's walkthrough seed (when known), making episodes deterministic. As described
+in the [Jericho paper](http://arxiv.org/abs/1909.05398), a fixed random seed is a *handicap*
+that should be chosen and disclosed explicitly. Starting with version 4.0:
+
+- `FrotzEnv(rom)` (i.e. without a seed) now uses a time-dependent seed, i.e. episodes are stochastic.
+- `FrotzEnv.reset()` accepts a `use_walkthrough_seed` argument to seed the emulator with the
+  game's walkthrough seed, which is needed to reproduce the walkthrough.
+- `FrotzEnv.walkthrough_seed` returns the game's walkthrough seed, if it is known, otherwise `None`.
+- A `ImplicitRandomSeedWarning` is issued when resetting a game that has a walkthrough seed while
+  neither an explicit seed nor `use_walkthrough_seed` was provided.
+
+```python
+from jericho import FrotzEnv
+
+env = FrotzEnv("zork1.z5")          # Stochastic (time-dependent seed).
+env = FrotzEnv("zork1.z5", seed=-1)  # Stochastic, explicitly (no warning).
+env = FrotzEnv("zork1.z5", seed=42)  # Deterministic with seed 42.
+
+env.reset()                          # Uses the seed above.
+env.reset(use_walkthrough_seed=True)  # Deterministic, reproduces env.get_walkthrough().
+print(env.walkthrough_seed)           # 12
+```
+
 ## Agents
 
 - [Reading Comprehension Deep Q-Network (RCDQN)](https://github.com/XiaoxiaoGuo/rcdqn)

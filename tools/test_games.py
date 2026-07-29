@@ -32,7 +32,7 @@ for filename in sorted(args.filenames):
         print(colored("SKIP\tMissing walkthrough", 'yellow'))
         continue
 
-    env.reset()
+    env.reset(use_walkthrough_seed=True)
 
     #walkthrough = bindings['walkthrough'].split('/')
     for cmd in env.get_walkthrough():
