@@ -15,6 +15,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import os
+import random
 import shutil
 import tempfile
 import operator
@@ -375,11 +376,11 @@ class ImplicitRandomSeedWarning(UserWarning):
 
 def _resolve_seed(seed):
     '''
-    Resolves a user-provided seed to the int handed to the emulator.
+    Resolves a user-provided seed to the int stored on the environment.
 
     The emulator receives the seed as a C int; without a range check, a value
     like 2**32-1 (e.g. from np.random.randint(2**32)) would silently wrap to
-    the -1 "time-dependent" sentinel, making an explicitly seeded env stochastic.
+    the -1 "stochastic" sentinel, making an explicitly seeded env stochastic.
     '''
     if seed is None:
         return -1
@@ -389,14 +390,21 @@ def _resolve_seed(seed):
     return seed
 
 
+# Episode seeds must stay distinct across forked workers (get_valid_actions'
+# mp.Pool) and independent of random.seed(); SystemRandom draws from OS
+# entropy with no process-local state, guaranteeing both.
+_SYSTEM_RNG = random.SystemRandom()
+
+
 class FrotzEnv():
     """
     The Frotz Environment is a fast interface to Z-Machine games.
 
     :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
     :param seed: Seed the random number generator used by the emulator.
-                 Default: -1, i.e. the emulator's random number generator is
-                 seeded with the current time, making episodes stochastic.
+                 Default: None (equivalent to -1), i.e. a fresh random seed is
+                 drawn for each episode, making episodes stochastic. The seed of the
+                 current episode is available as :attr:`jericho.FrotzEnv.episode_seed`.
     :type story_file: path
     :type seed: int
 
@@ -423,8 +431,9 @@ class FrotzEnv():
 
         :param story_file: Path to a Z-machine rom file (.z3/.z5/.z6/.z8).
         :param seed: Seed the random number generator used by the emulator.
-                    Default: -1, i.e. the emulator's random number generator is
-                    seeded with the current time, making episodes stochastic.
+                    Default: None (equivalent to -1), i.e. a fresh random seed is
+                    drawn for each episode, making episodes stochastic. The seed of the
+                    current episode is available as :attr:`jericho.FrotzEnv.episode_seed`.
         :type story_file: path
         :type seed: int
         '''
@@ -458,8 +467,24 @@ class FrotzEnv():
         self._seed = _resolve_seed(seed)
         self._warned_implicit_seed = False
         self._episode_seed_implicit = not self._seed_is_explicit
-        self.frotz_lib.setup(self.story_file, self._seed, rom, len(rom))
+        self.frotz_lib.setup(self.story_file, self._next_episode_seed(), rom, len(rom))
         self.player_obj_num = self.frotz_lib.get_self_object_num()
+
+    def _next_episode_seed(self):
+        '''
+        The concrete seed to hand to the emulator for the episode being started.
+
+        The stochastic sentinel (-1) must never reach the emulator: it would
+        trigger the `time(0)` fallback in `os_random_seed`, whose one-second
+        resolution makes e.g. parallel unseeded envs play identical episodes.
+        Resolving it here to a drawn seed also keeps every episode reproducible
+        after the fact (see :attr:`jericho.FrotzEnv.episode_seed`).
+        '''
+        if self._seed == -1:
+            self._episode_seed = _SYSTEM_RNG.getrandbits(31)
+        else:
+            self._episode_seed = self._seed
+        return self._episode_seed
 
     def _maybe_warn_implicit_seed(self, stacklevel):
         '''
@@ -479,10 +504,11 @@ class FrotzEnv():
         # the user gets a single exception, not one per reset()/step() forever.
         self._warned_implicit_seed = True
         msg = ("Since Jericho 4.0, the walkthrough seed ({}) of game '{}' is no longer used"
-               " by default, i.e. this episode is stochastic (time-dependent seed)."
+               " by default, i.e. this episode is stochastic (randomly drawn seed: {})."
                " Call reset(use_walkthrough_seed=True) to reproduce the walkthrough,"
                " or make stochasticity explicit (e.g. FrotzEnv(rom, seed=-1) or env.seed(-1))"
-               " to silence this warning.").format(self.walkthrough_seed, self.story_file.decode())
+               " to silence this warning.").format(self.walkthrough_seed, self.story_file.decode(),
+                                                   self._episode_seed)
         warnings.warn(msg, ImplicitRandomSeedWarning, stacklevel=stacklevel)
 
     def seed(self, seed=None):
@@ -490,9 +516,10 @@ class FrotzEnv():
         Changes seed used for the emulator's random number generator.
 
         :param seed: Seed the random number generator used by the emulator.
-                     Default: -1, i.e. the emulator's random number generator is
-                     seeded with the current time, making episodes stochastic.
-        :returns: The value of the seed.
+                     Default: None (equivalent to -1), i.e. a fresh random seed is
+                     drawn for each episode, making episodes stochastic. The seed of the
+                     current episode is available as :attr:`jericho.FrotzEnv.episode_seed`.
+        :returns: The value of the seed (-1 stands for "draw one per episode").
 
         .. note:: :meth:`jericho.FrotzEnv.reset()` must be called before the seed takes effect.
 
@@ -503,8 +530,8 @@ class FrotzEnv():
                   to reproduce a walkthrough.
 
         .. note:: Calling this method counts as an explicit seeding choice, even
-                  without an argument (i.e. deliberately requesting a
-                  time-dependent seed), so subsequent episodes do not raise
+                  without an argument (i.e. deliberately requesting stochastic
+                  episodes), so subsequent episodes do not raise
                   :class:`jericho.ImplicitRandomSeedWarning`.
 
         '''
@@ -530,18 +557,39 @@ class FrotzEnv():
         '''
         return self.bindings.get('seed')
 
+    @property
+    def episode_seed(self):
+        '''
+        The seed the emulator was seeded with at the start of the current episode.
+
+        For a stochastic env this is the randomly drawn seed of the episode, so any
+        episode can be reproduced after the fact, e.g. with
+        `FrotzEnv(rom, seed=env.episode_seed)`.
+
+        :returns: The current episode's seed.
+
+        .. note:: Restoring a mid-episode state with
+                  :meth:`jericho.FrotzEnv.set_state` does not update this value:
+                  the restored state carries the RNG registers of the episode it
+                  was captured from, not a seed.
+        '''
+        return self._episode_seed
+
     def reset(self, use_walkthrough_seed=False):
         '''
         Resets the game.
 
         :param use_walkthrough_seed: Seed the emulator to reproduce the walkthrough.
                                      Default: `False`, i.e. use the seed set with
-                                     :meth:`jericho.FrotzEnv.seed` (a time-dependent
+                                     :meth:`jericho.FrotzEnv.seed` (a randomly drawn
                                      seed, unless one was explicitly provided).
         :type use_walkthrough_seed: bool
         :returns: A tuple containing the initial observation,\
-        and a dictionary of info.
+        and a dictionary of info (including the `seed` used for this episode).
         :rtype: string, dictionary
+        :raises ValueError: If `use_walkthrough_seed=True` but no walkthrough seed
+                            is known for this game. Check
+                            `env.walkthrough_seed is None` to handle such games.
 
         .. note:: Using `use_walkthrough_seed=True` makes the game deterministic.
                   As described in the Jericho paper, this is a *handicap* that
@@ -553,24 +601,24 @@ class FrotzEnv():
                   walkthrough seed persistent, use `env.seed(env.walkthrough_seed)`.
 
         '''
-        seed = self._seed
         if use_walkthrough_seed:
             if self.walkthrough_seed is None:
-                msg = ("No walkthrough seed is known for game '{}',"
-                       " using the environment's seed instead.").format(self.story_file.decode())
-                warnings.warn(msg, UnsupportedGameWarning, stacklevel=2)
-            else:
-                seed = self.walkthrough_seed
+                raise ValueError(
+                    "No walkthrough seed is known for game '{}'. Check"
+                    " `env.walkthrough_seed is None` before requesting"
+                    " use_walkthrough_seed=True.".format(self.story_file.decode()))
+            seed = self._episode_seed = self.walkthrough_seed
+        else:
+            seed = self._next_episode_seed()
 
-        episode_explicit = self._seed_is_explicit or (use_walkthrough_seed and self.walkthrough_seed is not None)
-        self._episode_seed_implicit = not episode_explicit
+        self._episode_seed_implicit = not (self._seed_is_explicit or use_walkthrough_seed)
         self._maybe_warn_implicit_seed(stacklevel=3)
 
         self.close()
         rom, _, _ = self._cache[self.story_file.decode()]
         obs_ini = self.frotz_lib.setup(self.story_file, seed, rom, len(rom)).decode('cp1252')
         score = self.frotz_lib.get_score()
-        return obs_ini, {'moves':self.get_moves(), 'score':score}
+        return obs_ini, {'moves':self.get_moves(), 'score':score, 'seed':seed}
 
     def step(self, action):
         '''
@@ -765,6 +813,9 @@ class FrotzEnv():
         env._seed_is_explicit = self._seed_is_explicit
         env._warned_implicit_seed = self._warned_implicit_seed
         env._episode_seed_implicit = self._episode_seed_implicit
+        # set_state() below makes the fork replay the original's episode, so
+        # it must report the original's episode seed, not the one load() drew.
+        env._episode_seed = self._episode_seed
         env.set_state(state)
         return env
 

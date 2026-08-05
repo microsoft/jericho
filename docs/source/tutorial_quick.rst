@@ -56,7 +56,7 @@ Jericho implements a reinforcement learning interface in which the agent provide
 
                 from jericho import *
                 # Create the environment, optionally specifying a random seed
-                # (by default, the emulator is seeded with the current time).
+                # (by default, a fresh random seed is drawn for each episode).
                 env = FrotzEnv("z-machine-games-master/jericho-game-suite/zork1.z5")
                 initial_observation, info = env.reset()
                 done = False
@@ -139,4 +139,4 @@ Jericho provides walkthroughs for supported games using :meth:`jericho.FrotzEnv.
                 >>> for act in walkthrough:
                 >>>     env.step(act)
 
-.. note:: Since Jericho 4.0, an environment created without an explicit seed is stochastic, i.e. the emulator's random number generator is seeded with the current time. Seeding the emulator (e.g. with the walkthrough seed) is a *handicap*, as defined in the `Jericho paper <https://arxiv.org/abs/1909.05398>`_, and should be disclosed when reporting results.
+.. note:: Since Jericho 4.0, an environment created without an explicit seed is stochastic: a fresh random seed is drawn for each episode. The seed actually used is reported in the info dict returned by :meth:`jericho.FrotzEnv.reset` and via :attr:`jericho.FrotzEnv.episode_seed`, so any episode can be reproduced after the fact. Seeding the emulator (e.g. with the walkthrough seed) is a *handicap*, as defined in the `Jericho paper <https://arxiv.org/abs/1909.05398>`_, and should be disclosed when reporting results.

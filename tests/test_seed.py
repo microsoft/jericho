@@ -1,5 +1,4 @@
 import os
-import time
 import warnings
 from os.path import join as pjoin
 
@@ -26,7 +25,7 @@ def _quiet_env(*args, **kwargs):
         return jericho.FrotzEnv(*args, **kwargs)
 
 
-def test_default_seed_is_time_dependent():
+def test_default_seed_is_stochastic():
     # By default, the walkthrough seed should *not* be used silently.
     env = _quiet_env(ROM)
     assert env._seed == -1
@@ -46,7 +45,7 @@ def test_seed_validation():
     env = jericho.FrotzEnv(ROM, seed=42)
 
     # The emulator takes a C int; values that don't fit must not silently wrap.
-    # E.g. 2**32-1 would wrap to the -1 "time-dependent" sentinel, silently
+    # E.g. 2**32-1 would wrap to the -1 "stochastic" sentinel, silently
     # making an explicitly seeded env stochastic.
     for bad in (2**32 - 1, 2**31, -2**31 - 1):
         with pytest.raises(ValueError):
@@ -82,10 +81,13 @@ def test_constructor_episode_uses_explicit_seed():
 
 def test_constructor_episode_is_stochastic():
     # ...and without a seed it must not fall back to the walkthrough seed.
+    # Creating both envs within the same second is deliberate: seeds must come
+    # from OS entropy rather than a clock, so that e.g. parallel workers
+    # spawned together still play distinct episodes.
     env1 = _quiet_env(ROM)
-    time.sleep(1.1)  # The time-dependent seed has one-second resolution.
     env2 = _quiet_env(ROM)
     assert _rng_state(env1) != _rng_state(env2)
+    assert env1.episode_seed != env2.episode_seed
 
 
 def test_unseeded_resets_are_stochastic():
@@ -94,9 +96,33 @@ def test_unseeded_resets_are_stochastic():
         warnings.simplefilter("ignore", jericho.ImplicitRandomSeedWarning)
         env.reset()
         rng1 = _rng_state(env)
-        time.sleep(1.1)
-        env.reset()
+        env.reset()  # A reset within the same second must still differ.
     assert _rng_state(env) != rng1
+
+
+def test_episode_seed_reproduces_stochastic_episode():
+    env = _quiet_env(ROM)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", jericho.ImplicitRandomSeedWarning)
+        obs, info = env.reset()
+
+    # The drawn seed is surfaced both as a property and in the info dict...
+    assert info['seed'] == env.episode_seed
+
+    # ...and replaying with it reproduces the episode exactly.
+    replay = jericho.FrotzEnv(ROM, seed=env.episode_seed)
+    assert _rng_state(replay) == _rng_state(env)
+
+    # An explicitly seeded env reports its seed too.
+    env = jericho.FrotzEnv(ROM, seed=42)
+    assert env.episode_seed == 42
+    obs, info = env.reset()
+    assert info['seed'] == 42
+
+    # A walkthrough-seeded episode reports the walkthrough seed.
+    env = jericho.FrotzEnv(ROM)
+    obs, info = env.reset(use_walkthrough_seed=True)
+    assert info['seed'] == env.walkthrough_seed == env.episode_seed
 
 
 def test_warning_when_using_implicit_random_seed():
@@ -124,7 +150,7 @@ def test_warning_when_using_implicit_random_seed():
         jericho.FrotzEnv(ROM).reset(use_walkthrough_seed=True)
 
         env = jericho.FrotzEnv(ROM)
-        env.seed()  # Deliberate request for time-dependent randomness.
+        env.seed()  # Deliberate request for stochastic episodes.
         env.reset()
 
     # No warning for games without a walkthrough seed.
@@ -139,6 +165,7 @@ def test_copy_preserves_seed_bookkeeping():
 
     # The fork replays the parent's episode faithfully...
     assert _rng_state(fork) == _rng_state(env)
+    assert fork.episode_seed == env.episode_seed
     # ...and keeps the parent's seed bookkeeping instead of silently becoming
     # "explicitly seeded" via the seed= constructor argument copy() uses.
     assert fork._seed_is_explicit == env._seed_is_explicit
@@ -154,15 +181,17 @@ def test_copy_preserves_seed_bookkeeping():
 
 
 def test_reset_with_walkthrough_seed_but_no_bindings():
+    # The caller asked for a specific deterministic setup that cannot be
+    # honored; silently substituting another seed would be the same trap as
+    # silently applying one (#84), so this must raise instead.
     env = jericho.FrotzEnv(ROM_NO_BINDINGS, seed=42)
-    with pytest.warns(jericho.UnsupportedGameWarning, match="environment's seed"):
-        env.reset(use_walkthrough_seed=True)
-    # It falls back to the env's seed (not a time-dependent one).
+    env.reset()
     rng1 = _rng_state(env)
-    time.sleep(1.1)
-    with pytest.warns(jericho.UnsupportedGameWarning):
+    with pytest.raises(ValueError, match="walkthrough seed"):
         env.reset(use_walkthrough_seed=True)
+    # The failed reset must not have touched the current episode.
     assert _rng_state(env) == rng1
+    env.step('look')  # Still playable.
 
 
 def test_reset_with_walkthrough_seed_applies_the_walkthrough_seed():
@@ -211,6 +240,6 @@ def test_set_state_restores_rng_across_envs():
             env.step(act)
     state = env.get_state()
 
-    worker = jericho.FrotzEnv(ROM, seed=-1)  # Different time-dependent seed.
+    worker = jericho.FrotzEnv(ROM, seed=-1)  # Different randomly drawn seed.
     worker.set_state(state)
     assert _rng_state(worker) == _rng_state(env)
