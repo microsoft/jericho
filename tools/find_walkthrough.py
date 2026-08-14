@@ -23,7 +23,7 @@ args = parse_args()
 
 history = []
 env = jericho.FrotzEnv(args.filename)
-obs, info = env.reset()
+obs, info = env.reset(use_walkthrough_seed=True)
 
 history.append(env.get_state())
 

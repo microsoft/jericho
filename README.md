@@ -43,6 +43,42 @@ python -m spacy download en_core_web_sm
 - [Utilities](https://jericho-py.readthedocs.io/en/latest/util.html)
 - [Defines](https://jericho-py.readthedocs.io/en/latest/defines.html)
 
+## Breaking changes in Jericho 4.0
+
+Prior to version 4.0, creating an environment without specifying a seed would silently
+use the game's walkthrough seed (when known), making episodes deterministic. As described
+in the [Jericho paper](http://arxiv.org/abs/1909.05398), a fixed random seed is a *handicap*
+that should be chosen and disclosed explicitly. Starting with version 4.0:
+
+- `FrotzEnv(rom)` (i.e. without a seed) is now stochastic: a fresh random seed is drawn for
+  each episode. The seed actually used is reported in `reset()`'s info dict and as
+  `FrotzEnv.episode_seed`, so any episode can be reproduced after the fact.
+- `FrotzEnv.reset()` accepts a `use_walkthrough_seed` argument to seed the emulator with the
+  game's walkthrough seed, which is needed to reproduce the walkthrough. It raises `ValueError`
+  if the game has no known walkthrough seed (check `env.walkthrough_seed is None`).
+- `FrotzEnv.walkthrough_seed` returns the game's walkthrough seed, if it is known, otherwise `None`.
+- An `ImplicitRandomSeedWarning` is issued (once per environment) when the first episode of a
+  game that has a walkthrough seed begins — via `reset()` or a direct `step()` — without an
+  explicit seeding choice. Providing any seed (e.g. `seed=-1` to explicitly request random episodes),
+  calling `env.seed()`, or resetting with `use_walkthrough_seed=True` silences it.
+
+To keep the old behavior (e.g. to reproduce results published with Jericho ≤ 3.x), either pin
+`pip install 'jericho<4'` or seed explicitly: `env.seed(env.walkthrough_seed)` before `env.reset()`.
+
+```python
+from jericho import FrotzEnv
+
+env = FrotzEnv("zork1.z5")  # Stochastic (a random seed is drawn per episode).
+obs, info = env.reset()     # info['seed'] (also env.episode_seed) is the drawn seed.
+replay = FrotzEnv("zork1.z5", seed=info['seed'])  # Reproduces the episode above.
+
+env = FrotzEnv("zork1.z5", seed=-1)  # Stochastic, explicitly (no warning).
+env = FrotzEnv("zork1.z5", seed=42)  # Deterministic with seed 42.
+
+env.reset(use_walkthrough_seed=True)  # Deterministic, reproduces env.get_walkthrough().
+print(env.walkthrough_seed)           # 12
+```
+
 ## Agents
 
 - [Reading Comprehension Deep Q-Network (RCDQN)](https://github.com/XiaoxiaoGuo/rcdqn)

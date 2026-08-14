@@ -14,7 +14,7 @@ def test_multiple_instances():
     gamefile2 = pjoin(DATA_PATH, "tw-game.z8")
 
     # Make sure both frotz_lib have different handles.
-    env1 = jericho.FrotzEnv(gamefile1)
+    env1 = jericho.FrotzEnv(gamefile1, seed=-1)
     env2 = jericho.FrotzEnv(gamefile2)
     assert env1.frotz_lib._handle != env2.frotz_lib._handle
 
@@ -47,7 +47,7 @@ def test_for_memory_leaks():
         unit = 1024 * 1024
 
     gamefile1 = pjoin(DATA_PATH, "905.z5")
-    env1 = jericho.FrotzEnv(gamefile1)
+    env1 = jericho.FrotzEnv(gamefile1, seed=-1)
     env1.reset()
     del env1
 
@@ -55,7 +55,7 @@ def test_for_memory_leaks():
     print('Memory usage: {:.1f}MB'.format(mem_start / unit))
     for _ in range(1000):
         # Make sure we don't have memory leak.
-        env1 = jericho.FrotzEnv(gamefile1)
+        env1 = jericho.FrotzEnv(gamefile1, seed=-1)
         env1.reset()
         del env1
 
@@ -64,7 +64,7 @@ def test_for_memory_leaks():
            mem_mid / unit, (mem_mid-mem_start) / unit ))
 
     for _ in range(1000):
-        env1 = jericho.FrotzEnv(gamefile1)
+        env1 = jericho.FrotzEnv(gamefile1, seed=-1)
         env1.reset()
         del env1
 
@@ -80,12 +80,12 @@ def test_for_memory_leaks():
 def test_copy():
     rom = pjoin(DATA_PATH, "905.z5")
     env = jericho.FrotzEnv(rom)
-    env.reset()
+    env.reset(use_walkthrough_seed=True)
 
     walkthrough = env.get_walkthrough()
     expected = [env.step(act) for act in walkthrough]
 
-    env.reset()
+    env.reset(use_walkthrough_seed=True)
     for i, act in enumerate(walkthrough):
         obs, rew, done, info = env.step(act)
 
@@ -113,7 +113,7 @@ def test_saving_opcode_in_state():
     ]
 
     rom = pjoin(DATA_PATH, "roms", "yomomma.z8")
-    env = jericho.FrotzEnv(rom)
+    env = jericho.FrotzEnv(rom, seed=-1)
     env.reset()
 
     state = None
@@ -129,7 +129,7 @@ def test_saving_opcode_in_state():
 
 def test_very_long_action():
     rom = pjoin(DATA_PATH, "905.z5")
-    env = jericho.FrotzEnv(rom)
+    env = jericho.FrotzEnv(rom, seed=-1)
     env.reset()
 
     long_command = "It's a " + "very " * 36 + "long action!"
